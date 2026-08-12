@@ -586,7 +586,7 @@
                     </div>
                 </div>
 
-                <!-- KOLOM KANAN: GRAFIK & CHART KOMBINASI BULANAN -->
+                <!-- KOLOM KANAN: GRAFIK & CHART -->
                 <div class="lg:col-span-3 space-y-6">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
@@ -632,15 +632,15 @@
                         </div>
                     </div>
 
-                    <!-- REPLACEMENT: CHART KOMBINASI BULANAN UTAMA VS PEMBANDING -->
+                    <!-- CHART BATANG BERDAMPINGAN: UTAMA VS PEMBANDING -->
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
                         <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                             <div>
                                 <h3 class="font-bold text-slate-800 text-base">Analisa Perbandingan DPP Bulanan: Utama vs Pembanding</h3>
-                                <p class="text-xs text-slate-400">Perbandingan total DPP per bulan secara utuh (tidak terpengaruh filter tanggal)</p>
+                                <p class="text-xs text-slate-400">Perbandingan side-by-side total DPP per bulan secara utuh</p>
                             </div>
                         </div>
-                        <div class="relative min-h-[300px]">
+                        <div class="relative min-h-[320px]">
                             <canvas id="revenueMonthlyComparisonChart"></canvas>
                         </div>
                     </div>
@@ -913,6 +913,14 @@
             const month = monthsShort[parsed.getMonth()];
             const year = String(parsed.getFullYear()).slice(-2);
             return `${day}-${month}-${year}`;
+        }
+
+        function formatShortIDR(val) {
+            if (val === 0 || isNaN(val)) return '0';
+            if (val >= 1000000000) return `${(val / 1000000000).toFixed(1)}M`;
+            if (val >= 1000000) return `${(val / 1000000).toFixed(0)}Jt`;
+            if (val >= 1000) return `${(val / 1000).toFixed(0)}Rb`;
+            return val.toString();
         }
 
         function processBookingData(rows) {
@@ -1289,7 +1297,7 @@
             });
         }
 
-        // ================= PENDAPATAN BENGKEL LOGIC (DYNAMIC HEADER MAPPING) =================
+        // ================= PENDAPATAN BENGKEL LOGIC =================
         function parseNumericValue(val) {
             if (!val) return 0;
             const strVal = String(val).trim();
@@ -1460,7 +1468,6 @@
                 return `Rp ${val.toLocaleString('id-ID')}`;
             };
 
-            // Update Nilai Utama (Periode Utama)
             document.getElementById('kpiTotalRevenue').textContent = formatIDR(totalDpp);
             document.getElementById('kpiJasaUmum').textContent = formatIDR(totalJasa);
             document.getElementById('kpiPart').textContent = formatIDR(totalPart);
@@ -1468,7 +1475,6 @@
             document.getElementById('kpiBahan').textContent = formatIDR(totalBahan);
             document.getElementById('kpiSublet').textContent = formatIDR(totalSublet);
 
-            // Update Nilai Pembanding (Periode Pembanding)
             document.getElementById('kpiCompTotalRevenue').textContent = formatIDR(compDpp);
             document.getElementById('kpiCompJasaUmum').textContent = formatIDR(compJasa);
             document.getElementById('kpiCompPart').textContent = formatIDR(compPart);
@@ -1476,7 +1482,6 @@
             document.getElementById('kpiCompBahan').textContent = formatIDR(compBahan);
             document.getElementById('kpiCompSublet').textContent = formatIDR(compSublet);
 
-            // Hitung Persentase Growth
             const growthDpp = calculateCustomGrowth('dpp');
             const growthJasa = calculateCustomGrowth('jasaUmum');
             const growthPart = calculateCustomGrowth('part');
@@ -1569,7 +1574,13 @@
                     responsive: true, maintainAspectRatio: false,
                     plugins: {
                         legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } },
-                        datalabels: { display: false },
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            color: '#065f46',
+                            font: { weight: 'bold', size: 9 },
+                            formatter: (value) => value > 0 ? formatShortIDR(value) : ''
+                        },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
@@ -1621,7 +1632,15 @@
                     responsive: true, maintainAspectRatio: false, cutout: '70%',
                     plugins: {
                         legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } },
-                        datalabels: { display: false },
+                        datalabels: {
+                            color: '#ffffff',
+                            font: { weight: 'bold', size: 10 },
+                            formatter: (value, ctx) => {
+                                let sum = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                let percentage = sum > 0 ? ((value * 100) / sum).toFixed(1) + "%" : "";
+                                return value > 0 ? percentage : '';
+                            }
+                        },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
@@ -1662,7 +1681,13 @@
                     responsive: true, maintainAspectRatio: false,
                     plugins: {
                         legend: { display: false },
-                        datalabels: { display: false },
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            color: '#312e81',
+                            font: { weight: 'bold', size: 9 },
+                            formatter: (value) => value > 0 ? formatShortIDR(value) : ''
+                        },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
@@ -1691,95 +1716,69 @@
             const monthsShort = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
             const selectedSa = document.getElementById('filterRevSa')?.value || 'ALL';
 
-            // Menggunakan rawRevenueData secara utuh (tidak terpengaruh filter tanggal harian, hanya filter SA)
             const baseRaw = rawRevenueData.filter(item => {
                 if (selectedSa !== 'ALL' && item.sa !== selectedSa) return false;
                 return true;
             });
 
-            const mainMonthlyMap = {};
-            const compMonthlyMap = {};
             const allMonthsSet = new Set();
-
             baseRaw.forEach(item => {
                 const pDate = parseUniversalDate(item.rawDate);
                 if (!pDate) return;
                 const mKey = `${pDate.getFullYear()}-${String(pDate.getMonth() + 1).padStart(2, '0')}`;
-                const mLabel = `${monthsShort[pDate.getMonth()]} ${pDate.getFullYear()}`;
                 allMonthsSet.add(mKey);
-
-                // Asumsi pemisahan data Utama vs Pembanding berdasarkan filter tanggal aktif jika diset, 
-                // namun untuk chart bulanan utuh kita kelompokkan per bulan dari dataset keseluruhan
             });
 
-            // Agregasi Bulanan Utuh
+            // Agregasi Bulanan Utama
             const monthlyData = {};
             baseRaw.forEach(item => {
                 const pDate = parseUniversalDate(item.rawDate);
                 if (!pDate) return;
                 const mKey = `${pDate.getFullYear()}-${String(pDate.getMonth() + 1).padStart(2, '0')}`;
-                const mLabel = `${monthsShort[pDate.getMonth()]} ${pDate.getFullYear()}`;
-                
-                if (!monthlyData[mKey]) {
-                    monthlyData[mKey] = { label: mLabel, utama: 0, pembanding: 0 };
-                }
-                // Jika masuk dalam rentang filter utama
-                monthlyData[mKey].utama += item.dpp;
+                if (!monthlyData[mKey]) monthlyData[mKey] = 0;
+                monthlyData[mKey] += item.dpp;
             });
 
-            // Untuk perbandingan pembanding bulanan, kita ambil dari filteredCompRevenueData (jika ada) atau data keseluruhan pembanding
-            const compRaw = rawRevenueData.filter(item => {
-                if (selectedSa !== 'ALL' && item.sa !== selectedSa) return false;
-                return true;
-            });
-
+            // Agregasi Bulanan Pembanding (Dari dataset keseluruhan / pembanding)
             const monthlyCompData = {};
-            compRaw.forEach(item => {
+            filteredCompRevenueData.forEach(item => {
+                if (selectedSa !== 'ALL' && item.sa !== selectedSa) return;
                 const pDate = parseUniversalDate(item.rawDate);
                 if (!pDate) return;
-                // Geser atau cocokkan bulan pembanding
                 const mKey = `${pDate.getFullYear()}-${String(pDate.getMonth() + 1).padStart(2, '0')}`;
-                if (!monthlyCompData[mKey]) {
-                    monthlyCompData[mKey] = 0;
-                }
+                allMonthsSet.add(mKey);
+                if (!monthlyCompData[mKey]) monthlyCompData[mKey] = 0;
                 monthlyCompData[mKey] += item.dpp;
             });
 
             const sortedKeys = Array.from(allMonthsSet).sort();
             const labels = sortedKeys.map(k => {
                 const [y, m] = k.split('-');
-                return `${monthsShort[parseInt(m, 10) - 1]} ${y}`;
+                return `${monthsShort[parseInt(m, 10) - 1]} ${y.slice(-2)}`;
             });
 
-            const dataUtama = sortedKeys.map(k => monthlyData[k]?.utama || 0);
+            const dataUtama = sortedKeys.map(k => monthlyData[k] || 0);
             const dataPembanding = sortedKeys.map(k => monthlyCompData[k] || 0);
 
             if (revenueMonthlyComparisonChartInstance) revenueMonthlyComparisonChartInstance.destroy();
 
             const ctx = document.getElementById('revenueMonthlyComparisonChart').getContext('2d');
             revenueMonthlyComparisonChartInstance = new Chart(ctx, {
-                type: 'bar', // Kombinasi Bar & Line
+                type: 'bar', // Batang Berdampingan (Side-by-Side)
                 data: {
                     labels: labels,
                     datasets: [
                         {
-                            type: 'bar',
-                            label: 'DPP Bulanan Utama (Rp)',
+                            label: 'Periode Utama (Rp)',
                             data: dataUtama,
-                            backgroundColor: '#10b981',
-                            borderRadius: 6,
-                            order: 2
+                            backgroundColor: '#10b981', // Hijau
+                            borderRadius: 6
                         },
                         {
-                            type: 'line',
-                            label: 'DPP Bulanan Pembanding (Rp)',
+                            label: 'Periode Pembanding (Rp)',
                             data: dataPembanding,
-                            borderColor: '#6366f1',
-                            backgroundColor: '#6366f120',
-                            borderWidth: 3,
-                            tension: 0.3,
-                            fill: false,
-                            order: 1
+                            backgroundColor: '#6366f1', // Indigo
+                            borderRadius: 6
                         }
                     ]
                 },
@@ -1787,7 +1786,13 @@
                     responsive: true, maintainAspectRatio: false,
                     plugins: {
                         legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } },
-                        datalabels: { display: false },
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            color: '#1e293b',
+                            font: { weight: 'bold', size: 9 },
+                            formatter: (value) => value > 0 ? formatShortIDR(value) : ''
+                        },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
