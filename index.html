@@ -632,15 +632,15 @@
                         </div>
                     </div>
 
-                    <!-- CHART BATANG BERDAMPINGAN: UTAMA VS PEMBANDING -->
+                    <!-- CHART KOMBINASI (SIDE-BY-SIDE BAR + LINE) UNTUK BULAN YANG SAMA -->
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
                         <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                             <div>
-                                <h3 class="font-bold text-slate-800 text-base">Analisa Perbandingan DPP Bulanan: Utama vs Pembanding</h3>
-                                <p class="text-xs text-slate-400">Perbandingan side-by-side total DPP per bulan secara utuh</p>
+                                <h3 class="font-bold text-slate-800 text-base">Analisa Perbandingan DPP Bulanan: Bulan yang Sama (Utama vs Pembanding)</h3>
+                                <p class="text-xs text-slate-400">Menempel berdampingan antar tahun (misal: Jun 2025 vs Jun 2026), tidak terpengaruh filter harian</p>
                             </div>
                         </div>
-                        <div class="relative min-h-[320px]">
+                        <div class="relative min-h-[340px]">
                             <canvas id="revenueMonthlyComparisonChart"></canvas>
                         </div>
                     </div>
@@ -1716,71 +1716,96 @@
             const monthsShort = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
             const selectedSa = document.getElementById('filterRevSa')?.value || 'ALL';
 
+            // TIDAK TERPENGARUH FILTER TANGGAL HARIAN (Menggunakan rawRevenueData utuh, difilter hanya oleh SA)
             const baseRaw = rawRevenueData.filter(item => {
                 if (selectedSa !== 'ALL' && item.sa !== selectedSa) return false;
                 return true;
             });
 
-            const allMonthsSet = new Set();
+            // Kelompokkan data per Bulan & Tahun secara terstruktur
+            // Format Key: "MM" (01-12) -> { "YYYY": totalDpp }
+            const monthlyYearMap = {};
+            const yearsSet = new Set();
+            const monthNamesOrdered = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
             baseRaw.forEach(item => {
                 const pDate = parseUniversalDate(item.rawDate);
                 if (!pDate) return;
-                const mKey = `${pDate.getFullYear()}-${String(pDate.getMonth() + 1).padStart(2, '0')}`;
-                allMonthsSet.add(mKey);
+                const mIndex = pDate.getMonth(); // 0 - 11
+                const yearStr = String(pDate.getFullYear());
+                
+                yearsSet.add(yearStr);
+                if (!monthlyYearMap[mIndex]) monthlyYearMap[mIndex] = {};
+                if (!monthlyYearMap[mIndex][yearStr]) monthlyYearMap[mIndex][yearStr] = 0;
+                
+                monthlyYearMap[mIndex][yearStr] += item.dpp;
             });
 
-            // Agregasi Bulanan Utama
-            const monthlyData = {};
-            baseRaw.forEach(item => {
-                const pDate = parseUniversalDate(item.rawDate);
-                if (!pDate) return;
-                const mKey = `${pDate.getFullYear()}-${String(pDate.getMonth() + 1).padStart(2, '0')}`;
-                if (!monthlyData[mKey]) monthlyData[mKey] = 0;
-                monthlyData[mKey] += item.dpp;
+            const sortedYears = Array.from(yearsSet).sort();
+            if (sortedYears.length === 0) return;
+
+            // Kita buat label sumbu X berdasarkan Nama Bulan (Jan, Feb, Jun, dst) 
+            // yang memiliki data, agar batang bulan yang sama (misal: semua bulan Juni dari berbagai tahun) menempel/berdampingan
+            const labels = [];
+            const datasets = [];
+
+            // Ambil bulan yang ada isinya
+            const activeMonths = [];
+            for (let m = 0; m < 12; m++) {
+                if (monthlyYearMap[m]) activeMonths.push(m);
+            }
+
+            labels.push(...activeMonths.map(m => monthNamesOrdered[m]));
+
+            // Warna-warna berbeda untuk tiap tahun (Batang Berdampingan untuk bulan yang sama)
+            const yearColors = ['#10b981', '#6366f1', '#f59e0b', '#ec4899', '#3b82f6', '#8b5cf6'];
+            
+            sortedYears.forEach((year, idx) => {
+                const yearData = activeMonths.map(m => (monthlyYearMap[m] && monthlyYearMap[m][year]) ? monthlyYearMap[m][year] : 0);
+                const color = yearColors[idx % yearColors.length];
+
+                // Dataset Batang (Bar)
+                datasets.push({
+                    type: 'bar',
+                    label: `Tahun ${year}`,
+                    data: yearData,
+                    backgroundColor: color,
+                    borderRadius: 6,
+                    order: 2
+                });
             });
 
-            // Agregasi Bulanan Pembanding (Dari dataset keseluruhan / pembanding)
-            const monthlyCompData = {};
-            filteredCompRevenueData.forEach(item => {
-                if (selectedSa !== 'ALL' && item.sa !== selectedSa) return;
-                const pDate = parseUniversalDate(item.rawDate);
-                if (!pDate) return;
-                const mKey = `${pDate.getFullYear()}-${String(pDate.getMonth() + 1).padStart(2, '0')}`;
-                allMonthsSet.add(mKey);
-                if (!monthlyCompData[mKey]) monthlyCompData[mKey] = 0;
-                monthlyCompData[mKey] += item.dpp;
+            // Tambahkan Chart Line (Garis Tren Rata-rata / Total per Bulan) untuk melihat naik turunnya
+            const trendLineData = activeMonths.map(m => {
+                let sum = 0, count = 0;
+                sortedYears.forEach(year => {
+                    if (monthlyYearMap[m] && monthlyYearMap[m][year]) {
+                        sum += monthlyYearMap[m][year];
+                        count++;
+                    }
+                });
+                return count > 0 ? sum / count : 0;
             });
 
-            const sortedKeys = Array.from(allMonthsSet).sort();
-            const labels = sortedKeys.map(k => {
-                const [y, m] = k.split('-');
-                return `${monthsShort[parseInt(m, 10) - 1]} ${y.slice(-2)}`;
+            datasets.push({
+                type: 'line',
+                label: 'Tren Rata-rata Bulanan',
+                data: trendLineData,
+                borderColor: '#ef4444',
+                backgroundColor: '#ef444420',
+                borderWidth: 3,
+                tension: 0.3,
+                fill: false,
+                order: 1
             });
-
-            const dataUtama = sortedKeys.map(k => monthlyData[k] || 0);
-            const dataPembanding = sortedKeys.map(k => monthlyCompData[k] || 0);
 
             if (revenueMonthlyComparisonChartInstance) revenueMonthlyComparisonChartInstance.destroy();
 
             const ctx = document.getElementById('revenueMonthlyComparisonChart').getContext('2d');
             revenueMonthlyComparisonChartInstance = new Chart(ctx, {
-                type: 'bar', // Batang Berdampingan (Side-by-Side)
                 data: {
                     labels: labels,
-                    datasets: [
-                        {
-                            label: 'Periode Utama (Rp)',
-                            data: dataUtama,
-                            backgroundColor: '#10b981', // Hijau
-                            borderRadius: 6
-                        },
-                        {
-                            label: 'Periode Pembanding (Rp)',
-                            data: dataPembanding,
-                            backgroundColor: '#6366f1', // Indigo
-                            borderRadius: 6
-                        }
-                    ]
+                    datasets: datasets
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
@@ -1791,7 +1816,7 @@
                             align: 'top',
                             color: '#1e293b',
                             font: { weight: 'bold', size: 9 },
-                            formatter: (value) => value > 0 ? formatShortIDR(value) : ''
+                            formatter: (value) => (value > 0 && typeof value === 'number') ? formatShortIDR(value) : ''
                         },
                         tooltip: {
                             callbacks: {
