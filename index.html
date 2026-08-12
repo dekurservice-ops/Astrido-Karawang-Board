@@ -484,13 +484,14 @@
                                 <span class="text-[10px] font-extrabold uppercase tracking-widest bg-emerald-950/80 px-2 py-0.5 rounded-lg border border-emerald-500/30">Highlight DPP</span>
                                 <div class="p-1.5 bg-emerald-500/20 text-emerald-400 rounded-xl"><i data-lucide="wallet" class="w-4 h-4"></i></div>
                             </div>
-                            <h3 id="kpiTotalRevenue" class="text-2xl font-extrabold text-white mt-1">Rp 0</h3>
+                            <div class="flex items-baseline justify-between">
+                                <h3 id="kpiTotalRevenue" class="text-2xl font-extrabold text-white mt-1">Rp 0</h3>
+                                <span id="revGrowthDpp" class="text-xs font-bold px-2 py-0.5 rounded-md bg-emerald-950 text-emerald-400">+0%</span>
+                            </div>
                         </div>
-                        <div class="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-slate-700/80 text-[10px]">
-                            <div><span class="text-slate-400 block font-bold uppercase">vs Pembanding:</span> <span id="revYoyDod" class="font-bold text-xs">-</span></div>
-                            <div><span class="text-slate-400 block font-bold uppercase">vs Pembanding:</span> <span id="revYoyWow" class="font-bold text-xs">-</span></div>
-                            <div><span class="text-slate-400 block font-bold uppercase">vs Pembanding:</span> <span id="revYoyMom" class="font-bold text-xs">-</span></div>
-                            <div><span class="text-slate-400 block font-bold uppercase">Growth DPP:</span> <span id="revYoyYoy" class="font-bold text-xs">-</span></div>
+                        <div class="mt-4 pt-3 border-t border-slate-700/80 text-[11px] flex justify-between items-center text-slate-300">
+                            <span class="text-slate-400 uppercase font-bold text-[10px]">Pembanding:</span>
+                            <span id="kpiCompTotalRevenue" class="font-semibold">Rp 0</span>
                         </div>
                     </div>
 
@@ -501,9 +502,15 @@
                                 <span class="text-[10px] font-bold uppercase tracking-wider">Jasa Umum</span>
                                 <div class="p-1.5 bg-purple-50 text-purple-600 rounded-lg"><i data-lucide="wrench" class="w-4 h-4"></i></div>
                             </div>
-                            <h3 id="kpiJasaUmum" class="text-lg font-bold text-purple-600 mt-1">Rp 0</h3>
+                            <div class="flex items-baseline justify-between mt-1">
+                                <h3 id="kpiJasaUmum" class="text-lg font-bold text-purple-600">Rp 0</h3>
+                                <span id="growthJasa" class="text-[11px] font-bold text-emerald-600">+0%</span>
+                            </div>
                         </div>
-                        <p id="sub-jasa" class="text-[10px] text-slate-400 mt-2 font-medium">Growth vs Pembanding: 0%</p>
+                        <div class="mt-2 pt-2 border-t border-slate-100 flex justify-between items-center text-[10px] text-slate-400 font-medium">
+                            <span>Pembanding:</span>
+                            <span id="kpiCompJasaUmum" class="font-semibold text-slate-600">Rp 0</span>
+                        </div>
                     </div>
 
                     <!-- Part Card -->
@@ -513,9 +520,15 @@
                                 <span class="text-[10px] font-bold uppercase tracking-wider">Part</span>
                                 <div class="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg"><i data-lucide="package" class="w-4 h-4"></i></div>
                             </div>
-                            <h3 id="kpiPart" class="text-lg font-bold text-indigo-600 mt-1">Rp 0</h3>
+                            <div class="flex items-baseline justify-between mt-1">
+                                <h3 id="kpiPart" class="text-lg font-bold text-indigo-600">Rp 0</h3>
+                                <span id="growthPart" class="text-[11px] font-bold text-emerald-600">+0%</span>
+                            </div>
                         </div>
-                        <p id="sub-part" class="text-[10px] text-slate-400 mt-2 font-medium">Growth vs Pembanding: 0%</p>
+                        <div class="mt-2 pt-2 border-t border-slate-100 flex justify-between items-center text-[10px] text-slate-400 font-medium">
+                            <span>Pembanding:</span>
+                            <span id="kpiCompPart" class="font-semibold text-slate-600">Rp 0</span>
+                        </div>
                     </div>
 
                     <!-- Oli Card -->
@@ -525,9 +538,15 @@
                                 <span class="text-[10px] font-bold uppercase tracking-wider">Oli</span>
                                 <div class="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg"><i data-lucide="droplet" class="w-4 h-4"></i></div>
                             </div>
-                            <h3 id="kpiOli" class="text-lg font-bold text-emerald-600 mt-1">Rp 0</h3>
+                            <div class="flex items-baseline justify-between mt-1">
+                                <h3 id="kpiOli" class="text-lg font-bold text-emerald-600">Rp 0</h3>
+                                <span id="growthOli" class="text-[11px] font-bold text-emerald-600">+0%</span>
+                            </div>
                         </div>
-                        <p id="sub-oli" class="text-[10px] text-slate-400 mt-2 font-medium">Growth vs Pembanding: 0%</p>
+                        <div class="mt-2 pt-2 border-t border-slate-100 flex justify-between items-center text-[10px] text-slate-400 font-medium">
+                            <span>Pembanding:</span>
+                            <span id="kpiCompOli" class="font-semibold text-slate-600">Rp 0</span>
+                        </div>
                     </div>
 
                     <!-- Bahan Card -->
@@ -537,9 +556,15 @@
                                 <span class="text-[10px] font-bold uppercase tracking-wider">Bahan</span>
                                 <div class="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><i data-lucide="layers" class="w-4 h-4"></i></div>
                             </div>
-                            <h3 id="kpiBahan" class="text-lg font-bold text-blue-600 mt-1">Rp 0</h3>
+                            <div class="flex items-baseline justify-between mt-1">
+                                <h3 id="kpiBahan" class="text-lg font-bold text-blue-600">Rp 0</h3>
+                                <span id="growthBahan" class="text-[11px] font-bold text-emerald-600">+0%</span>
+                            </div>
                         </div>
-                        <p id="sub-bahan" class="text-[10px] text-slate-400 mt-2 font-medium">Growth vs Pembanding: 0%</p>
+                        <div class="mt-2 pt-2 border-t border-slate-100 flex justify-between items-center text-[10px] text-slate-400 font-medium">
+                            <span>Pembanding:</span>
+                            <span id="kpiCompBahan" class="font-semibold text-slate-600">Rp 0</span>
+                        </div>
                     </div>
 
                     <!-- Sublet Card -->
@@ -549,9 +574,15 @@
                                 <span class="text-[10px] font-bold uppercase tracking-wider">Sublet</span>
                                 <div class="p-1.5 bg-amber-50 text-amber-600 rounded-lg"><i data-lucide="external-link" class="w-4 h-4"></i></div>
                             </div>
-                            <h3 id="kpiSublet" class="text-lg font-bold text-amber-600 mt-1">Rp 0</h3>
+                            <div class="flex items-baseline justify-between mt-1">
+                                <h3 id="kpiSublet" class="text-lg font-bold text-amber-600">Rp 0</h3>
+                                <span id="growthSublet" class="text-[11px] font-bold text-emerald-600">+0%</span>
+                            </div>
                         </div>
-                        <p id="sub-sublet" class="text-[10px] text-slate-400 mt-2 font-medium">Growth vs Pembanding: 0%</p>
+                        <div class="mt-2 pt-2 border-t border-slate-100 flex justify-between items-center text-[10px] text-slate-400 font-medium">
+                            <span>Pembanding:</span>
+                            <span id="kpiCompSublet" class="font-semibold text-slate-600">Rp 0</span>
+                        </div>
                     </div>
                 </div>
 
@@ -1419,7 +1450,6 @@
 
         function updateRevenueUI() {
             let totalDpp = 0, totalJasa = 0, totalPart = 0, totalOli = 0, totalBahan = 0, totalSublet = 0;
-
             filteredRevenueData.forEach(item => {
                 totalDpp += item.dpp;
                 totalJasa += item.jasaUmum;
@@ -1429,12 +1459,23 @@
                 totalSublet += item.sublet;
             });
 
+            let compDpp = 0, compJasa = 0, compPart = 0, compOli = 0, compBahan = 0, compSublet = 0;
+            filteredCompRevenueData.forEach(item => {
+                compDpp += item.dpp;
+                compJasa += item.jasaUmum;
+                compPart += item.part;
+                compOli += item.oli;
+                compBahan += item.bahan;
+                compSublet += item.sublet;
+            });
+
             const formatIDR = (val) => {
                 if (val >= 1000000000) return `Rp ${(val / 1000000000).toFixed(1)} M`;
                 if (val >= 1000000) return `Rp ${(val / 1000000).toFixed(1)} Jt`;
                 return `Rp ${val.toLocaleString('id-ID')}`;
             };
 
+            // Update Nilai Utama (Periode Utama)
             document.getElementById('kpiTotalRevenue').textContent = formatIDR(totalDpp);
             document.getElementById('kpiJasaUmum').textContent = formatIDR(totalJasa);
             document.getElementById('kpiPart').textContent = formatIDR(totalPart);
@@ -1442,6 +1483,15 @@
             document.getElementById('kpiBahan').textContent = formatIDR(totalBahan);
             document.getElementById('kpiSublet').textContent = formatIDR(totalSublet);
 
+            // Update Nilai Pembanding (Periode Pembanding)
+            document.getElementById('kpiCompTotalRevenue').textContent = formatIDR(compDpp);
+            document.getElementById('kpiCompJasaUmum').textContent = formatIDR(compJasa);
+            document.getElementById('kpiCompPart').textContent = formatIDR(compPart);
+            document.getElementById('kpiCompOli').textContent = formatIDR(compOli);
+            document.getElementById('kpiCompBahan').textContent = formatIDR(compBahan);
+            document.getElementById('kpiCompSublet').textContent = formatIDR(compSublet);
+
+            // Hitung Persentase Growth
             const growthDpp = calculateCustomGrowth('dpp');
             const growthJasa = calculateCustomGrowth('jasaUmum');
             const growthPart = calculateCustomGrowth('part');
@@ -1449,28 +1499,32 @@
             const growthBahan = calculateCustomGrowth('bahan');
             const growthSublet = calculateCustomGrowth('sublet');
 
-            const setGrowthEl = (id, val) => {
+            const setGrowthBadge = (id, val) => {
                 const el = document.getElementById(id);
-                if(!el) return;
+                if (!el) return;
                 el.textContent = val;
-                el.className = val.startsWith('-') ? "font-bold text-rose-400 text-xs" : "font-bold text-emerald-400 text-xs";
+                const isNegative = val.startsWith('-');
+                el.className = isNegative 
+                    ? "text-xs font-bold px-2 py-0.5 rounded-md bg-rose-950 text-rose-400" 
+                    : "text-xs font-bold px-2 py-0.5 rounded-md bg-emerald-950 text-emerald-400";
             };
 
-            setGrowthEl('revYoyDod', growthDpp);
-            setGrowthEl('revYoyWow', growthDpp);
-            setGrowthEl('revYoyMom', growthDpp);
-            setGrowthEl('revYoyYoy', growthDpp);
-
-            const updateCardSubtitle = (id, text) => {
+            const setSmallGrowthBadge = (id, val) => {
                 const el = document.getElementById(id);
-                if(el) el.textContent = text;
+                if (!el) return;
+                el.textContent = val;
+                const isNegative = val.startsWith('-');
+                el.className = isNegative 
+                    ? "text-[11px] font-bold text-rose-500" 
+                    : "text-[11px] font-bold text-emerald-600";
             };
 
-            updateCardSubtitle('sub-jasa', `Growth vs Pembanding: ${growthJasa}`);
-            updateCardSubtitle('sub-part', `Growth vs Pembanding: ${growthPart}`);
-            updateCardSubtitle('sub-oli', `Growth vs Pembanding: ${growthOli}`);
-            updateCardSubtitle('sub-bahan', `Growth vs Pembanding: ${growthBahan}`);
-            updateCardSubtitle('sub-sublet', `Growth vs Pembanding: ${growthSublet}`);
+            setGrowthBadge('revGrowthDpp', growthDpp);
+            setSmallGrowthBadge('growthJasa', growthJasa);
+            setSmallGrowthBadge('growthPart', growthPart);
+            setSmallGrowthBadge('growthOli', growthOli);
+            setSmallGrowthBadge('growthBahan', growthBahan);
+            setSmallGrowthBadge('growthSublet', growthSublet);
 
             document.getElementById('revenueRecordCount').textContent = `${filteredRevenueData.length} Records`;
 
