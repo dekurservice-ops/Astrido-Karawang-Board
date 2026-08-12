@@ -438,21 +438,34 @@
 
         <!-- VIEW 3: PENDAPATAN BENGKEL -->
         <div id="view-revenue" class="hidden space-y-6">
-            <section class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
+            <!-- FILTER PENDAPATAN BENGKEL & PEMBANDING -->
+            <section class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-4">
                 <div class="flex items-center gap-2 text-slate-700 font-semibold text-sm">
                     <i data-lucide="filter" class="w-4 h-4 text-emerald-600"></i>
-                    <span>Filter Pendapatan Bengkel & Analisa:</span>
+                    <span>Filter Pendapatan Bengkel & Periode Pembanding:</span>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:flex gap-3 items-center flex-1 md:justify-end">
-                    <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
-                        <label class="text-xs text-slate-500 whitespace-nowrap">Rentang Tanggal:</label>
-                        <input type="date" id="revStartDate" onchange="applyRevenueFilters()" class="bg-transparent text-xs text-slate-800 font-medium focus:outline-none">
-                        <span class="text-xs text-slate-400">-</span>
-                        <input type="date" id="revEndDate" onchange="applyRevenueFilters()" class="bg-transparent text-xs text-slate-800 font-medium focus:outline-none">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-center">
+                    <div class="flex flex-col gap-1 bg-slate-50 border border-slate-200 rounded-xl p-3">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase">Periode Utama:</label>
+                        <div class="flex items-center gap-2">
+                            <input type="date" id="revStartDate" onchange="applyRevenueFilters()" class="bg-transparent text-xs text-slate-800 font-medium focus:outline-none w-full">
+                            <span class="text-xs text-slate-400">-</span>
+                            <input type="date" id="revEndDate" onchange="applyRevenueFilters()" class="bg-transparent text-xs text-slate-800 font-medium focus:outline-none w-full">
+                        </div>
                     </div>
-                    <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
-                        <label class="text-xs text-slate-500 whitespace-nowrap">Service Advisor:</label>
-                        <select id="filterRevSa" onchange="applyRevenueFilters()" class="bg-transparent text-xs text-slate-800 font-medium focus:outline-none w-full">
+
+                    <div class="flex flex-col gap-1 bg-emerald-50/50 border border-emerald-200 rounded-xl p-3">
+                        <label class="text-[10px] font-bold text-emerald-700 uppercase">Periode Pembanding:</label>
+                        <div class="flex items-center gap-2">
+                            <input type="date" id="revCompStartDate" onchange="applyRevenueFilters()" class="bg-transparent text-xs text-slate-800 font-medium focus:outline-none w-full">
+                            <span class="text-xs text-slate-400">-</span>
+                            <input type="date" id="revCompEndDate" onchange="applyRevenueFilters()" class="bg-transparent text-xs text-slate-800 font-medium focus:outline-none w-full">
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-1 bg-slate-50 border border-slate-200 rounded-xl p-3">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase">Service Advisor:</label>
+                        <select id="filterRevSa" onchange="applyRevenueFilters()" class="bg-transparent text-xs text-slate-800 font-medium focus:outline-none w-full mt-1">
                             <option value="ALL">Semua SA</option>
                         </select>
                     </div>
@@ -470,10 +483,10 @@
                         <h3 id="kpiTotalRevenue" class="text-2xl sm:text-3xl font-extrabold text-white mt-1">Rp 0</h3>
                     </div>
                     <div class="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-slate-700/80 text-[10px]">
-                        <div><span class="text-slate-400 block font-bold uppercase">DoD Growth:</span> <span id="revYoyDod" class="font-bold text-sm">-</span></div>
-                        <div><span class="text-slate-400 block font-bold uppercase">WoW Growth:</span> <span id="revYoyWow" class="font-bold text-sm">-</span></div>
-                        <div><span class="text-slate-400 block font-bold uppercase">MoM Growth:</span> <span id="revYoyMom" class="font-bold text-sm">-</span></div>
-                        <div><span class="text-slate-400 block font-bold uppercase">YoY Growth:</span> <span id="revYoyYoy" class="font-bold text-sm">-</span></div>
+                        <div><span class="text-slate-400 block font-bold uppercase">vs Pembanding:</span> <span id="revYoyDod" class="font-bold text-sm">-</span></div>
+                        <div><span class="text-slate-400 block font-bold uppercase">vs Pembanding:</span> <span id="revYoyWow" class="font-bold text-sm">-</span></div>
+                        <div><span class="text-slate-400 block font-bold uppercase">vs Pembanding:</span> <span id="revYoyMom" class="font-bold text-sm">-</span></div>
+                        <div><span class="text-slate-400 block font-bold uppercase">Growth DPP:</span> <span id="revYoyYoy" class="font-bold text-sm">-</span></div>
                     </div>
                 </div>
 
@@ -485,7 +498,7 @@
                         </div>
                         <h3 id="kpiJasaUmum" class="text-lg font-bold text-purple-600 mt-2">Rp 0</h3>
                     </div>
-                    <p class="text-[10px] text-slate-400 mt-2 font-medium">Akumulasi Jasa Reparasi</p>
+                    <p id="sub-jasa" class="text-[10px] text-slate-400 mt-2 font-medium">Growth vs Pembanding: 0%</p>
                 </div>
 
                 <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
@@ -496,7 +509,7 @@
                         </div>
                         <h3 id="kpiPart" class="text-lg font-bold text-indigo-600 mt-2">Rp 0</h3>
                     </div>
-                    <p class="text-[10px] text-slate-400 mt-2 font-medium">Akumulasi Suku Cadang</p>
+                    <p id="sub-part" class="text-[10px] text-slate-400 mt-2 font-medium">Growth vs Pembanding: 0%</p>
                 </div>
 
                 <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
@@ -507,7 +520,7 @@
                         </div>
                         <h3 id="kpiOli" class="text-lg font-bold text-emerald-600 mt-2">Rp 0</h3>
                     </div>
-                    <p class="text-[10px] text-slate-400 mt-2 font-medium">Akumulasi Pelumas</p>
+                    <p id="sub-oli" class="text-[10px] text-slate-400 mt-2 font-medium">Growth vs Pembanding: 0%</p>
                 </div>
 
                 <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
@@ -518,7 +531,7 @@
                         </div>
                         <h3 id="kpiBahan" class="text-lg font-bold text-blue-600 mt-2">Rp 0</h3>
                     </div>
-                    <p class="text-[10px] text-slate-400 mt-2 font-medium">Akumulasi Bahan Pendukung</p>
+                    <p id="sub-bahan" class="text-[10px] text-slate-400 mt-2 font-medium">Growth vs Pembanding: 0%</p>
                 </div>
 
                 <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between sm:col-span-2 lg:col-span-1">
@@ -529,7 +542,7 @@
                         </div>
                         <h3 id="kpiSublet" class="text-lg font-bold text-amber-600 mt-2">Rp 0</h3>
                     </div>
-                    <p class="text-[10px] text-slate-400 mt-2 font-medium">Akumulasi Pekerjaan Luar</p>
+                    <p id="sub-sublet" class="text-[10px] text-slate-400 mt-2 font-medium">Growth vs Pembanding: 0%</p>
                 </div>
             </section>
 
@@ -676,7 +689,7 @@
         let rawBookingData = [], filteredBookingData = [];
         let trendChartInstance = null, sumberChartInstance = null, bocPerMraChartInstance = null;
         let rawSopMasterData = [], rawDetailPartData = [], groupedSopData = [], filteredSopData = [], sopCharts = {};
-        let rawRevenueData = [], filteredRevenueData = [];
+        let rawRevenueData = [], filteredRevenueData = [], filteredCompRevenueData = [];
         let revenueTrendChartInstance = null, revenueCompositionChartInstance = null, revenueSaChartInstance = null;
 
         Chart.register(ChartDataLabels);
@@ -1260,7 +1273,6 @@
             const result = [];
             if (!rows || rows.length === 0) return result;
 
-            // Baris pertama sebagai header, diubah ke huruf kecil untuk pencocokan dinamis
             const headerRow = rows[0].map(h => String(h || '').trim().toLowerCase());
             
             const getColIndex = (keywords) => {
@@ -1332,14 +1344,20 @@
         function applyRevenueFilters() {
             const startDateVal = document.getElementById('revStartDate')?.value || '';
             const endDateVal = document.getElementById('revEndDate')?.value || '';
+            
+            const compStartDateVal = document.getElementById('revCompStartDate')?.value || '';
+            const compEndDateVal = document.getElementById('revCompEndDate')?.value || '';
+            
             const selectedSa = document.getElementById('filterRevSa')?.value || 'ALL';
 
             const startLimit = startDateVal ? new Date(startDateVal + 'T00:00:00') : null;
             const endLimit = endDateVal ? new Date(endDateVal + 'T23:59:59') : null;
 
+            const compStartLimit = compStartDateVal ? new Date(compStartDateVal + 'T00:00:00') : null;
+            const compEndLimit = compEndDateVal ? new Date(compEndDateVal + 'T23:59:59') : null;
+
             filteredRevenueData = rawRevenueData.filter(item => {
                 if (selectedSa !== 'ALL' && item.sa !== selectedSa) return false;
-
                 if (startLimit || endLimit) {
                     const itemDate = parseUniversalDate(item.rawDate);
                     if (itemDate) {
@@ -1350,35 +1368,43 @@
                 return true;
             });
 
+            filteredCompRevenueData = rawRevenueData.filter(item => {
+                if (selectedSa !== 'ALL' && item.sa !== selectedSa) return false;
+                if (compStartLimit || compEndLimit) {
+                    const itemDate = parseUniversalDate(item.rawDate);
+                    if (itemDate) {
+                        if (compStartLimit && itemDate < compStartLimit) return false;
+                        if (compEndLimit && itemDate > compEndLimit) return false;
+                    } else {
+                        return false;
+                    }
+                }
+                return true;
+            });
+
             updateRevenueUI();
         }
 
-        function updateRevenueUI() {
-            renderRevenueKPIs();
-            renderRevenueTrendChart();
-            renderRevenueCompositionChart();
-            renderRevenueSaChart();
-            renderRevenueTable();
-        }
-
-        function calculateTimeOverTimeMetrics() {
+        function calculateCustomGrowth(componentKey) {
             let currentTotal = 0;
-            filteredRevenueData.forEach(i => currentTotal += i.dpp);
+            filteredRevenueData.forEach(item => {
+                currentTotal += (item[componentKey] || 0);
+            });
 
-            let dodGrowth = "+5.4%", wowGrowth = "+8.2%", momGrowth = "+12.1%", yoyGrowth = "+15.8%";
-            
-            if (filteredRevenueData.length > 0) {
-                const seedFactor = (currentTotal % 9) / 100;
-                dodGrowth = `${(3.5 + seedFactor * 10).toFixed(1)}%`;
-                wowGrowth = `${(7.2 + seedFactor * 12).toFixed(1)}%`;
-                momGrowth = `${(10.4 + seedFactor * 15).toFixed(1)}%`;
-                yoyGrowth = `${(14.2 + seedFactor * 20).toFixed(1)}%`;
+            let compTotal = 0;
+            filteredCompRevenueData.forEach(item => {
+                compTotal += (item[componentKey] || 0);
+            });
+
+            if (compTotal === 0) {
+                return currentTotal > 0 ? "+100.0%" : "0.0%";
             }
 
-            return { dodGrowth, wowGrowth, momGrowth, yoyGrowth };
+            const growthRate = ((currentTotal - compTotal) / compTotal) * 100;
+            return (growthRate >= 0 ? "+" : "") + growthRate.toFixed(1) + "%";
         }
 
-        function renderRevenueKPIs() {
+        function updateRevenueUI() {
             let totalDpp = 0, totalJasa = 0, totalPart = 0, totalOli = 0, totalBahan = 0, totalSublet = 0;
 
             filteredRevenueData.forEach(item => {
@@ -1403,8 +1429,13 @@
             document.getElementById('kpiBahan').textContent = formatIDR(totalBahan);
             document.getElementById('kpiSublet').textContent = formatIDR(totalSublet);
 
-            const totMetrics = calculateTimeOverTimeMetrics();
-            
+            const growthDpp = calculateCustomGrowth('dpp');
+            const growthJasa = calculateCustomGrowth('jasaUmum');
+            const growthPart = calculateCustomGrowth('part');
+            const growthOli = calculateCustomGrowth('oli');
+            const growthBahan = calculateCustomGrowth('bahan');
+            const growthSublet = calculateCustomGrowth('sublet');
+
             const setGrowthEl = (id, val) => {
                 const el = document.getElementById(id);
                 if(!el) return;
@@ -1412,12 +1443,28 @@
                 el.className = val.startsWith('-') ? "font-bold text-rose-400 text-sm" : "font-bold text-emerald-400 text-sm";
             };
 
-            setGrowthEl('revYoyDod', totMetrics.dodGrowth);
-            setGrowthEl('revYoyWow', totMetrics.wowGrowth);
-            setGrowthEl('revYoyMom', totMetrics.momGrowth);
-            setGrowthEl('revYoyYoy', totMetrics.yoyGrowth);
+            setGrowthEl('revYoyDod', growthDpp);
+            setGrowthEl('revYoyWow', growthDpp);
+            setGrowthEl('revYoyMom', growthDpp);
+            setGrowthEl('revYoyYoy', growthDpp);
+
+            const updateCardSubtitle = (id, text) => {
+                const el = document.getElementById(id);
+                if(el) el.textContent = text;
+            };
+
+            updateCardSubtitle('sub-jasa', `Growth vs Pembanding: ${growthJasa}`);
+            updateCardSubtitle('sub-part', `Growth vs Pembanding: ${growthPart}`);
+            updateCardSubtitle('sub-oli', `Growth vs Pembanding: ${growthOli}`);
+            updateCardSubtitle('sub-bahan', `Growth vs Pembanding: ${growthBahan}`);
+            updateCardSubtitle('sub-sublet', `Growth vs Pembanding: ${growthSublet}`);
 
             document.getElementById('revenueRecordCount').textContent = `${filteredRevenueData.length} Records`;
+
+            renderRevenueTrendChart();
+            renderRevenueCompositionChart();
+            renderRevenueSaChart();
+            renderRevenueTable();
         }
 
         function renderRevenueTrendChart() {
