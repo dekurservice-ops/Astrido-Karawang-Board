@@ -1247,35 +1247,60 @@
             });
         }
 
-        // ================= PENDAPATAN BENGKEL LOGIC =================
+        // ================= PENDAPATAN BENGKEL LOGIC (DYNAMIC HEADER MAPPING) =================
         function parseNumericValue(val) {
             if (!val) return 0;
-            const cleaned = String(val).replace(/[^0-9.-]+/g,"");
+            const strVal = String(val).trim();
+            if (isNaN(strVal) && /^[a-zA-Z]+$/.test(strVal)) return 0;
+            const cleaned = strVal.replace(/[^0-9.-]+/g,"");
             return parseFloat(cleaned) || 0;
         }
 
         function processRevenueData(rows) {
             const result = [];
+            if (!rows || rows.length === 0) return result;
+
+            // Baris pertama sebagai header, diubah ke huruf kecil untuk pencocokan dinamis
+            const headerRow = rows[0].map(h => String(h || '').trim().toLowerCase());
+            
+            const getColIndex = (keywords) => {
+                for (let idx = 0; idx < headerRow.length; idx++) {
+                    const h = headerRow[idx];
+                    if (keywords.some(k => h.includes(k))) return idx;
+                }
+                return -1;
+            };
+
+            const idxTanggal = getColIndex(['tanggal', 'date']);
+            const idxSa = getColIndex(['service advisor', 'sa', 'nama sa']);
+            const idxJasa = getColIndex(['jasa umum', 'jasa']);
+            const idxPart = getColIndex(['part', 'suku cadang']);
+            const idxBahan = getColIndex(['bahan']);
+            const idxOli = getColIndex(['oli']);
+            const idxSublet = getColIndex(['sublet']);
+            const idxDpp = getColIndex(['dpp']);
+
             for (let i = 1; i < rows.length; i++) {
                 const r = rows[i];
                 if (!r || r.length === 0) continue;
 
-                // Mapping struktur CSV: 
-                // [0] Tanggal, [1] SA, [2] Jasa Umum, [3] Part, [4] Bahan, [5] Oli, [6] Sublet, [7] DPP
-                const dateVal = String(r[0] || '').trim();
-                const saName = String(r[1] || 'General SA').trim();
-                
-                const jasaUmum = parseNumericValue(r[2]);
-                const part = parseNumericValue(r[3]);
-                const bahan = parseNumericValue(r[4]);
-                const oli = parseNumericValue(r[5]);
-                const sublet = parseNumericValue(r[6]);
-                
+                const dateVal = idxTanggal !== -1 ? String(r[idxTanggal] || '').trim() : String(r[0] || '').trim();
+                const saName = idxSa !== -1 ? String(r[idxSa] || 'General SA').trim() : String(r[1] || 'General SA').trim();
+
+                if (!dateVal && !saName) continue;
+                if (dateVal.toLowerCase() === 'tanggal' || dateVal.toLowerCase() === 'date') continue;
+
+                const jasaUmum = parseNumericValue(idxJasa !== -1 ? r[idxJasa] : r[2]);
+                const part = parseNumericValue(idxPart !== -1 ? r[idxPart] : r[3]);
+                const bahan = parseNumericValue(idxBahan !== -1 ? r[idxBahan] : r[4]);
+                const oli = parseNumericValue(idxOli !== -1 ? r[idxOli] : r[5]);
+                const sublet = parseNumericValue(idxSublet !== -1 ? r[idxSublet] : r[6]);
+
                 const calculatedDpp = jasaUmum + part + bahan + oli + sublet;
-                const dpp = parseNumericValue(r[7]) || calculatedDpp;
+                const dpp = parseNumericValue(idxDpp !== -1 ? r[idxDpp] : r[7]) || calculatedDpp;
 
                 result.push({
-                    id: i - 1,
+                    id: result.length,
                     date: formatDisplayDate(dateVal),
                     rawDate: dateVal,
                     sa: saName,
