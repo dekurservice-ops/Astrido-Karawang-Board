@@ -3,12 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KPI Service Advisor - Google Sheets Database</title>
+  <title>KPI Service Advisor - Google Sheets</title>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/recharts@2.12.7/umd/Recharts.min.js"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
@@ -28,13 +26,11 @@
     .ghost-btn { background: transparent; color: #8A93A3; border: 1px solid #262E3B; border-radius: 8px; padding: 9px 14px; font-weight: 500; font-size: 12.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
     .ghost-btn:hover { color: #EDEFF3; border-color: #3A4456; }
     select { background: #171D26; border: 1px solid #262E3B; color: #EDEFF3; border-radius: 8px; padding: 8px 10px; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; }
-    table { border-collapse: collapse; width: 100%; }
     .field-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid #1B222C; }
     .field-row:last-child { border-bottom: none; }
     .field-label { font-size: 11px; color: #8A93A3; flex-shrink: 0; }
     ::-webkit-scrollbar { height: 6px; width: 6px; }
     ::-webkit-scrollbar-thumb { background: #262E3B; border-radius: 4px; }
-    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -42,14 +38,8 @@
 
   <script type="text/babel">
     const { useState, useEffect, useCallback, useMemo, useRef } = React;
-    const { 
-      Plus, Trash2, ChevronDown, ChevronRight, Wrench, CheckCircle2, 
-      Copy, Sparkles, ArrowRight, TrendingUp, Smartphone, Monitor, 
-      Upload, Loader2, XCircle, ScanLine, Database, RefreshCw 
-    } = lucide;
-    const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } = Recharts;
 
-    // Masukkan URL Web App Google Apps Script Anda di sini
+    // Ganti dengan URL Web App Google Apps Script Anda
     const API_URL = "MASUKKAN_WEB_APP_URL_GOOGLE_APPS_SCRIPT_DISINI";
 
     const uid = () => Math.random().toString(36).slice(2, 10);
@@ -57,7 +47,6 @@
     const ACTIVE_KEY = "kpi-sa-active-period";
     const dataKey = (period) => `kpi-sa-data::${period}`;
 
-    // Cloud storage bridge via Google Sheets API
     const cloudStorage = {
       async get(key) {
         if (!API_URL || API_URL.includes("MASUKKAN")) {
@@ -66,30 +55,23 @@
         try {
           const res = await fetch(`${API_URL}?key=${encodeURIComponent(key)}`);
           const json = await res.json();
-          return json.value !== undefined ? json.value : null;
+          return json.value !== undefined && json.value !== null ? json.value : localStorage.getItem(key);
         } catch (err) {
-          console.error("Gagal mengambil dari Google Sheets, fallback ke localStorage", err);
           return localStorage.getItem(key);
         }
       },
       async set(key, value) {
-        if (!API_URL || API_URL.includes("MASUKKAN")) {
-          localStorage.setItem(key, value);
-          return true;
-        }
+        localStorage.setItem(key, value);
+        if (!API_URL || API_URL.includes("MASUKKAN")) return true;
         try {
-          // Kirim ke Google Apps Script via POST
           await fetch(API_URL, {
             method: "POST",
             mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
             body: JSON.stringify({ key, value })
           });
-          localStorage.setItem(key, value);
           return true;
         } catch (err) {
-          console.error("Gagal menyimpan ke Google Sheets", err);
-          localStorage.setItem(key, value);
           return false;
         }
       }
@@ -106,9 +88,9 @@
               { id: uid(), name: "Lead Time (ALL UE)", unit: "menit", subWeight: 10, target: 110, actual: 100, inverse: true },
               { id: uid(), name: "FIR (Fix It Right)", unit: "%", subWeight: 0, target: 95, actual: 99.33, inverse: false },
               { id: uid(), name: "OTD (excl. TWC & RTJ)", unit: "%", subWeight: 10, target: 95, actual: 90.41, inverse: false },
-              { id: uid(), name: "% Pelanggan di Engagement (N3,N5,N7)", unit: "%", subWeight: 10, target: 90, actual: 98.38, inverse: false },
+              { id: uid(), name: "% Pelanggan di Engagement", unit: "%", subWeight: 10, target: 90, actual: 98.38, inverse: false },
               { id: uid(), name: "% Saran Service / CPUS", unit: "%", subWeight: 15, target: 50, actual: 15.79, inverse: false },
-              { id: uid(), name: "% CAI Saran Service / Data Saran SRV", unit: "%", subWeight: 15, target: 65, actual: 55.56, inverse: false },
+              { id: uid(), name: "% CAI Saran Service", unit: "%", subWeight: 15, target: 65, actual: 55.56, inverse: false },
               { id: uid(), name: "% SA Retention", unit: "%", subWeight: 15, target: 80, actual: 80.00, inverse: false },
             ],
           },
@@ -125,18 +107,10 @@
             id: uid(), name: "CS", weight: 10,
             subItems: [
               { id: uid(), name: "NPS Per SA - TTB", unit: "point", subWeight: 50, target: 85, actual: 100, inverse: false },
-              { id: uid(), name: "Kuantity VOC Per SA - BTB", unit: "point", subWeight: 25, target: 80, actual: 80, inverse: false },
+              { id: uid(), name: "Kuantity VOC Per SA", unit: "point", subWeight: 25, target: 80, actual: 80, inverse: false },
               { id: uid(), name: "NPS Real Promoter", unit: "point", subWeight: 25, target: 87, actual: 100, inverse: false },
             ],
-          },
-          {
-            id: uid(), name: "L&G", weight: 0,
-            subItems: [
-              { id: uid(), name: "Absensi", unit: "hari", subWeight: 0, target: 23, actual: 27, inverse: false },
-              { id: uid(), name: "ABTL Datang", unit: "hari", subWeight: 0, target: 0, actual: 1, inverse: false },
-              { id: uid(), name: "Keterlambatan", unit: "menit", subWeight: 0, target: 0, actual: 0, inverse: false },
-            ],
-          },
+          }
         ],
       };
     }
@@ -167,76 +141,22 @@
       if (pct >= 80) return { fg: "#E8B85E", bg: "rgba(232,184,94,0.12)", label: "Mendekati" };
       return { fg: "#F07178", bg: "rgba(240,113,120,0.12)", label: "Perlu Perhatian" };
     }
-    function fmt(n, unit) {
-      const num = Number(n);
-      if (Number.isNaN(num)) return "-";
-      if (unit === "Rp") return num.toLocaleString("id-ID");
-      return num.toLocaleString("id-ID", { maximumFractionDigits: 2 });
-    }
 
-    const EXTRACT_PROMPT = `Kamu membaca screenshot laporan KPI berbentuk tabel bertingkat...`;
-
-    function fileToBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(String(reader.result).split(",")[1]);
-        reader.onerror = () => reject(new Error("Gagal membaca file"));
-        reader.readAsDataURL(file);
-      });
-    }
-
-    function Gauge({ value, size = 220 }) {
+    function Gauge({ value, size = 200 }) {
       const clamped = Math.max(0, Math.min(130, value));
       const angle = -90 + (clamped / 130) * 180;
       const r = size / 2 - 16;
       const cx = size / 2, cy = size / 2;
-      const ticks = [];
-      for (let v = 0; v <= 130; v += 10) {
-        const a = (-90 + (v / 130) * 180) * (Math.PI / 180);
-        const major = v % 50 === 0;
-        const r1 = r - (major ? 13 : 7);
-        const x1 = cx + r1 * Math.cos(a), y1 = cy + r1 * Math.sin(a);
-        const x2 = cx + r * Math.cos(a), y2 = cy + r * Math.sin(a);
-        ticks.push(<line key={v} x1={x1} y1={y1} x2={x2} y2={y2} stroke={v >= 100 ? "#5FE0A8" : v >= 80 ? "#E8B85E" : "#F07178"} strokeWidth={major ? 2.2 : 1} opacity={major ? 0.9 : 0.4} />);
-      }
       const rad = (angle * Math.PI) / 180;
       const needleLen = r - 20;
       const nx = cx + needleLen * Math.cos(rad), ny = cy + needleLen * Math.sin(rad);
-      const arc = (s, e, color) => {
-        const a1 = (-90 + (s / 130) * 180) * (Math.PI / 180);
-        const a2 = (-90 + (e / 130) * 180) * (Math.PI / 180);
-        const x1 = cx + r * Math.cos(a1), y1 = cy + r * Math.sin(a1);
-        const x2 = cx + r * Math.cos(a2), y2 = cy + r * Math.sin(a2);
-        const large = e - s > 65 ? 1 : 0;
-        return <path d={`M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2}`} stroke={color} strokeWidth={5.5} fill="none" strokeLinecap="round" opacity={0.35} />;
-      };
       return (
-        <svg width={size} height={size / 2 + 36} viewBox={`0 0 ${size} ${size / 2 + 36}`}>
-          {arc(0, 80, "#F07178")}{arc(80, 100, "#E8B85E")}{arc(100, 130, "#5FE0A8")}
-          {ticks}
+        <svg width={size} height={size / 2 + 25} viewBox={`0 0 ${size} ${size / 2 + 25}`}>
+          <path d={`M ${16} ${cy} A ${r} ${r} 0 1 1 ${size - 16} ${cy}`} stroke="#262E3B" strokeWidth={6} fill="none" strokeLinecap="round" />
           <line x1={cx} y1={cy} x2={nx} y2={ny} stroke="#EDEFF3" strokeWidth={2.6} strokeLinecap="round" />
           <circle cx={cx} cy={cy} r={6} fill="#EDEFF3" /><circle cx={cx} cy={cy} r={2.5} fill="#0F1419" />
-          <text x={cx} y={cy + 30} textAnchor="middle" fontFamily="Space Grotesk" fontSize="26" fontWeight="700" fill="#EDEFF3">{value.toFixed(1)}%</text>
+          <text x={cx} y={cy + 24} textAnchor="middle" fontFamily="Space Grotesk" fontSize="22" fontWeight="700" fill="#EDEFF3">{value.toFixed(1)}%</text>
         </svg>
-      );
-    }
-
-    function GrowthDot(props) {
-      const { cx, cy, payload } = props;
-      if (cx == null || cy == null) return null;
-      const color = payload.score >= 100 ? "#5FE0A8" : payload.score >= 80 ? "#E8B85E" : "#F07178";
-      return <circle cx={cx} cy={cy} r={4.5} fill={color} stroke="#0F1419" strokeWidth={1.5} />;
-    }
-
-    function ChartTooltip({ active, payload, label }) {
-      if (!active || !payload || !payload.length) return null;
-      const val = payload[0].value;
-      const st = statusColor(val);
-      return (
-        <div style={{ background: "#171D26", border: "1px solid #2A3444", borderRadius: 8, padding: "8px 12px", fontFamily: "'JetBrains Mono', monospace" }}>
-          <div style={{ fontSize: 11, color: "#8A93A3", marginBottom: 3 }}>{label}</div>
-          <div style={{ fontSize: 15, fontWeight: 700, color: st.fg }}>{val.toFixed(2)}%</div>
-        </div>
       );
     }
 
@@ -249,14 +169,7 @@
       const [expanded, setExpanded] = useState({});
       const [newPeriodName, setNewPeriodName] = useState("");
       const [showNewPeriod, setShowNewPeriod] = useState(false);
-      const [otherScores, setOtherScores] = useState({});
       const [isMobile, setIsMobile] = useState(window.innerWidth < 760);
-      const [importStatus, setImportStatus] = useState("idle");
-      const [importError, setImportError] = useState("");
-      const [importFile, setImportFile] = useState(null);
-      const [importPreviewUrl, setImportPreviewUrl] = useState(null);
-      const [importSummary, setImportSummary] = useState(null);
-      const fileInputRef = useRef(null);
       const saveTimer = useRef(null);
 
       useEffect(() => {
@@ -270,14 +183,14 @@
           let per = [];
           try {
             const rawPer = await cloudStorage.get(PERIODS_KEY);
-            if (rawPer) per = JSON.parse(rawPer);
+            if (rawPer) per = typeof rawPer === "string" ? JSON.parse(rawPer) : rawPer;
           } catch (e) {}
           let act = null;
           try {
             act = await cloudStorage.get(ACTIVE_KEY);
           } catch (e) {}
 
-          if (!per || per.length === 0) {
+          if (!per || !Array.isArray(per) || per.length === 0) {
             per = ["Juli 2026"];
             act = "Juli 2026";
             const seed = seedData();
@@ -290,7 +203,7 @@
             let d = null;
             try {
               const rawD = await cloudStorage.get(dataKey(act));
-              if (rawD) d = JSON.parse(rawD);
+              if (rawD) d = typeof rawD === "string" ? JSON.parse(rawD) : rawD;
             } catch (e) {}
             if (!d) d = seedData();
             setPeriods(per); setActive(act); setData(d);
@@ -299,24 +212,6 @@
           setLoaded(true);
         })();
       }, []);
-
-      useEffect(() => {
-        (async () => {
-          const missing = periods.filter((p) => p !== active && !(p in otherScores));
-          if (missing.length === 0) return;
-          const updates = {};
-          for (const p of missing) {
-            try {
-              const raw = await cloudStorage.get(dataKey(p));
-              if (raw) {
-                const d = JSON.parse(raw);
-                updates[p] = overallScore(d.categories);
-              }
-            } catch (e) {}
-          }
-          if (Object.keys(updates).length) setOtherScores((s) => ({ ...s, ...updates }));
-        })();
-      }, [periods, active]);
 
       const persistData = useCallback((period, next) => {
         if (saveTimer.current) clearTimeout(saveTimer.current);
@@ -332,14 +227,13 @@
       const updateData = (next) => { setData(next); persistData(active, next); };
 
       const switchPeriod = async (period) => {
-        if (data) setOtherScores((s) => ({ ...s, [active]: overallScore(data.categories) }));
         setLoaded(false);
         setActive(period);
         await cloudStorage.set(ACTIVE_KEY, period);
         let d = null;
         try {
           const raw = await cloudStorage.get(dataKey(period));
-          if (raw) d = JSON.parse(raw);
+          if (raw) d = typeof raw === "string" ? JSON.parse(raw) : raw;
         } catch (e) {}
         if (!d) d = seedData();
         setData(d);
@@ -352,7 +246,6 @@
         if (!name || periods.includes(name)) return;
         const cloned = JSON.parse(JSON.stringify(data));
         cloned.categories.forEach((c) => c.subItems.forEach((s) => { s.actual = 0; }));
-        setOtherScores((s) => ({ ...s, [active]: overallScore(data.categories) }));
         const nextPeriods = [...periods, name];
         setPeriods(nextPeriods);
         await cloudStorage.set(PERIODS_KEY, JSON.stringify(nextPeriods));
@@ -385,134 +278,80 @@
       const total = useMemo(() => data ? overallScore(data.categories) : 0, [data]);
       const overallStatus = statusColor(total);
 
-      const chartData = useMemo(() => periods.map((p) => ({ name: p, score: p === active ? total : (otherScores[p] ?? null) })).filter((d) => d.score !== null), [periods, active, total, otherScores]);
-      const growthDelta = chartData.length >= 2 ? chartData[chartData.length - 1].score - chartData[chartData.length - 2].score : null;
-
-      const focusList = useMemo(() => {
-        if (!data) return [];
-        const rows = [];
-        data.categories.forEach((cat) => {
-          cat.subItems.forEach((sub) => {
-            const ach = achievement(sub);
-            const potential = (Number(sub.subWeight) || 0) / 100 * (Number(cat.weight) || 0) / 100 * Math.max(0, 100 - ach);
-            if (potential > 0.05 && (Number(cat.weight) || 0) > 0 && (Number(sub.subWeight) || 0) > 0) {
-              rows.push({ cat: cat.name, name: sub.name, ach, potential, target: sub.target, actual: sub.actual, unit: sub.unit });
-            }
-          });
-        });
-        rows.sort((a, b) => b.potential - a.potential);
-        return rows.slice(0, 5);
-      }, [data]);
-
-      const categorySummaries = useMemo(() => {
-        if (!data) return [];
-        return data.categories.filter((c) => (Number(c.weight) || 0) > 0)
-          .map((c) => ({ name: c.name, score: categoryScore(c), weight: c.weight, pctOfWeight: c.weight ? (categoryScore(c) / c.weight) * 100 : 0 }))
-          .sort((a, b) => a.pctOfWeight - b.pctOfWeight);
-      }, [data]);
-
       if (!loaded || !data) {
         return (
           <div style={{ minHeight: "100vh", background: "#0F1419", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <div style={{ color: "#8A93A3", fontFamily: "Inter, sans-serif" }}>Memuat database dari Google Sheets…</div>
+            <div style={{ color: "#8A93A3", fontFamily: "Inter, sans-serif" }}>Memuat database…</div>
           </div>
         );
       }
 
-      const pad = isMobile ? "18px 12px 50px" : "24px 16px 60px";
-
       return (
-        <div style={{ minHeight: "100vh", background: "#0F1419", color: "#EDEFF3", fontFamily: "'Inter', sans-serif", padding: pad }}>
-          <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 14 }}>
+        <div style={{ minHeight: "100vh", background: "#0F1419", color: "#EDEFF3", fontFamily: "'Inter', sans-serif", padding: isMobile ? "16px 10px 40px" : "24px 16px 60px" }}>
+          <div style={{ maxWidth: 1050, margin: "0 auto" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 14, marginBottom: 16 }}>
               <div>
-                <div style={{ display: "flex", alignItems: "center", gap: 7, color: "#5FE0A8", fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1.4, marginBottom: 6 }}>
-                  <Database size={13} /> GOOGLE SHEETS & VERCEL READY
+                <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#5FE0A8", fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1.2, marginBottom: 4 }}>
+                  <span>●</span> GOOGLE SHEETS & VERCEL READY
                 </div>
-                <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: isMobile ? 21 : 25, fontWeight: 700, margin: 0 }}>KPI Service Advisor</h1>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 10 }}>
+                <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: isMobile ? 20 : 24, fontWeight: 700, margin: 0 }}>KPI Service Advisor</h1>
+                <div style={{ marginTop: 8 }}>
                   <input className="meta-input" type="text" value={data.meta.sa} onChange={(e) => updateMeta("sa", e.target.value)} style={{ width: isMobile ? "100%" : 240 }} />
                 </div>
               </div>
-              <div style={{ fontSize: 11, color: "#8A93A3", fontFamily: "'JetBrains Mono', monospace", textAlign: "right" }}>
-                {saveState === "saving" && "menyimpan ke sheets…"}
-                {saveState === "saved" && "tersimpan di sheets ✓"}
-                {saveState === "error" && "gagal sinkronisasi"}
+              <div style={{ fontSize: 11, color: "#8A93A3", fontFamily: "'JetBrains Mono', monospace" }}>
+                {saveState === "saving" && "menyimpan..."}
+                {saveState === "saved" && "tersimpan ✓"}
+                {saveState === "error" && "gagal simpan"}
               </div>
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 18, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
               <span style={{ fontSize: 12, color: "#8A93A3" }}>Periode:</span>
               <select value={active} onChange={(e) => switchPeriod(e.target.value)} style={{ flex: isMobile ? 1 : "none" }}>
                 {periods.map((p) => <option key={p} value={p}>{p}</option>)}
               </select>
               {!showNewPeriod ? (
-                <button className="ghost-btn" onClick={() => setShowNewPeriod(true)}><Copy size={13} /> Periode Baru</button>
+                <button className="ghost-btn" onClick={() => setShowNewPeriod(true)}>+ Periode Baru</button>
               ) : (
                 <>
-                  <input type="text" placeholder="mis. Agustus 2026" value={newPeriodName} onChange={(e) => setNewPeriodName(e.target.value)} style={{ width: isMobile ? "100%" : 160 }} />
+                  <input type="text" placeholder="mis. Agustus 2026" value={newPeriodName} onChange={(e) => setNewPeriodName(e.target.value)} style={{ width: isMobile ? "100%" : 150 }} />
                   <button className="primary-btn" onClick={createPeriod}>Buat</button>
                   <button className="ghost-btn" onClick={() => setShowNewPeriod(false)}>Batal</button>
                 </>
               )}
             </div>
 
-            <div style={{ background: "#141A22", border: "1px solid #262E3B", borderRadius: 16, padding: isMobile ? 16 : 22, display: "flex", flexWrap: "wrap", gap: 20, alignItems: "center", justifyContent: "space-around", marginTop: 20, marginBottom: 16 }}>
+            <div style={{ background: "#141A22", border: "1px solid #262E3B", borderRadius: 14, padding: 16, display: "flex", flexWrap: "wrap", gap: 20, alignItems: "center", justifyContent: "space-around", marginBottom: 16 }}>
               <div style={{ textAlign: "center" }}>
-                <Gauge value={total} size={isMobile ? 180 : 220} />
-                <div style={{ fontSize: 12, color: "#8A93A3", marginTop: 2 }}>Total Score — {active}</div>
+                <Gauge value={total} size={180} />
+                <div style={{ fontSize: 11, color: "#8A93A3", marginTop: 2 }}>Total Score — {active}</div>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 10, minWidth: isMobile ? "100%" : 220 }}>
-                <div style={{ padding: "11px 15px", borderRadius: 10, background: overallStatus.bg, border: `1px solid ${overallStatus.fg}33` }}>
+                <div style={{ padding: "10px 14px", borderRadius: 10, background: overallStatus.bg, border: `1px solid ${overallStatus.fg}33` }}>
                   <div style={{ fontSize: 11, color: "#8A93A3" }}>Status Keseluruhan</div>
-                  <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, color: overallStatus.fg, fontSize: 16 }}>{overallStatus.label}</div>
+                  <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, color: overallStatus.fg, fontSize: 15 }}>{overallStatus.label}</div>
                 </div>
-                <div style={{ padding: "11px 15px", borderRadius: 10, background: Math.abs(totalCatWeight - 100) < 0.01 ? "rgba(95,224,168,0.08)" : "rgba(232,184,94,0.1)", border: `1px solid ${Math.abs(totalCatWeight - 100) < 0.01 ? "#5FE0A833" : "#E8B85E55"}` }}>
+                <div style={{ padding: "10px 14px", borderRadius: 10, background: Math.abs(totalCatWeight - 100) < 0.01 ? "rgba(95,224,168,0.08)" : "rgba(232,184,94,0.1)", border: `1px solid ${Math.abs(totalCatWeight - 100) < 0.01 ? "#5FE0A833" : "#E8B85E55"}` }}>
                   <div style={{ fontSize: 11, color: "#8A93A3" }}>Total Bobot Kategori</div>
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 15, color: Math.abs(totalCatWeight - 100) < 0.01 ? "#5FE0A8" : "#E8B85E" }}>{totalCatWeight}%</div>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 14, color: Math.abs(totalCatWeight - 100) < 0.01 ? "#5FE0A8" : "#E8B85E" }}>{totalCatWeight}%</div>
                 </div>
               </div>
-            </div>
-
-            <div style={{ background: "#141A22", border: "1px solid #262E3B", borderRadius: 16, padding: isMobile ? 16 : 20, marginBottom: 16 }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <TrendingUp size={16} color="#5FE0A8" />
-                  <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 15, fontWeight: 700, margin: 0 }}>Pertumbuhan KPI per Bulan</h2>
-                </div>
-              </div>
-              {chartData.length < 2 ? (
-                <div style={{ fontSize: 12.5, color: "#5A6376", padding: "16px 4px" }}>Grafik memerlukan minimal 2 periode data.</div>
-              ) : (
-                <div style={{ width: "100%", height: isMobile ? 200 : 240 }}>
-                  <ResponsiveContainer>
-                    <LineChart data={chartData} margin={{ top: 6, right: isMobile ? 8 : 20, left: isMobile ? -18 : 0, bottom: 0 }}>
-                      <CartesianGrid stroke="#1B222C" vertical={false} />
-                      <XAxis dataKey="name" tick={{ fill: "#5A6376", fontSize: 10.5, fontFamily: "JetBrains Mono" }} axisLine={{ stroke: "#262E3B" }} tickLine={false} />
-                      <YAxis tick={{ fill: "#5A6376", fontSize: 10.5, fontFamily: "JetBrains Mono" }} axisLine={false} tickLine={false} width={isMobile ? 34 : 40} />
-                      <ReferenceLine y={100} stroke="#5FE0A8" strokeDasharray="4 4" opacity={0.4} />
-                      <Tooltip content={<ChartTooltip />} />
-                      <Line type="monotone" dataKey="score" stroke="#5FE0A8" strokeWidth={2.5} dot={<GrowthDot />} activeDot={{ r: 6 }} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              )}
             </div>
 
             <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
-              <button className="ghost-btn" onClick={addCategory}><Plus size={13} /> Tambah Kategori</button>
+              <button className="ghost-btn" onClick={addCategory}>+ Tambah Kategori</button>
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {data.categories.map((cat) => {
                 const score = categoryScore(cat);
                 const isOpen = expanded[cat.id] !== false;
-                const subWeightSum = cat.subItems.reduce((s, x) => s + (Number(x.subWeight) || 0), 0);
                 return (
-                  <div key={cat.id} style={{ background: "#141A22", border: "1px solid #262E3B", borderRadius: 14, overflow: "hidden" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, padding: isMobile ? "12px 12px" : "13px 16px", cursor: "pointer", flexWrap: "wrap" }} onClick={() => toggleExpand(cat.id)}>
+                  <div key={cat.id} style={{ background: "#141A22", border: "1px solid #262E3B", borderRadius: 12, overflow: "hidden" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", cursor: "pointer", flexWrap: "wrap" }} onClick={() => toggleExpand(cat.id)}>
                       <button className="icon-btn" style={{ border: "none" }} onClick={(e) => { e.stopPropagation(); toggleExpand(cat.id); }}>
-                        {isOpen ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
+                        {isOpen ? "▼" : "▶"}
                       </button>
                       <input className="name-input" type="text" value={cat.name} onClick={(e) => e.stopPropagation()} onChange={(e) => updateCategory(cat.id, "name", e.target.value)} style={{ width: isMobile ? 130 : 200 }} />
                       <div style={{ display: "flex", alignItems: "center", gap: 5 }} onClick={(e) => e.stopPropagation()}>
@@ -520,9 +359,9 @@
                         <input type="number" value={cat.weight} onChange={(e) => updateCategory(cat.id, "weight", e.target.value)} style={{ width: 56 }} />
                         <span style={{ fontSize: 11, color: "#8A93A3" }}>%</span>
                       </div>
-                      <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: isMobile ? 6 : 10 }}>
-                        <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: 16, color: statusColor((score / (cat.weight || 1)) * 100).fg }}>{score.toFixed(2)}%</div>
-                        <button className="icon-btn" onClick={(e) => { e.stopPropagation(); removeCategory(cat.id); }}><Trash2 size={13} /></button>
+                      <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
+                        <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: 15, color: statusColor((score / (cat.weight || 1)) * 100).fg }}>{score.toFixed(2)}%</div>
+                        <button className="icon-btn" onClick={(e) => { e.stopPropagation(); removeCategory(cat.id); }}>✕</button>
                       </div>
                     </div>
 
@@ -536,7 +375,7 @@
                             <div key={sub.id} style={{ background: "#0F1419", border: "1px solid #1B222C", borderRadius: 10, padding: 12, marginBottom: 10 }}>
                               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
                                 <input className="name-input" type="text" value={sub.name} onChange={(e) => updateSub(cat.id, sub.id, "name", e.target.value)} style={{ flex: 1 }} />
-                                <button className="icon-btn" onClick={() => removeSub(cat.id, sub.id)}><Trash2 size={12} /></button>
+                                <button className="icon-btn" onClick={() => removeSub(cat.id, sub.id)}>✕</button>
                               </div>
                               <label style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 6, fontSize: 10, color: "#8A93A3" }}>
                                 <input type="checkbox" checked={!!sub.inverse} onChange={(e) => updateSub(cat.id, sub.id, "inverse", e.target.checked)} style={{ width: "auto" }} />
@@ -556,7 +395,7 @@
                             </div>
                           );
                         })}
-                        <button className="ghost-btn" onClick={() => addSub(cat.id)} style={{ width: "100%", justifyContent: "center" }}><Plus size={12} /> Tambah Sub Item</button>
+                        <button className="ghost-btn" onClick={() => addSub(cat.id)} style={{ width: "100%", justifyContent: "center" }}>+ Tambah Sub Item</button>
                       </div>
                     )}
                   </div>
