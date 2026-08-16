@@ -44,10 +44,9 @@
     const { useState, useEffect, useCallback, useMemo } = React;
     const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } = Recharts;
 
-    const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR36vUBwnZjtxqSswz7E9iPrGI5JON5chP95xWKlxjH7zU9KG9F4FWgo4I8_VtkVOZBN1Jrj8LRsyYO/pub?gid=0&single=true&output=csv";
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyjDV-yEwUjHbaI87ofYzeFGIzLlDO78TLJeUDj6Q9XujozrQaIoED0JcHC664QZg548g/exec";
     const uid = () => Math.random().toString(36).slice(2, 10);
 
-    // Default template struktur data
     function seedData() {
       return {
         meta: { sa: "13C110 - DEDE KURNIAWAN", ytd: "Periode Berjalan" },
@@ -84,57 +83,6 @@
           }
         ],
       };
-    }
-
-    // Mapping CSV dari link Google Sheets
-    function mapCsvToData(csvRows) {
-      const categoriesMap = {};
-      let metaSa = "13C110 - DEDE KURNIAWAN";
-      let isAnyMapped = false;
-
-      const cleanNum = (val) => {
-        if (!val) return 0;
-        if (typeof val === 'number') return val;
-        let s = String(val).replace(/[^0-9.,-]/g, '');
-        if (s.includes(',') && s.includes('.')) {
-            if (s.lastIndexOf(',') > s.lastIndexOf('.')) s = s.replace(/\./g, '').replace(',', '.');
-            else s = s.replace(/,/g, '');
-        } else if (s.includes(',')) {
-            if (/, \d{3}$/.test(s)) s = s.replace(/,/g, '');
-            else s = s.replace(',', '.');
-        }
-        return parseFloat(s) || 0;
-      };
-
-      csvRows.forEach(row => {
-        const getVal = (possibleKeys) => {
-          const matchedKey = Object.keys(row).find(key => possibleKeys.some(pk => key.toLowerCase().includes(pk.toLowerCase())));
-          return matchedKey ? row[matchedKey] : "";
-        };
-
-        const catName = getVal(['kategori', 'category', 'pilar', 'group']);
-        const subName = getVal(['item', 'kpi', 'indikator', 'nama kpi', 'parameter']);
-        if (!subName) return; 
-
-        isAnyMapped = true;
-        const catGroup = catName || 'Business Process';
-        const catWeight = parseFloat(getVal(['bobot kategori', 'cat weight'])) || (catGroup === 'Business Process' ? 60 : catGroup === 'Financial' ? 30 : 10);
-        const unit = getVal(['satuan', 'unit']) || '%';
-        const subWeight = parseFloat(getVal(['bobot', 'sub weight'])) || 10;
-        const target = cleanNum(getVal(['target', 'plan']));
-        const actual = cleanNum(getVal(['aktual', 'actual', 'pencapaian']));
-        const invStr = String(getVal(['inverse', 'kebalikan'])).toLowerCase();
-        const inverse = invStr === 'true' || invStr === '1' || invStr === 'ya';
-        const saName = getVal(['nama', 'sa', 'advisor']);
-        
-        if (saName && metaSa === "13C110 - DEDE KURNIAWAN") metaSa = saName;
-        if (!categoriesMap[catGroup]) categoriesMap[catGroup] = { id: uid(), name: catGroup, weight: catWeight, subItems: [] };
-
-        categoriesMap[catGroup].subItems.push({ id: uid(), name: subName, unit, subWeight, target, actual, inverse });
-      });
-
-      if (!isAnyMapped) return null;
-      return { meta: { sa: metaSa, ytd: "Live Google Sheets" }, categories: Object.values(categoriesMap) };
     }
 
     function achievement(sub) {
@@ -347,38 +295,32 @@
       const [active, setActive] = useState("Periode Utama");
       
       const [currentData, setCurrentData] = useState(seedData());
-      const [syncStatus, setSyncStatus] = useState("Menghubungkan Sheets...");
+      const [syncStatus, setSyncStatus] = useState("Menghubungkan Google Sheets...");
       
       const [newPeriodName, setNewPeriodName] = useState("");
       const [showNewPeriod, setShowNewPeriod] = useState(false);
 
-      const fetchFromSheets = useCallback(() => {
-        setSyncStatus("⏳ Menarik data Sheets...");
-        Papa.parse(CSV_URL, {
-          download: true, header: true, skipEmptyLines: true,
-          complete: (results) => {
-            try {
-              if (results?.data?.length > 0) {
-                const mapped = mapCsvToData(results.data);
-                if (mapped) {
-                  setCurrentData(mapped);
-                  setSyncStatus("✅ Sheets Terhubung Live");
-                } else {
-                  setSyncStatus("⚠️ Format Sheets Tidak Dikenali");
-                }
-              }
-            } catch (err) {
-              console.error("Error CSV map", err);
-              setSyncStatus("⚠️ Error Proses Data");
+      const fetchDataFromAppsScript = useCallback(() => {
+        setSyncStatus("⏳ Sinkronisasi Apps Script...");
+        fetch(APPS_SCRIPT_URL)
+          .then(res => res.json())
+          .then(data => {
+            if (data && data.categories) {
+              setCurrentData(data);
+              setSyncStatus("✅ Terhubung Google Sheets");
+            } else {
+              setSyncStatus("⚠️ Format Data Kosong");
             }
-          },
-          error: () => setSyncStatus("⚠️ Gagal Akses Link Sheets")
-        });
+          })
+          .catch(err => {
+            console.error("Gagal sinkronisasi", err);
+            setSyncStatus("⚠️ Gagal Akses Web App");
+          });
       }, []);
 
       useEffect(() => {
-        fetchFromSheets();
-      }, [fetchFromSheets]);
+        fetchDataFromAppsScript();
+      }, [fetchDataFromAppsScript]);
 
       const createPeriod = () => {
         const name = newPeriodName.trim();
@@ -389,7 +331,7 @@
         setShowNewPeriod(false);
       };
 
-      const saveSubItemLocally = (catId, subId, newTarget, newActual) => {
+      const saveSubItemToSheets = (catId, subId, newTarget, newActual) => {
           const updatedCategories = currentData.categories.map(c => {
               if (c.id !== catId) return c;
               return {
@@ -397,8 +339,24 @@
                   subItems: c.subItems.map(s => s.id === subId ? { ...s, target: newTarget, actual: newActual } : s)
               };
           });
-          setCurrentData({ ...currentData, categories: updatedCategories });
-          setSyncStatus("✅ Tersimpan di Sesi Ini");
+          const newData = { ...currentData, categories: updatedCategories };
+          setCurrentData(newData);
+          
+          setSyncStatus("⏳ Menyimpan ke Sheets...");
+          
+          fetch(APPS_SCRIPT_URL, {
+              method: 'POST',
+              mode: 'no-cors',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(newData)
+          })
+          .then(() => {
+              setSyncStatus("✅ Tersimpan di Google Sheets");
+          })
+          .catch(err => {
+              console.error("Error post", err);
+              setSyncStatus("⚠️ Gagal Menyimpan ke Sheets");
+          });
       };
 
       const totalCatWeight = useMemo(() => currentData ? currentData.categories.reduce((s, c) => s + (Number(c.weight) || 0), 0) : 0, [currentData]);
@@ -437,7 +395,7 @@
               <div className="flex flex-col items-end gap-2">
                 <div className="flex items-center gap-2">
                     <button 
-                        onClick={fetchFromSheets}
+                        onClick={fetchDataFromAppsScript}
                         title="Tarik data terbaru dari Google Sheets"
                         className="inline-flex items-center justify-center p-1.5 bg-white border border-slate-200 hover:bg-slate-100 rounded-full transition-colors shadow-sm text-base cursor-pointer"
                     >
@@ -481,7 +439,7 @@
                 <div className="flex gap-3">
                     <span className="text-xl">💡</span>
                     <p className="text-sm text-emerald-800 leading-relaxed font-medium">
-                        <strong>Live Google Sheets Terhubung.</strong> Aplikasi menarik data langsung dari link spreadsheet Anda secara dinamis. Klik tombol <strong className="text-emerald-900 bg-emerald-200 px-1 rounded">🔓 Edit</strong> pada masing-masing indikator jika ingin melakukan simulasi atau pengisian target & aktual secara interaktif.
+                        <strong>Google Apps Script Aktif 2 Arah.</strong> Setiap perubahan target atau nilai aktual yang Anda simpan di web dashboard akan langsung diperbarui secara otomatis ke dalam Google Spreadsheet Anda.
                     </p>
                 </div>
             </div>
@@ -597,7 +555,7 @@
                                         sub={sub} 
                                         catWeight={cat.weight} 
                                         activePeriod={active}
-                                        onSave={(subId, target, actual) => saveSubItemLocally(cat.id, subId, target, actual)}
+                                        onSave={(subId, target, actual) => saveSubItemToSheets(cat.id, subId, target, actual)}
                                     />
                                 ))}
                             </tbody>
