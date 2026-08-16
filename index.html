@@ -49,7 +49,7 @@
 
     function seedData() {
       return {
-        meta: { sa: "13C110 - DEDE KURNIAWAN", periods: ["Juli 2026"], allHistory: [{ name: "Juli 2026", score: 0 }] },
+        meta: { sa: "13C110 - DEDE KURNIAWAN", periods: ["Juli 2026"] },
         categories: [
           {
             id: uid(), name: "Business Process", weight: 60,
@@ -76,9 +76,9 @@
           {
             id: uid(), name: "CS", weight: 10,
             subItems: [
-              { id: uid(), name: "NPS Per SA - TTB", unit: "point", subWeight: 50, target: 0, actual: 0, inverse: false },
-              { id: uid(), name: "Kuantity VOC Per SA", unit: "point", subWeight: 25, target: 0, actual: 0, inverse: false },
-              { id: uid(), name: "NPS Real Promoter", unit: "point", subWeight: 25, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "NPS Per SA - TTB", unit: "%", subWeight: 50, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "Kuantity VOC Per SA", unit: "%", subWeight: 25, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "NPS Real Promoter", unit: "%", subWeight: 25, target: 0, actual: 0, inverse: false },
             ],
           }
         ],
@@ -138,10 +138,10 @@
       return parseFloat(s) || 0;
     }
 
-    function Gauge({ value, size = 260 }) {
+    function Gauge({ value, size = 220 }) {
       const clamped = Math.max(0, Math.min(130, value));
       const angle = -180 + (clamped / 130) * 180;
-      const r = (size / 2) - 35;
+      const r = (size / 2) - 30;
       const cx = size / 2;
       const cy = size / 2 + 10;
       const rad = (angle * Math.PI) / 180;
@@ -152,8 +152,8 @@
       const st = statusStyle(value);
 
       return (
-        <div className="flex flex-col items-center justify-center relative w-full overflow-hidden py-2">
-          <svg width={size} height={size / 2 + 45} viewBox={`0 0 ${size} ${size / 2 + 45}`} className="overflow-visible">
+        <div className="flex flex-col items-center justify-center relative w-full overflow-hidden py-1">
+          <svg width={size} height={size / 2 + 35} viewBox={`0 0 ${size} ${size / 2 + 35}`} className="overflow-visible">
             <defs>
               <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
                 <stop offset="0%" stopColor="#EF4444" />
@@ -162,11 +162,11 @@
                 <stop offset="100%" stopColor="#10B981" />
               </linearGradient>
             </defs>
-            <path d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`} stroke="#E2E8F0" strokeWidth={14} fill="none" strokeLinecap="round" />
-            <path d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`} stroke="url(#gaugeGrad)" strokeWidth={14} fill="none" strokeLinecap="round" strokeDasharray={`${Math.PI * r}`} strokeDashoffset={`${Math.PI * r * (1 - clamped / 130)}`} />
-            <line x1={cx} y1={cy} x2={nx} y2={ny} stroke="#1E293B" strokeWidth={4} strokeLinecap="round" />
-            <circle cx={cx} cy={cy} r={9} fill="#FFFFFF" stroke={st.hex} strokeWidth={4} />
-            <text x={cx} y={cy + 38} textAnchor="middle" fontFamily="Plus Jakarta Sans" fontSize="30" fontWeight="800" fill="#0F172A">{value.toFixed(1)}%</text>
+            <path d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`} stroke="#E2E8F0" strokeWidth={12} fill="none" strokeLinecap="round" />
+            <path d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`} stroke="url(#gaugeGrad)" strokeWidth={12} fill="none" strokeLinecap="round" strokeDasharray={`${Math.PI * r}`} strokeDashoffset={`${Math.PI * r * (1 - clamped / 130)}`} />
+            <line x1={cx} y1={cy} x2={nx} y2={ny} stroke="#1E293B" strokeWidth={3} strokeLinecap="round" />
+            <circle cx={cx} cy={cy} r={7} fill="#FFFFFF" stroke={st.hex} strokeWidth={3} />
+            <text x={cx} y={cy + 32} textAnchor="middle" fontFamily="Plus Jakarta Sans" fontSize="26" fontWeight="800" fill="#0F172A">{value.toFixed(1)}%</text>
           </svg>
         </div>
       );
@@ -177,9 +177,9 @@
       const val = payload[0].value;
       const st = statusStyle(val);
       return (
-        <div className="bg-white border border-slate-200 rounded-lg p-3 shadow-lg font-mono">
-          <div className="text-xs text-slate-500 mb-1">{label}</div>
-          <div className="text-sm font-bold" style={{ color: st.hex }}>Skor: {val.toFixed(2)}%</div>
+        <div className="bg-white border border-slate-200 rounded-lg p-2.5 shadow-lg font-mono text-xs">
+          <div className="text-slate-500 mb-0.5">{label}</div>
+          <div className="font-bold" style={{ color: st.hex }}>Skor: {val.toFixed(2)}%</div>
         </div>
       );
     }
@@ -239,64 +239,64 @@
 
         return (
             <tr className="border-b border-slate-100 last:border-0 hover:bg-slate-50/70 transition-colors">
-                <td className="py-4 px-5">
-                    <div className="font-semibold text-slate-800 text-sm leading-tight">{sub.name}</div>
-                    {sub.inverse && <div className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider">Inverse Metric</div>}
+                <td className="py-2.5 px-4">
+                    <div className="font-semibold text-slate-800 text-xs leading-tight">{sub.name}</div>
+                    {sub.inverse && <span className="text-[9px] text-slate-400 uppercase tracking-wider">Inverse</span>}
                 </td>
-                <td className="py-4 px-4 text-center text-sm font-mono text-slate-500">{sub.unit}</td>
-                <td className="py-4 px-4 text-center text-sm font-medium text-slate-600">{sub.subWeight}%</td>
+                <td className="py-2.5 px-3 text-center text-xs font-mono text-slate-500">{sub.unit}</td>
+                <td className="py-4 px-3 text-center text-xs font-medium text-slate-600">{sub.subWeight}%</td>
                 
-                <td className="py-4 px-4 text-right">
+                <td className="py-2.5 px-3 text-right">
                     {isLocked ? (
-                        <span className="font-mono text-sm font-medium text-slate-700">
+                        <span className="font-mono text-xs font-medium text-slate-700">
                             {targetNum === 0 ? '-' : formatValue(targetNum, sub.unit)}
                         </span>
                     ) : (
-                        <div className="relative inline-block w-full max-w-[140px]">
+                        <div className="relative inline-block w-full max-w-[120px]">
                             <input 
                                 type="text" 
                                 value={targetStr}
                                 onChange={handleTargetChange}
                                 placeholder="0"
-                                className="w-full text-right font-mono text-sm border-2 border-amber-400 bg-amber-50 rounded-lg py-1.5 px-3 focus:ring-4 focus:ring-amber-400/20 outline-none transition-all" 
+                                className="w-full text-right font-mono text-xs border border-amber-400 bg-amber-50 rounded px-2 py-1 outline-none" 
                             />
                         </div>
                     )}
                 </td>
 
-                <td className="py-4 px-4 text-right">
+                <td className="py-2.5 px-3 text-right">
                     {isLocked ? (
-                        <span className="font-mono text-sm font-medium text-slate-700">
+                        <span className="font-mono text-xs font-medium text-slate-700">
                             {actualNum === 0 ? '-' : formatValue(actualNum, sub.unit)}
                         </span>
                     ) : (
-                        <div className="relative inline-block w-full max-w-[140px]">
+                        <div className="relative inline-block w-full max-w-[120px]">
                             <input 
                                 type="text" 
                                 value={actualStr}
                                 onChange={handleActualChange}
                                 placeholder="0"
-                                className="w-full text-right font-mono text-sm border-2 border-emerald-400 bg-emerald-50 rounded-lg py-1.5 px-3 focus:ring-4 focus:ring-emerald-400/20 outline-none transition-all" 
+                                className="w-full text-right font-mono text-xs border border-emerald-400 bg-emerald-50 rounded px-2 py-1 outline-none" 
                             />
                         </div>
                     )}
                 </td>
 
-                <td className="py-4 px-4 text-center">
-                    <span className={`px-2.5 py-1.5 rounded-full text-xs font-bold ${st.bg} ${st.text} border ${st.border}`}>
+                <td className="py-2.5 px-3 text-center">
+                    <span className={`px-2 py-0.5 rounded text-[11px] font-bold ${st.bg} ${st.text}`}>
                         {ach.toFixed(1)}%
                     </span>
                 </td>
-                <td className="py-4 px-4 text-center font-mono font-bold text-slate-800 text-base">
+                <td className="py-2.5 px-3 text-center font-mono font-bold text-slate-800 text-xs">
                     {sc.toFixed(2)}
                 </td>
-                <td className="py-4 px-4 text-center">
+                <td className="py-2.5 px-3 text-center">
                     <button 
                         onClick={handleToggleLock} 
-                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm
+                        className={`px-2.5 py-1 rounded text-[11px] font-bold transition-all
                             ${isLocked 
                                 ? 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100' 
-                                : 'bg-emerald-500 border border-emerald-600 text-white hover:bg-emerald-600 hover:shadow-md'
+                                : 'bg-emerald-500 text-white hover:bg-emerald-600'
                             }`}
                     >
                         {isLocked ? '🔓 Edit' : '🔒 Simpan'}
@@ -406,67 +406,52 @@
       }, [currentData]);
 
       return (
-        <div className="min-h-screen text-slate-800 font-sans pb-16">
-          <div className="max-w-6xl mx-auto px-4 pt-8">
+        <div className="min-h-screen text-slate-800 font-sans pb-12">
+          <div className="max-w-6xl mx-auto px-4 pt-6">
             
             {/* Header Area */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4">
               <div>
-                <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 mb-1">KPI Service Advisor</h1>
-                <div className="text-slate-500 font-medium">{currentData.meta?.sa || "13C110 - DEDE KURNIAWAN"}</div>
+                <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">KPI Service Advisor</h1>
+                <div className="text-xs text-slate-500 font-medium">{currentData.meta?.sa || "13C110 - DEDE KURNIAWAN"}</div>
               </div>
-              <div className="flex flex-col items-end gap-2">
-                <div className="flex items-center gap-2">
-                    <button 
-                        onClick={() => fetchDataFromAppsScript(active)}
-                        title="Tarik data terbaru dari Google Sheets"
-                        className="inline-flex items-center justify-center p-1.5 bg-white border border-slate-200 hover:bg-slate-100 rounded-full transition-colors shadow-sm text-base cursor-pointer"
-                    >
-                        🔄
-                    </button>
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-full shadow-sm text-xs font-semibold text-slate-600">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                      {syncStatus}
-                    </div>
+              <div className="flex items-center gap-2">
+                <button 
+                    onClick={() => fetchDataFromAppsScript(active)}
+                    title="Tarik data terbaru dari Google Sheets"
+                    className="p-1.5 bg-white border border-slate-200 hover:bg-slate-100 rounded-full transition-colors shadow-sm text-sm cursor-pointer"
+                >
+                    🔄
+                </button>
+                <div className="flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200 rounded-full shadow-sm text-xs font-semibold text-slate-600">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  {syncStatus}
                 </div>
-                
-                <div className="flex items-center gap-2 mt-1">
-                  <select 
-                    value={active} 
-                    onChange={(e) => setActive(e.target.value)}
-                    className="bg-white border border-slate-300 text-slate-700 rounded-lg px-4 py-2 text-sm font-semibold shadow-sm outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
-                  >
-                    {periods.map((p) => <option key={p} value={p}>{p}</option>)}
-                  </select>
-                </div>
+                <select 
+                  value={active} 
+                  onChange={(e) => setActive(e.target.value)}
+                  className="bg-white border border-slate-300 text-slate-700 rounded-lg px-3 py-1.5 text-xs font-semibold shadow-sm outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+                >
+                  {periods.map((p) => <option key={p} value={p}>{p}</option>)}
+                </select>
               </div>
-            </div>
-
-            {/* Disclaimer Banner */}
-            <div className="bg-emerald-50 border-l-4 border-emerald-500 rounded-r-xl p-4 mb-8 shadow-sm">
-                <div className="flex gap-3">
-                    <span className="text-xl">💡</span>
-                    <p className="text-sm text-emerald-800 leading-relaxed font-medium">
-                        <strong>Grafik Batang & Garis Utuh Aktif.</strong> Grafik kinerja bulanan kini menampilkan seluruh pencapaian aktual dari semua periode secara utuh (tidak terfilter oleh pilihan periode aktif).
-                    </p>
-                </div>
             </div>
 
             {/* Top Cards (Gauge & Chart) */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
                 
                 {/* Score Summary Card */}
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col items-center justify-center lg:col-span-1">
-                    <div className="w-full flex justify-center py-2">
-                      <Gauge value={total} size={250} />
+                <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex flex-col items-center justify-center lg:col-span-1">
+                    <div className="w-full flex justify-center py-1">
+                      <Gauge value={total} size={210} />
                     </div>
-                    <div className="text-sm font-bold text-slate-400 mt-1 tracking-wide uppercase">Skor Total — {active}</div>
+                    <div className="text-xs font-bold text-slate-400 mt-0.5 tracking-wide uppercase">Skor Total — {active}</div>
                     
-                    <div className="w-full mt-6 space-y-3">
-                        <div className={`w-full text-center py-2.5 rounded-lg border font-bold text-sm ${overallStatus.bg} ${overallStatus.text} ${overallStatus.border}`}>
+                    <div className="w-full mt-4 space-y-2">
+                        <div className={`w-full text-center py-2 rounded-lg border font-bold text-xs ${overallStatus.bg} ${overallStatus.text} ${overallStatus.border}`}>
                             {overallStatus.label}
                         </div>
-                        <div className="flex justify-between items-center text-xs font-semibold px-2">
+                        <div className="flex justify-between items-center text-[11px] font-semibold px-1">
                             <span className="text-slate-500">Bobot KPI:</span>
                             <span className={Math.abs(totalCatWeight - 100) < 0.1 ? "text-emerald-600" : "text-amber-600"}>{totalCatWeight}%</span>
                         </div>
@@ -474,50 +459,50 @@
                 </div>
 
                 {/* Combined Bar & Line Chart Card */}
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 lg:col-span-2 flex flex-col">
-                    <div className="flex items-center gap-2 mb-4">
-                        <span className="text-xl">📈</span>
-                        <h2 className="text-lg font-bold text-slate-800">Grafik Kinerja Bulanan (Batang & Garis)</h2>
+                <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 lg:col-span-2 flex flex-col">
+                    <div className="flex items-center gap-1.5 mb-2">
+                        <span className="text-base">📈</span>
+                        <h2 className="text-sm font-bold text-slate-800">Grafik Kinerja Bulanan (Batang & Garis)</h2>
                     </div>
-                    <div className="w-full flex-grow min-h-[220px]">
+                    <div className="w-full flex-grow min-h-[190px]">
                         <ResponsiveContainer>
-                          <ComposedChart data={historyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                          <ComposedChart data={historyData} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
                             <CartesianGrid stroke="#F1F5F9" vertical={false} />
-                            <XAxis dataKey="name" tick={{ fill: "#64748B", fontSize: 11, fontFamily: "JetBrains Mono" }} axisLine={{ stroke: "#E2E8F0" }} tickLine={false} />
-                            <YAxis tick={{ fill: "#64748B", fontSize: 11, fontFamily: "JetBrains Mono" }} axisLine={false} tickLine={false} domain={[0, 130]} />
-                            <ReferenceLine y={100} stroke="#10B981" strokeDasharray="4 4" opacity={0.6} />
-                            <ReferenceLine y={85} stroke="#3B82F6" strokeDasharray="4 4" opacity={0.5} />
+                            <XAxis dataKey="name" tick={{ fill: "#64748B", fontSize: 10, fontFamily: "JetBrains Mono" }} axisLine={{ stroke: "#E2E8F0" }} tickLine={false} />
+                            <YAxis tick={{ fill: "#64748B", fontSize: 10, fontFamily: "JetBrains Mono" }} axisLine={false} tickLine={false} domain={[0, 130]} />
+                            <ReferenceLine y={100} stroke="#10B981" strokeDasharray="3 3" opacity={0.6} />
+                            <ReferenceLine y={85} stroke="#3B82F6" strokeDasharray="3 3" opacity={0.5} />
                             <Tooltip content={<ChartTooltip />} cursor={{ fill: '#F1F5F9' }} />
-                            <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
-                            <Bar dataKey="score" name="Capaian Aktual (%)" fill="#3B82F6" radius={[6, 6, 0, 0]} barSize={36} />
-                            <Line type="monotone" dataKey="score" name="Tren Kinerja" stroke="#10B981" strokeWidth={3} dot={{ r: 5, fill: "#10B981", stroke: "#FFFFFF", strokeWidth: 2 }} activeDot={{ r: 7 }} />
+                            <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '4px' }} />
+                            <Bar dataKey="score" name="Capaian Aktual (%)" fill="#3B82F6" radius={[4, 4, 0, 0]} barSize={28} />
+                            <Line type="monotone" dataKey="score" name="Tren Kinerja" stroke="#10B981" strokeWidth={2.5} dot={{ r: 4, fill: "#10B981", stroke: "#FFFFFF", strokeWidth: 2 }} activeDot={{ r: 6 }} />
                           </ComposedChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
             </div>
 
-            {/* Rekomendasi Prioritas */}
+            {/* Rekomendasi Prioritas (Compact Grid) */}
             {focusList.length > 0 && (
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-8">
-                  <div className="flex items-center gap-2 mb-4">
-                    <span className="text-xl">🎯</span>
-                    <h2 className="text-lg font-bold text-slate-800">Prioritas Peningkatan Kinerja</h2>
+                <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 mb-6">
+                  <div className="flex items-center gap-1.5 mb-3">
+                    <span className="text-base">🎯</span>
+                    <h2 className="text-sm font-bold text-slate-800">Prioritas Peningkatan Kinerja</h2>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
                       {focusList.map((f, i) => {
                         const st = statusStyle(f.ach);
                         return (
-                          <div key={i} className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl p-4">
+                          <div key={i} className="bg-slate-50 border border-slate-200 rounded-lg p-3 flex flex-col justify-between">
                             <div>
-                              <div className="text-sm font-bold text-slate-800">{i + 1}. {f.name}</div>
-                              <div className="text-xs text-slate-500 mt-1">
-                                  Aktual: {formatValue(f.actual, f.unit)} / Target: {formatValue(f.target, f.unit)}
+                              <div className="text-xs font-bold text-slate-800 line-clamp-1">{i + 1}. {f.name}</div>
+                              <div className="text-[11px] text-slate-500 mt-1">
+                                  Aktual: {formatValue(f.actual, f.unit)}
                               </div>
                             </div>
-                            <div className="flex flex-col items-end gap-1">
-                              <span className={`px-2 py-1 rounded-md text-xs font-bold ${st.bg} ${st.text}`}>{f.ach.toFixed(1)}%</span>
-                              <span className="text-xs font-bold text-emerald-600">+{f.potential.toFixed(2)} poin</span>
+                            <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-200">
+                              <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${st.bg} ${st.text}`}>{f.ach.toFixed(1)}%</span>
+                              <span className="text-[11px] font-bold text-emerald-600">+{f.potential.toFixed(2)} pts</span>
                             </div>
                           </div>
                         );
@@ -527,34 +512,34 @@
             )}
 
             {/* KPI Cards (Categories) */}
-            <div className="space-y-8">
+            <div className="space-y-4">
               {currentData.categories.map((cat) => {
                 const catScore = categoryScore(cat);
                 return (
-                  <div key={cat.id} className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                  <div key={cat.id} className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
                     
                     {/* Category Header */}
-                    <div className="bg-slate-800 px-6 py-4 flex flex-col md:flex-row justify-between md:items-center gap-3">
-                        <h3 className="text-xl font-bold text-white tracking-tight">{cat.name}</h3>
-                        <div className="flex items-center gap-6">
-                            <div className="text-slate-300 text-sm">Bobot: <span className="font-bold text-white text-base ml-1">{cat.weight}%</span></div>
-                            <div className="text-slate-300 text-sm">Skor Kategori: <span className="font-bold text-emerald-400 text-base ml-1">{catScore.toFixed(2)}</span></div>
+                    <div className="bg-slate-800 px-4 py-2.5 flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+                        <h3 className="text-sm font-bold text-white tracking-tight">{cat.name}</h3>
+                        <div className="flex items-center gap-4 text-xs">
+                            <span className="text-slate-300">Bobot: <strong className="text-white ml-0.5">{cat.weight}%</strong></span>
+                            <span className="text-slate-300">Skor: <strong className="text-emerald-400 ml-0.5">{catScore.toFixed(2)}</strong></span>
                         </div>
                     </div>
 
                     {/* SubItems Table */}
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse min-w-[900px]">
-                            <thead className="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider font-bold border-b border-slate-200">
+                        <table className="w-full text-left border-collapse min-w-[850px]">
+                            <thead className="bg-slate-50 text-slate-500 text-[10px] uppercase tracking-wider font-bold border-b border-slate-200">
                                 <tr>
-                                   <th className="px-5 py-4 w-[28%]">Indikator KPI</th>
-                                   <th className="px-4 py-4 text-center w-[8%]">Satuan</th>
-                                   <th className="px-4 py-4 text-center w-[8%]">Bobot</th>
-                                   <th className="px-4 py-4 text-right w-[15%]">Target</th>
-                                   <th className="px-4 py-4 text-right w-[15%]">Aktual</th>
-                                   <th className="px-4 py-4 text-center w-[10%]">Capaian</th>
-                                   <th className="px-4 py-4 text-center w-[8%]">Skor</th>
-                                   <th className="px-4 py-4 text-center w-[8%]">Aksi</th>
+                                   <th className="px-4 py-2.5 w-[28%]">Indikator KPI</th>
+                                   <th className="px-3 py-2.5 text-center w-[8%]">Satuan</th>
+                                   <th className="px-3 py-2.5 text-center w-[8%]">Bobot</th>
+                                   <th className="px-3 py-2.5 text-right w-[15%]">Target</th>
+                                   <th className="px-3 py-2.5 text-right w-[15%]">Aktual</th>
+                                   <th className="px-3 py-2.5 text-center w-[10%]">Capaian</th>
+                                   <th className="px-3 py-2.5 text-center w-[8%]">Skor</th>
+                                   <th className="px-3 py-2.5 text-center w-[8%]">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
