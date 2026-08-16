@@ -54,31 +54,31 @@
           {
             id: uid(), name: "Business Process", weight: 60,
             subItems: [
-              { id: uid(), name: "Unit CPUS (SBE + GRP)", unit: "unit", subWeight: 25, target: 0, actual: 0, inverse: false },
-              { id: uid(), name: "Lead Time (ALL UE)", unit: "menit", subWeight: 10, target: 0, actual: 0, inverse: true },
-              { id: uid(), name: "FIR (Fix It Right)", unit: "%", subWeight: 0, target: 0, actual: 0, inverse: false },
-              { id: uid(), name: "OTD (excl. TWC & RTJ)", unit: "%", subWeight: 10, target: 0, actual: 0, inverse: false },
-              { id: uid(), name: "% Pelanggan di Engagement", unit: "%", subWeight: 10, target: 0, actual: 0, inverse: false },
-              { id: uid(), name: "% Saran Service / CPUS", unit: "%", subWeight: 15, target: 0, actual: 0, inverse: false },
-              { id: uid(), name: "% CAI Saran Service", unit: "%", subWeight: 15, target: 0, actual: 0, inverse: false },
-              { id: uid(), name: "% SA Retention", unit: "%", subWeight: 15, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "Unit CPUS (SBE + GRP)", unit: "unit", subWeight: 25, target: 0, actual: 0, inverse: false, colIndex: 1 },
+              { id: uid(), name: "Lead Time (ALL UE)", unit: "menit", subWeight: 10, target: 0, actual: 0, inverse: true, colIndex: 2 },
+              { id: uid(), name: "FIR (Fix It Right)", unit: "%", subWeight: 0, target: 0, actual: 0, inverse: false, colIndex: 3 },
+              { id: uid(), name: "OTD (excl. TWC & RTJ)", unit: "%", subWeight: 10, target: 0, actual: 0, inverse: false, colIndex: 4 },
+              { id: uid(), name: "% Pelanggan di Engagement", unit: "%", subWeight: 10, target: 0, actual: 0, inverse: false, colIndex: 5 },
+              { id: uid(), name: "% Saran Service / CPUS", unit: "%", subWeight: 15, target: 0, actual: 0, inverse: false, colIndex: 6 },
+              { id: uid(), name: "% CAI Saran Service", unit: "%", subWeight: 15, target: 0, actual: 0, inverse: false, colIndex: 7 },
+              { id: uid(), name: "% SA Retention", unit: "%", subWeight: 15, target: 0, actual: 0, inverse: false, colIndex: 8 },
             ],
           },
           {
             id: uid(), name: "Financial", weight: 30,
             subItems: [
-              { id: uid(), name: "Penjualan Jasa", unit: "Rp", subWeight: 50, target: 0, actual: 0, inverse: false },
-              { id: uid(), name: "Penjualan Spare Part", unit: "Rp", subWeight: 25, target: 0, actual: 0, inverse: false },
-              { id: uid(), name: "Penjualan Bahan", unit: "Rp", subWeight: 15, target: 0, actual: 0, inverse: false },
-              { id: uid(), name: "Penjualan Sublet", unit: "Rp", subWeight: 10, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "Penjualan Jasa", unit: "Rp", subWeight: 50, target: 0, actual: 0, inverse: false, colIndex: 9 },
+              { id: uid(), name: "Penjualan Spare Part", unit: "Rp", subWeight: 25, target: 0, actual: 0, inverse: false, colIndex: 10 },
+              { id: uid(), name: "Penjualan Bahan", unit: "Rp", subWeight: 15, target: 0, actual: 0, inverse: false, colIndex: 11 },
+              { id: uid(), name: "Penjualan Sublet", unit: "Rp", subWeight: 10, target: 0, actual: 0, inverse: false, colIndex: 12 },
             ],
           },
           {
             id: uid(), name: "CS", weight: 10,
             subItems: [
-              { id: uid(), name: "NPS Per SA - TTB", unit: "point", subWeight: 50, target: 0, actual: 0, inverse: false },
-              { id: uid(), name: "Kuantity VOC Per SA", unit: "point", subWeight: 25, target: 0, actual: 0, inverse: false },
-              { id: uid(), name: "NPS Real Promoter", unit: "point", subWeight: 25, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "NPS Per SA - TTB", unit: "point", subWeight: 50, target: 0, actual: 0, inverse: false, colIndex: 13 },
+              { id: uid(), name: "Kuantity VOC Per SA", unit: "point", subWeight: 25, target: 0, actual: 0, inverse: false, colIndex: 14 },
+              { id: uid(), name: "NPS Real Promoter", unit: "point", subWeight: 25, target: 0, actual: 0, inverse: false, colIndex: 15 },
             ],
           }
         ],
@@ -310,7 +310,7 @@
                   setActive(data.meta.periods[0]);
                 }
               }
-              setSyncStatus("✅ Terhubung Google Sheets");
+              setSyncStatus("✅ Terhubung Google Sheets (Kolom A s.d. O)");
             } else {
               setSyncStatus("⚠️ Format Data Kosong");
             }
@@ -418,7 +418,7 @@
                 <div className="flex gap-3">
                     <span className="text-xl">💡</span>
                     <p className="text-sm text-emerald-800 leading-relaxed font-medium">
-                        <strong>Sinkronisasi Kolom Header & Periode Google Sheets.</strong> Dashboard secara dinamis mencocokkan nama indikator KPI dengan tajuk kolom header pada sheet Aktual dan Target Anda, serta membaca baris Periode dari Kolom A.
+                        <strong>Sinkronisasi Kolom Urut (Kolom A - O).</strong> Data dibaca secara presisi: Kolom A untuk Periode, Kolom B untuk Unit CPUS, Kolom C untuk Lead Time, dan seterusnya secara berurutan sesuai layout sheet Anda.
                     </p>
                 </div>
             </div>
