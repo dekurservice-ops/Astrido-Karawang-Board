@@ -4,12 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KPI Service Advisor - Profesional Dashboard</title>
+  
+  <!-- Libraries -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/recharts@2.12.7/umd/Recharts.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  
+  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
   <style>
     * { box-sizing: border-box; }
     body {
@@ -127,11 +133,7 @@
     const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } = Recharts;
 
     const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR36vUBwnZjtxqSswz7E9iPrGI5JON5chP95xWKlxjH7zU9KG9F4FWgo4I8_VtkVOZBN1Jrj8LRsyYO/pub?gid=0&single=true&output=csv";
-
     const uid = () => Math.random().toString(36).slice(2, 10);
-    const PERIODS_KEY = "kpi-sa-periods-v3";
-    const ACTIVE_KEY = "kpi-sa-active-period-v3";
-    const dataKey = (period) => `kpi-sa-data-v3::${period}`;
 
     function seedData() {
       return {
@@ -182,13 +184,16 @@
       if (Number.isNaN(a)) return 0;
       return (a / t) * 100;
     }
+    
     function subScore(sub, categoryWeight) {
       const ach = achievement(sub);
       return ((Number(sub.subWeight) || 0) / 100) * ((Number(categoryWeight) || 0) / 100) * ach;
     }
+    
     function categoryScore(cat) {
       return cat.subItems.reduce((s, sub) => s + subScore(sub, cat.weight), 0);
     }
+    
     function overallScore(categories) {
       return categories.reduce((s, c) => s + categoryScore(c), 0);
     }
@@ -200,10 +205,24 @@
       return { fg: "#F87171", bg: "rgba(248, 113, 113, 0.1)", label: "Perlu Perhatian (< 80%)" };
     }
 
-    function fmt(n) {
+    function fmt(n, unit) {
       const num = Number(n);
       if (Number.isNaN(num)) return "-";
+      
+      if (unit && unit.toLowerCase() === "rp") {
+        return "Rp " + num.toLocaleString("id-ID");
+      }
       return num.toLocaleString("id-ID");
+    }
+
+    function parseFormattedNumber(val) {
+      if (!val) return 0;
+      if (typeof val === 'number') return val;
+      // Hapus semua karakter kecuali angka, koma, dan minus
+      let s = String(val).replace(/[^0-9,-]/g, '');
+      // Ganti koma dengan titik (karena ini input berbahasa indonesia biasanya)
+      s = s.replace(/,/g, '.');
+      return parseFloat(s) || 0;
     }
 
     function Gauge({ value, size = 210 }) {
@@ -214,7 +233,6 @@
       const rad = (angle * Math.PI) / 180;
       const needleLen = r - 15;
       const nx = cx + needleLen * Math.cos(rad), ny = cy + needleLen * Math.sin(rad);
-
       const statusTheme = value >= 100 ? "#34D399" : value >= 85 ? "#60A5FA" : value >= 80 ? "#FBBF24" : "#F87171";
 
       return (
@@ -253,11 +271,77 @@
       );
     }
 
+    function mapCsvToData(csvRows) {
+      const categoriesMap = {};
+      let metaSa = "Service Advisor";
+      let isAnyMapped = false;
+
+      // Helper untuk membersihkan angka dari format ID/EN
+      const cleanNum = (val) => {
+        if (!val) return 0;
+        if (typeof val === 'number') return val;
+        let s = String(val).replace(/[^0-9.,-]/g, '');
+        if (s.includes(',') && s.includes('.')) {
+            if (s.lastIndexOf(',') > s.lastIndexOf('.')) s = s.replace(/\./g, '').replace(',', '.');
+            else s = s.replace(/,/g, '');
+        } else if (s.includes(',')) {
+            if (/, \d{3}$/.test(s)) s = s.replace(/,/g, '');
+            else s = s.replace(',', '.'); // koma sebagai desimal
+        }
+        return parseFloat(s) || 0;
+      };
+
+      csvRows.forEach(row => {
+        // Cari kolom yang mengandung keyword tertentu (Case Insensitive)
+        const getVal = (possibleKeys) => {
+          const matchedKey = Object.keys(row).find(key => 
+            possibleKeys.some(pk => key.toLowerCase().includes(pk.toLowerCase()))
+          );
+          return matchedKey ? row[matchedKey] : "";
+        };
+
+        const catName = getVal(['kategori', 'category', 'pilar', 'group']);
+        const subName = getVal(['item', 'kpi', 'indikator', 'nama kpi', 'parameter']);
+        
+        // Skip baris kosong atau tidak memiliki nama KPI
+        if (!subName) return; 
+
+        isAnyMapped = true;
+        const catGroup = catName || 'Uncategorized';
+        const catWeight = parseFloat(getVal(['bobot kategori', 'cat weight', 'weight_cat'])) || 0;
+        const unit = getVal(['satuan', 'unit']) || '';
+        const subWeight = parseFloat(getVal(['bobot', 'sub weight', 'bobot kpi'])) || 0;
+        
+        const target = cleanNum(getVal(['target', 'plan']));
+        const actual = cleanNum(getVal(['aktual', 'actual', 'pencapaian', 'realisasi']));
+        
+        const invStr = String(getVal(['inverse', 'kebalikan', 'terbalik'])).toLowerCase();
+        const inverse = invStr === 'true' || invStr === '1' || invStr === 'ya' || invStr === 'yes';
+
+        const saName = getVal(['nama', 'sa', 'advisor', 'karyawan']);
+        if (saName && metaSa === "Service Advisor") metaSa = saName;
+
+        if (!categoriesMap[catGroup]) {
+          categoriesMap[catGroup] = { id: uid(), name: catGroup, weight: catWeight, subItems: [] };
+        }
+
+        categoriesMap[catGroup].subItems.push({
+          id: uid(), name: subName, unit, subWeight, target, actual, inverse
+        });
+      });
+
+      if (!isAnyMapped) return null;
+
+      return {
+        meta: { sa: metaSa, ytd: "Updated via Sheets" },
+        categories: Object.values(categoriesMap)
+      };
+    }
+
     function App() {
       const [periods, setPeriods] = useState(["Juli 2026", "Juni 2026", "Mei 2026"]);
       const [active, setActive] = useState("Juli 2026");
-      const [data, setData] = useState(seedData());
-      const [loaded, setLoaded] = useState(true);
+      const [data, setData] = useState(seedData()); // Fallback default
       const [syncStatus, setSyncStatus] = useState("syncing");
       const [expanded, setExpanded] = useState({});
       const [newPeriodName, setNewPeriodName] = useState("");
@@ -271,34 +355,41 @@
         return () => window.removeEventListener("resize", onResize);
       }, []);
 
-      // Ambil data langsung dari CSV Google Sheets
       useEffect(() => {
+        setSyncStatus("syncing");
         Papa.parse(CSV_URL, {
           download: true,
-          header: false,
+          header: true, // Mengambil baris pertama sebagai Header Name
           skipEmptyLines: true,
           complete: function(results) {
             try {
               if (results && results.data && results.data.length > 0) {
-                setSyncStatus("synced");
+                const mappedData = mapCsvToData(results.data);
+                
+                if (mappedData && mappedData.categories.length > 0) {
+                  setData(mappedData);
+                  setSyncStatus("synced");
+                } else {
+                  console.warn("CSV tidak memiliki kolom yang sesuai dengan format. Menggunakan data default.");
+                  setSyncStatus("offline");
+                }
               } else {
                 setSyncStatus("offline");
               }
             } catch (err) {
+              console.error("Gagal memetakan CSV:", err);
               setSyncStatus("offline");
             }
           },
-          error: function() {
+          error: function(error) {
+            console.error("Gagal mendownload CSV:", error);
             setSyncStatus("offline");
           }
         });
       }, []);
 
       const updateData = (next) => { setData(next); };
-
-      const switchPeriod = (period) => {
-        setActive(period);
-      };
+      const switchPeriod = (period) => { setActive(period); };
 
       const createPeriod = () => {
         const name = newPeriodName.trim();
@@ -365,8 +456,11 @@
                 </div>
               </div>
               <div style={{ fontSize: 12, color: "#9CA3AF", fontFamily: "'JetBrains Mono', monospace", background: "#111827", padding: "6px 12px", borderRadius: 8, border: "1px solid #1F2937", display: "flex", alignItems: "center", gap: 6 }}>
-                <span style={{ width: 8, height: 8, borderRadius: "50%", background: syncStatus === "synced" ? "#10B981" : "#FBBF24" }}></span>
-                <span>{syncStatus === "synced" ? "Terhubung Google Sheets ✓" : "Mode Standby"}</span>
+                <span style={{ 
+                  width: 8, height: 8, borderRadius: "50%", 
+                  background: syncStatus === "synced" ? "#10B981" : syncStatus === "syncing" ? "#60A5FA" : "#FBBF24" 
+                }}></span>
+                <span>{syncStatus === "synced" ? "Terhubung Google Sheets ✓" : syncStatus === "syncing" ? "Mengambil Data..." : "Mode Standby (Offline)"}</span>
               </div>
             </div>
 
@@ -393,6 +487,7 @@
               )}
             </div>
 
+            {}
             <div style={{ background: "#111827", border: "1px solid #1F2937", borderRadius: 16, padding: 20, display: "flex", flexWrap: "wrap", gap: 24, alignItems: "center", justifyContent: "space-around", marginBottom: 20, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.3)" }}>
               <div style={{ textAlign: "center" }}>
                 <Gauge value={total} size={190} />
@@ -469,7 +564,7 @@
                       <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#090D16", border: "1px solid #1F2937", borderRadius: 10, padding: "10px 14px", flexWrap: "wrap", gap: 8 }}>
                         <div>
                           <div style={{ fontSize: 13, fontWeight: 600, color: "#F8FAFC" }}>{i + 1}. {f.name} <span style={{ fontSize: 11.5, color: "#9CA3AF", fontWeight: 400 }}>({f.cat})</span></div>
-                          <div style={{ fontSize: 11.5, color: "#9CA3AF", marginTop: 2 }}>Aktual: {fmt(f.actual)} / Target: {fmt(f.target)}</div>
+                          <div style={{ fontSize: 11.5, color: "#9CA3AF", marginTop: 2 }}>Aktual: {fmt(f.actual, f.unit)} / Target: {fmt(f.target, f.unit)}</div>
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                           <span style={{ padding: "3px 10px", borderRadius: 99, background: st.bg, color: st.fg, fontFamily: "JetBrains Mono", fontSize: 12, fontWeight: 600 }}>{f.ach.toFixed(1)}%</span>
@@ -486,6 +581,7 @@
               <button className="ghost-btn" onClick={addCategory}>+ Tambah Kategori</button>
             </div>
 
+            {}
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {data.categories.map((cat) => {
                 const score = categoryScore(cat);
@@ -514,6 +610,12 @@
                           const ach = achievement(sub);
                           const st = statusColor(ach);
                           const sc = subScore(sub, cat.weight);
+                          
+                          // Format target & actual based on unit type for display
+                          const isRp = sub.unit && sub.unit.toLowerCase() === "rp";
+                          const targetDisplay = isRp ? Number(sub.target).toLocaleString("id-ID") : sub.target;
+                          const actualDisplay = isRp ? Number(sub.actual).toLocaleString("id-ID") : sub.actual;
+
                           return (
                             <div key={sub.id} style={{ background: "#111827", border: "1px solid #1F2937", borderRadius: 10, padding: 14, marginBottom: 12 }}>
                               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10 }}>
@@ -527,8 +629,35 @@
                               <div style={{ marginTop: 10 }}>
                                 <div className="field-row"><span className="field-label">Satuan</span><input type="text" value={sub.unit} onChange={(e) => updateSub(cat.id, sub.id, "unit", e.target.value)} style={{ width: 100, textAlign: "right" }} /></div>
                                 <div className="field-row"><span className="field-label">Sub Bobot (%)</span><input type="number" value={sub.subWeight} onChange={(e) => updateSub(cat.id, sub.id, "subWeight", e.target.value)} style={{ width: 100, textAlign: "right" }} /></div>
-                                <div className="field-row"><span className="field-label">Target</span><input type="number" value={sub.target} onChange={(e) => updateSub(cat.id, sub.id, "target", e.target.value)} style={{ width: 140, textAlign: "right" }} /></div>
-                                <div className="field-row"><span className="field-label">Aktual</span><input type="number" value={sub.actual} onChange={(e) => updateSub(cat.id, sub.id, "actual", e.target.value)} style={{ width: 140, textAlign: "right" }} /></div>
+                                
+                                <div className="field-row">
+                                  <span className="field-label">Target</span>
+                                  {isRp ? (
+                                    <div style={{ position: "relative", width: 140 }}>
+                                      <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", fontSize: 12, color: "#9CA3AF", pointerEvents: "none" }}>Rp</span>
+                                      <input type="text" value={targetDisplay} 
+                                        onChange={(e) => updateSub(cat.id, sub.id, "target", parseFormattedNumber(e.target.value))} 
+                                        style={{ width: "100%", textAlign: "right", paddingLeft: 30 }} />
+                                    </div>
+                                  ) : (
+                                    <input type="number" value={sub.target} onChange={(e) => updateSub(cat.id, sub.id, "target", e.target.value)} style={{ width: 140, textAlign: "right" }} />
+                                  )}
+                                </div>
+
+                                <div className="field-row">
+                                  <span className="field-label">Aktual</span>
+                                  {isRp ? (
+                                    <div style={{ position: "relative", width: 140 }}>
+                                      <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", fontSize: 12, color: "#9CA3AF", pointerEvents: "none" }}>Rp</span>
+                                      <input type="text" value={actualDisplay} 
+                                        onChange={(e) => updateSub(cat.id, sub.id, "actual", parseFormattedNumber(e.target.value))} 
+                                        style={{ width: "100%", textAlign: "right", paddingLeft: 30 }} />
+                                    </div>
+                                  ) : (
+                                    <input type="number" value={sub.actual} onChange={(e) => updateSub(cat.id, sub.id, "actual", e.target.value)} style={{ width: 140, textAlign: "right" }} />
+                                  )}
+                                </div>
+                                
                                 <div className="field-row">
                                   <span className="field-label">Pencapaian</span>
                                   <div style={{ display: "inline-flex", padding: "4px 10px", borderRadius: 999, background: st.bg, color: st.fg, fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600 }}>{ach.toFixed(1)}%</div>
