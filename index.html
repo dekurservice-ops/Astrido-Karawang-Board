@@ -44,7 +44,7 @@
     const { useState, useEffect, useCallback, useMemo } = React;
     const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } = Recharts;
 
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzz7CnTYMAjilPPeCLvAG2agGc0Ic0WVrhNN8t9MpyAE0hPQxyBHrZjAwMTUjoz_XYlpg/exec";
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx7G9_MPx8fpYpacPrdM9VW9m5JiUG7uDHK7t9UqxaQcjLLyMSDLmey2Vz9vjcLvwRYtg/exec";
     const uid = () => Math.random().toString(36).slice(2, 10);
 
     function seedData() {
@@ -117,9 +117,16 @@
       return { hex: "#EF4444", text: "text-red-700", bg: "bg-red-100", border: "border-red-200", label: "Perlu Perhatian (< 80%)" };
     }
 
-    function fmt(n) {
-      const num = Number(n);
+    function formatValue(val, unit) {
+      const num = Number(val);
       if (Number.isNaN(num) || num === 0) return "0";
+      if (unit?.toLowerCase() === 'rp') {
+        return `Rp ${num.toLocaleString("id-ID")}`;
+      }
+      if (unit === '%') {
+        const displayVal = num <= 1 ? num * 100 : num;
+        return `${displayVal.toLocaleString("id-ID")}%`;
+      }
       return num.toLocaleString("id-ID");
     }
 
@@ -179,23 +186,32 @@
 
     const SubItemRow = ({ sub, catWeight, activePeriod, onSave }) => {
         const [isLocked, setIsLocked] = useState(true);
-        const isRp = sub.unit?.toLowerCase() === 'rp';
+        const isPct = sub.unit === '%';
         
-        const [targetNum, setTargetNum] = useState(Number(sub.target) || 0);
-        const [targetStr, setTargetStr] = useState(isRp && sub.target > 0 ? targetNum.toLocaleString('id-ID') : (sub.target ? sub.target.toString() : ''));
+        const rawTarget = Number(sub.target) || 0;
+        const displayTarget = isPct && rawTarget > 0 && rawTarget <= 1 ? rawTarget * 100 : rawTarget;
         
-        const [actualNum, setActualNum] = useState(Number(sub.actual) || 0);
-        const [actualStr, setActualStr] = useState(isRp && sub.actual > 0 ? actualNum.toLocaleString('id-ID') : (sub.actual ? sub.actual.toString() : ''));
+        const rawActual = Number(sub.actual) || 0;
+        const displayActual = isPct && rawActual > 0 && rawActual <= 1 ? rawActual * 100 : rawActual;
+
+        const [targetNum, setTargetNum] = useState(displayTarget);
+        const [targetStr, setTargetStr] = useState(displayTarget > 0 ? displayTarget.toString() : '');
+        
+        const [actualNum, setActualNum] = useState(displayActual);
+        const [actualStr, setActualStr] = useState(displayActual > 0 ? displayActual.toString() : '');
 
         useEffect(() => {
             const t = Number(sub.target) || 0;
             const a = Number(sub.actual) || 0;
-            setTargetNum(t);
-            setActualNum(a);
-            setTargetStr(t > 0 ? (isRp ? t.toLocaleString('id-ID') : t.toString()) : '');
-            setActualStr(a > 0 ? (isRp ? a.toLocaleString('id-ID') : a.toString()) : '');
+            const dt = isPct && t > 0 && t <= 1 ? t * 100 : t;
+            const da = isPct && a > 0 && a <= 1 ? a * 100 : a;
+
+            setTargetNum(dt);
+            setActualNum(da);
+            setTargetStr(dt > 0 ? dt.toString() : '');
+            setActualStr(da > 0 ? da.toString() : '');
             setIsLocked(true);
-        }, [sub.target, sub.actual, activePeriod, isRp]);
+        }, [sub.target, sub.actual, activePeriod, isPct]);
 
         const handleTargetChange = (e) => {
             setTargetStr(e.target.value);
@@ -209,12 +225,14 @@
 
         const handleToggleLock = () => {
             if (!isLocked) {
-                onSave(sub.id, targetNum, actualNum);
+                const finalTarget = isPct && targetNum > 1 ? targetNum / 100 : targetNum;
+                const finalActual = isPct && actualNum > 1 ? actualNum / 100 : actualNum;
+                onSave(sub.id, finalTarget, finalActual);
             }
             setIsLocked(!isLocked);
         };
 
-        const currentSub = { ...sub, target: targetNum, actual: actualNum };
+        const currentSub = { ...sub, target: isPct && targetNum > 1 ? targetNum / 100 : targetNum, actual: isPct && actualNum > 1 ? actualNum / 100 : actualNum };
         const ach = achievement(currentSub);
         const sc = subScore(currentSub, catWeight);
         const st = statusStyle(ach);
@@ -231,17 +249,16 @@
                 <td className="py-4 px-4 text-right">
                     {isLocked ? (
                         <span className="font-mono text-sm font-medium text-slate-700">
-                            {targetNum === 0 ? '-' : (isRp ? `Rp ${fmt(targetNum)}` : fmt(targetNum))}
+                            {targetNum === 0 ? '-' : formatValue(targetNum, sub.unit)}
                         </span>
                     ) : (
                         <div className="relative inline-block w-full max-w-[140px]">
-                            {isRp && <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none">Rp</span>}
                             <input 
                                 type="text" 
                                 value={targetStr}
                                 onChange={handleTargetChange}
                                 placeholder="0"
-                                className={`w-full text-right font-mono text-sm border-2 border-amber-400 bg-amber-50 rounded-lg py-1.5 px-3 focus:ring-4 focus:ring-amber-400/20 outline-none transition-all ${isRp ? 'pl-8' : ''}`} 
+                                className="w-full text-right font-mono text-sm border-2 border-amber-400 bg-amber-50 rounded-lg py-1.5 px-3 focus:ring-4 focus:ring-amber-400/20 outline-none transition-all" 
                             />
                         </div>
                     )}
@@ -250,17 +267,16 @@
                 <td className="py-4 px-4 text-right">
                     {isLocked ? (
                         <span className="font-mono text-sm font-medium text-slate-700">
-                            {actualNum === 0 ? '-' : (isRp ? `Rp ${fmt(actualNum)}` : fmt(actualNum))}
+                            {actualNum === 0 ? '-' : formatValue(actualNum, sub.unit)}
                         </span>
                     ) : (
                         <div className="relative inline-block w-full max-w-[140px]">
-                            {isRp && <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none">Rp</span>}
                             <input 
                                 type="text" 
                                 value={actualStr}
                                 onChange={handleActualChange}
                                 placeholder="0"
-                                className={`w-full text-right font-mono text-sm border-2 border-emerald-400 bg-emerald-50 rounded-lg py-1.5 px-3 focus:ring-4 focus:ring-emerald-400/20 outline-none transition-all ${isRp ? 'pl-8' : ''}`} 
+                                className="w-full text-right font-mono text-sm border-2 border-emerald-400 bg-emerald-50 rounded-lg py-1.5 px-3 focus:ring-4 focus:ring-emerald-400/20 outline-none transition-all" 
                             />
                         </div>
                     )}
@@ -416,7 +432,7 @@
                 <div className="flex gap-3">
                     <span className="text-xl">💡</span>
                     <p className="text-sm text-emerald-800 leading-relaxed font-medium">
-                        <strong>Sinkronisasi Kolom Berurutan Aktif.</strong> Data otomatis merujuk ke Kolom A (Periode), Kolom B (Unit CPUS), Kolom C (Lead Time), hingga Kolom P (NPS Real Promoter) pada sheet Aktual & Target Anda.
+                        <strong>Sinkronisasi Kolom & Format Persentase Aktif.</strong> Data otomatis merujuk ke Kolom A (Periode), Kolom B (Unit CPUS), Kolom C (Lead Time), hingga Kolom P (NPS Real Promoter) pada sheet Aktual & Target Anda tanpa duplikasi baris.
                     </p>
                 </div>
             </div>
@@ -474,13 +490,12 @@
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {focusList.map((f, i) => {
                         const st = statusStyle(f.ach);
-                        const isRp = f.unit?.toLowerCase() === 'rp';
                         return (
                           <div key={i} className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl p-4">
                             <div>
                               <div className="text-sm font-bold text-slate-800">{i + 1}. {f.name}</div>
                               <div className="text-xs text-slate-500 mt-1">
-                                  Aktual: {isRp ? 'Rp ' : ''}{fmt(f.actual)} / Target: {isRp ? 'Rp ' : ''}{fmt(f.target)}
+                                  Aktual: {formatValue(f.actual, f.unit)} / Target: {formatValue(f.target, f.unit)}
                               </div>
                             </div>
                             <div className="flex flex-col items-end gap-1">
@@ -528,7 +543,7 @@
                             <tbody className="divide-y divide-slate-100">
                                 {cat.subItems.map((sub) => (
                                     <SubItemRow 
-                                        key={sub.id + active}
+                                        key={sub.id}
                                         sub={sub} 
                                         catWeight={cat.weight} 
                                         activePeriod={active}
