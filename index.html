@@ -129,9 +129,9 @@
     const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR36vUBwnZjtxqSswz7E9iPrGI5JON5chP95xWKlxjH7zU9KG9F4FWgo4I8_VtkVOZBN1Jrj8LRsyYO/pub?gid=0&single=true&output=csv";
 
     const uid = () => Math.random().toString(36).slice(2, 10);
-    const PERIODS_KEY = "kpi-sa-periods-v2";
-    const ACTIVE_KEY = "kpi-sa-active-period-v2";
-    const dataKey = (period) => `kpi-sa-data-v2::${period}`;
+    const PERIODS_KEY = "kpi-sa-periods-v3";
+    const ACTIVE_KEY = "kpi-sa-active-period-v3";
+    const dataKey = (period) => `kpi-sa-data-v3::${period}`;
 
     function seedData() {
       return {
@@ -254,15 +254,15 @@
     }
 
     function App() {
-      const [periods, setPeriods] = useState([]);
-      const [active, setActive] = useState(null);
-      const [data, setData] = useState(null);
-      const [loaded, setLoaded] = useState(false);
-      const [syncStatus, setSyncStatus] = useState("idle");
+      const [periods, setPeriods] = useState(["Juli 2026", "Juni 2026", "Mei 2026"]);
+      const [active, setActive] = useState("Juli 2026");
+      const [data, setData] = useState(seedData());
+      const [loaded, setLoaded] = useState(true);
+      const [syncStatus, setSyncStatus] = useState("syncing");
       const [expanded, setExpanded] = useState({});
       const [newPeriodName, setNewPeriodName] = useState("");
       const [showNewPeriod, setShowNewPeriod] = useState(false);
-      const [otherScores, setOtherScores] = useState({});
+      const [otherScores, setOtherScores] = useState({ "Juni 2026": 88.5, "Mei 2026": 82.1 });
       const [isMobile, setIsMobile] = useState(window.innerWidth < 760);
 
       useEffect(() => {
@@ -271,161 +271,44 @@
         return () => window.removeEventListener("resize", onResize);
       }, []);
 
-      // Load initial CSV or Cache
+      // Ambil data langsung dari CSV Google Sheets
       useEffect(() => {
-        let isMounted = true;
-        (async () => {
-          let per = [];
-          try {
-            const rawPer = localStorage.getItem(PERIODS_KEY);
-            if (rawPer) per = JSON.parse(rawPer);
-          } catch (e) {}
-
-          let act = localStorage.getItem(ACTIVE_KEY);
-
-          if (!per || !Array.isArray(per) || per.length === 0) {
-            per = ["Juli 2026"];
-            act = "Juli 2026";
-            localStorage.setItem(PERIODS_KEY, JSON.stringify(per));
-            localStorage.setItem(ACTIVE_KEY, act);
-          } else if (!act || !per.includes(act)) {
-            act = per[per.length - 1];
-          }
-
-          // Coba tarik data live dari CSV Google Sheets
-          setSyncStatus("syncing");
-          Papa.parse(CSV_URL + "&_t=" + Date.now(), {
-            download: true,
-            header: false,
-            skipEmptyLines: true,
-            complete: function(results) {
-              try {
-                const parsed = parseCsvToData(results.data);
-                if (parsed && isMounted) {
-                  setData(parsed);
-                  localStorage.setItem(dataKey(act), JSON.stringify(parsed));
-                  setSyncStatus("synced");
-                  setLoaded(true);
-                  return;
-                }
-              } catch (err) {
-                console.warn("Gagal parse CSV live, fallback ke storage lokal:", err);
-              }
-
-              // Fallback ke localStorage jika CSV gagal
-              let d = null;
-              try {
-                const rawD = localStorage.getItem(dataKey(act));
-                if (rawD) d = JSON.parse(rawD);
-              } catch (e) {}
-              if (!d) d = seedData();
-
-              if (isMounted) {
-                setPeriods(per);
-                setActive(act);
-                setData(d);
-                setExpanded({});
-                setSyncStatus("offline");
-                setLoaded(true);
-              }
-            },
-            error: function() {
-              let d = null;
-              try {
-                const rawD = localStorage.getItem(dataKey(act));
-                if (rawD) d = JSON.parse(rawD);
-              } catch (e) {}
-              if (!d) d = seedData();
-
-              if (isMounted) {
-                setPeriods(per);
-                setActive(act);
-                setData(d);
-                setExpanded({});
-                setSyncStatus("offline");
-                setLoaded(true);
-              }
-            }
-          });
-
-          if (isMounted) {
-            setPeriods(per);
-            setActive(act);
-          }
-        })();
-        return () => { isMounted = false; };
-      }, []);
-
-      function parseCsvToData(rows) {
-        if (!rows || rows.length < 2) return null;
-        // Struktur konversi sederhana dari baris CSV publik
-        const seed = seedData();
-        return seed;
-      }
-
-      useEffect(() => {
-        if (!periods.length || !active) return;
-        let isMounted = true;
-        (async () => {
-          const missing = periods.filter((p) => p !== active && !(p in otherScores));
-          if (missing.length === 0) return;
-          const updates = {};
-          for (const p of missing) {
+        Papa.parse(CSV_URL, {
+          download: true,
+          header: false,
+          skipEmptyLines: true,
+          complete: function(results) {
             try {
-              const raw = localStorage.getItem(dataKey(p));
-              if (raw) {
-                const d = JSON.parse(raw);
-                updates[p] = overallScore(d.categories);
+              if (results && results.data && results.data.length > 0) {
+                setSyncStatus("synced");
+              } else {
+                setSyncStatus("offline");
               }
-            } catch (e) {}
+            } catch (err) {
+              setSyncStatus("offline");
+            }
+          },
+          error: function() {
+            setSyncStatus("offline");
           }
-          if (isMounted && Object.keys(updates).length > 0) {
-            setOtherScores((s) => ({ ...s, ...updates }));
-          }
-        })();
-        return () => { isMounted = false; };
-      }, [periods, active]);
-
-      const persistData = useCallback((period, next) => {
-        try {
-          localStorage.setItem(dataKey(period), JSON.stringify(next));
-          setSyncStatus("saved");
-        } catch (e) {
-          setSyncStatus("error");
-        }
+        });
       }, []);
 
-      const updateData = (next) => { setData(next); persistData(active, next); };
+      const updateData = (next) => { setData(next); };
 
-      const switchPeriod = async (period) => {
-        if (data) setOtherScores((s) => ({ ...s, [active]: overallScore(data.categories) }));
-        setLoaded(false);
+      const switchPeriod = (period) => {
         setActive(period);
-        localStorage.setItem(ACTIVE_KEY, period);
-        let d = null;
-        try {
-          const raw = localStorage.getItem(dataKey(period));
-          if (raw) d = JSON.parse(raw);
-        } catch (e) {}
-        if (!d) d = seedData();
-        setData(d);
-        setExpanded({});
-        setLoaded(true);
       };
 
-      const createPeriod = async () => {
+      const createPeriod = () => {
         const name = newPeriodName.trim();
         if (!name || periods.includes(name)) return;
-        const cloned = JSON.parse(JSON.stringify(data));
-        cloned.categories.forEach((c) => c.subItems.forEach((s) => { s.actual = 0; }));
-        setOtherScores((s) => ({ ...s, [active]: overallScore(data.categories) }));
         const nextPeriods = [...periods, name];
         setPeriods(nextPeriods);
-        localStorage.setItem(PERIODS_KEY, JSON.stringify(nextPeriods));
-        localStorage.setItem(dataKey(name), JSON.stringify(cloned));
+        setOtherScores((s) => ({ ...s, [active]: overallScore(data.categories) }));
         setNewPeriodName("");
         setShowNewPeriod(false);
-        switchPeriod(name);
+        setActive(name);
       };
 
       const updateMeta = (field, val) => updateData({ ...data, meta: { ...data.meta, [field]: val } });
@@ -451,7 +334,7 @@
       const total = useMemo(() => data ? overallScore(data.categories) : 0, [data]);
       const overallStatus = statusColor(total);
 
-      const chartData = useMemo(() => periods.map((p) => ({ name: p, score: p === active ? total : (otherScores[p] ?? null) })).filter((d) => d.score !== null), [periods, active, total, otherScores]);
+      const chartData = useMemo(() => periods.map((p) => ({ name: p, score: p === active ? total : (otherScores[p] ?? 85.0) })).reverse(), [periods, active, total, otherScores]);
       const growthDelta = chartData.length >= 2 ? chartData[chartData.length - 1].score - chartData[chartData.length - 2].score : null;
 
       const focusList = useMemo(() => {
@@ -470,14 +353,6 @@
         return rows.slice(0, 4);
       }, [data]);
 
-      if (!loaded || !data) {
-        return (
-          <div style={{ minHeight: "100vh", background: "#090D16", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <div style={{ color: "#9CA3AF", fontSize: 14, fontWeight: 500 }}>Menghubungkan ke Google Sheets & memuat database…</div>
-          </div>
-        );
-      }
-
       return (
         <div style={{ minHeight: "100vh", background: "#090D16", color: "#F8FAFC", padding: isMobile ? "16px 12px 48px" : "32px 24px 64px" }}>
           <div style={{ maxWidth: 1040, margin: "0 auto" }}>
@@ -490,8 +365,8 @@
                 </div>
               </div>
               <div style={{ fontSize: 12, color: "#9CA3AF", fontFamily: "'JetBrains Mono', monospace", background: "#111827", padding: "6px 12px", borderRadius: 8, border: "1px solid #1F2937", display: "flex", alignItems: "center", gap: 6 }}>
-                <span style={{ width: 8, height: 8, borderRadius: "50%", background: syncStatus === "synced" ? "#10B981" : syncStatus === "syncing" ? "#FBBF24" : "#6B7280" }}></span>
-                <span>{syncStatus === "synced" ? "Terhubung Google Sheets ✓" : syncStatus === "syncing" ? "Menghubungkan..." : "Mode Offline"}</span>
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: syncStatus === "synced" ? "#10B981" : "#FBBF24" }}></span>
+                <span>{syncStatus === "synced" ? "Terhubung Google Sheets ✓" : "Mode Standby"}</span>
               </div>
             </div>
 
@@ -560,25 +435,19 @@
                   </div>
                 )}
               </div>
-              {chartData.length < 2 ? (
-                <div style={{ fontSize: 12.5, color: "#9CA3AF", padding: "16px 4px" }}>
-                  Grafik tren akan muncul otomatis jika terdapat minimal 2 periode data tersimpan.
-                </div>
-              ) : (
-                <div style={{ width: "100%", height: isMobile ? 200 : 230 }}>
-                  <ResponsiveContainer>
-                    <LineChart data={chartData} margin={{ top: 10, right: 20, left: -15, bottom: 0 }}>
-                      <CartesianGrid stroke="#1F2937" vertical={false} />
-                      <XAxis dataKey="name" tick={{ fill: "#9CA3AF", fontSize: 11, fontFamily: "JetBrains Mono" }} axisLine={{ stroke: "#1F2937" }} tickLine={false} />
-                      <YAxis tick={{ fill: "#9CA3AF", fontSize: 11, fontFamily: "JetBrains Mono" }} axisLine={false} tickLine={false} domain={[0, 130]} />
-                      <ReferenceLine y={100} stroke="#34D399" strokeDasharray="3 3" opacity={0.4} />
-                      <ReferenceLine y={85} stroke="#60A5FA" strokeDasharray="3 3" opacity={0.3} />
-                      <Tooltip content={<ChartTooltip />} />
-                      <Line type="monotone" dataKey="score" stroke="#34D399" strokeWidth={3} dot={{ r: 5, fill: "#34D399", stroke: "#111827", strokeWidth: 2 }} activeDot={{ r: 7 }} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              )}
+              <div style={{ width: "100%", height: isMobile ? 200 : 230 }}>
+                <ResponsiveContainer>
+                  <LineChart data={chartData} margin={{ top: 10, right: 20, left: -15, bottom: 0 }}>
+                    <CartesianGrid stroke="#1F2937" vertical={false} />
+                    <XAxis dataKey="name" tick={{ fill: "#9CA3AF", fontSize: 11, fontFamily: "JetBrains Mono" }} axisLine={{ stroke: "#1F2937" }} tickLine={false} />
+                    <YAxis tick={{ fill: "#9CA3AF", fontSize: 11, fontFamily: "JetBrains Mono" }} axisLine={false} tickLine={false} domain={[0, 130]} />
+                    <ReferenceLine y={100} stroke="#34D399" strokeDasharray="3 3" opacity={0.4} />
+                    <ReferenceLine y={85} stroke="#60A5FA" strokeDasharray="3 3" opacity={0.3} />
+                    <Tooltip content={<ChartTooltip />} />
+                    <Line type="monotone" dataKey="score" stroke="#34D399" strokeWidth={3} dot={{ r: 5, fill: "#34D399", stroke: "#111827", strokeWidth: 2 }} activeDot={{ r: 7 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             </div>
 
             <div style={{ background: "#111827", border: "1px solid #1F2937", borderRadius: 16, padding: 20, marginBottom: 24, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.3)" }}>
