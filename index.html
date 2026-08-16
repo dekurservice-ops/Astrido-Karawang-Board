@@ -44,7 +44,7 @@
     const { useState, useEffect, useCallback, useMemo } = React;
     const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } = Recharts;
 
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyjDV-yEwUjHbaI87ofYzeFGIzLlDO78TLJeUDj6Q9XujozrQaIoED0JcHC664QZg548g/exec";
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzz7CnTYMAjilPPeCLvAG2agGc0Ic0WVrhNN8t9MpyAE0hPQxyBHrZjAwMTUjoz_XYlpg/exec";
     const uid = () => Math.random().toString(36).slice(2, 10);
 
     function seedData() {
@@ -54,31 +54,31 @@
           {
             id: uid(), name: "Business Process", weight: 60,
             subItems: [
-              { id: uid(), name: "Unit CPUS (SBE + GRP)", unit: "unit", subWeight: 25, target: 0, actual: 0, inverse: false, colIndex: 1 },
-              { id: uid(), name: "Lead Time (ALL UE)", unit: "menit", subWeight: 10, target: 0, actual: 0, inverse: true, colIndex: 2 },
-              { id: uid(), name: "FIR (Fix It Right)", unit: "%", subWeight: 0, target: 0, actual: 0, inverse: false, colIndex: 3 },
-              { id: uid(), name: "OTD (excl. TWC & RTJ)", unit: "%", subWeight: 10, target: 0, actual: 0, inverse: false, colIndex: 4 },
-              { id: uid(), name: "% Pelanggan di Engagement", unit: "%", subWeight: 10, target: 0, actual: 0, inverse: false, colIndex: 5 },
-              { id: uid(), name: "% Saran Service / CPUS", unit: "%", subWeight: 15, target: 0, actual: 0, inverse: false, colIndex: 6 },
-              { id: uid(), name: "% CAI Saran Service", unit: "%", subWeight: 15, target: 0, actual: 0, inverse: false, colIndex: 7 },
-              { id: uid(), name: "% SA Retention", unit: "%", subWeight: 15, target: 0, actual: 0, inverse: false, colIndex: 8 },
+              { id: uid(), name: "Unit CPUS (SBE + GRP)", unit: "unit", subWeight: 25, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "Lead Time (ALL UE)", unit: "menit", subWeight: 10, target: 0, actual: 0, inverse: true },
+              { id: uid(), name: "FIR (Fix It Right)", unit: "%", subWeight: 0, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "OTD (excl. TWC & RTJ)", unit: "%", subWeight: 10, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "% Pelanggan di Engagement", unit: "%", subWeight: 10, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "% Saran Service / CPUS", unit: "%", subWeight: 15, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "% CAI Saran Service", unit: "%", subWeight: 15, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "% SA Retention", unit: "%", subWeight: 15, target: 0, actual: 0, inverse: false },
             ],
           },
           {
             id: uid(), name: "Financial", weight: 30,
             subItems: [
-              { id: uid(), name: "Penjualan Jasa", unit: "Rp", subWeight: 50, target: 0, actual: 0, inverse: false, colIndex: 9 },
-              { id: uid(), name: "Penjualan Spare Part", unit: "Rp", subWeight: 25, target: 0, actual: 0, inverse: false, colIndex: 10 },
-              { id: uid(), name: "Penjualan Bahan", unit: "Rp", subWeight: 15, target: 0, actual: 0, inverse: false, colIndex: 11 },
-              { id: uid(), name: "Penjualan Sublet", unit: "Rp", subWeight: 10, target: 0, actual: 0, inverse: false, colIndex: 12 },
+              { id: uid(), name: "Penjualan Jasa", unit: "Rp", subWeight: 50, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "Penjualan Spare Part", unit: "Rp", subWeight: 25, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "Penjualan Bahan", unit: "Rp", subWeight: 15, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "Penjualan Sublet", unit: "Rp", subWeight: 10, target: 0, actual: 0, inverse: false },
             ],
           },
           {
             id: uid(), name: "CS", weight: 10,
             subItems: [
-              { id: uid(), name: "NPS Per SA - TTB", unit: "point", subWeight: 50, target: 0, actual: 0, inverse: false, colIndex: 13 },
-              { id: uid(), name: "Kuantity VOC Per SA", unit: "point", subWeight: 25, target: 0, actual: 0, inverse: false, colIndex: 14 },
-              { id: uid(), name: "NPS Real Promoter", unit: "point", subWeight: 25, target: 0, actual: 0, inverse: false, colIndex: 15 },
+              { id: uid(), name: "NPS Per SA - TTB", unit: "point", subWeight: 50, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "Kuantity VOC Per SA", unit: "point", subWeight: 25, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "NPS Real Promoter", unit: "point", subWeight: 25, target: 0, actual: 0, inverse: false },
             ],
           }
         ],
@@ -291,26 +291,24 @@
     };
 
     function App() {
-      const [periods, setPeriods] = useState(["Periode Utama"]);
-      const [active, setActive] = useState("Periode Utama");
+      const [periods, setPeriods] = useState(["Juli 2026"]);
+      const [active, setActive] = useState("Juli 2026");
       
       const [currentData, setCurrentData] = useState(seedData());
       const [syncStatus, setSyncStatus] = useState("Menghubungkan Google Sheets...");
 
-      const fetchDataFromAppsScript = useCallback(() => {
+      const fetchDataFromAppsScript = useCallback((selectedPeriod) => {
         setSyncStatus("⏳ Sinkronisasi Apps Script...");
-        fetch(APPS_SCRIPT_URL)
+        const targetPeriod = selectedPeriod || active;
+        fetch(`${APPS_SCRIPT_URL}?period=${encodeURIComponent(targetPeriod)}`)
           .then(res => res.json())
           .then(data => {
             if (data && data.categories) {
               setCurrentData(data);
               if (data.meta && data.meta.periods && data.meta.periods.length > 0) {
                 setPeriods(data.meta.periods);
-                if (!data.meta.periods.includes(active)) {
-                  setActive(data.meta.periods[0]);
-                }
               }
-              setSyncStatus("✅ Terhubung Google Sheets (Kolom A s.d. O)");
+              setSyncStatus("✅ Terhubung Google Sheets");
             } else {
               setSyncStatus("⚠️ Format Data Kosong");
             }
@@ -322,8 +320,8 @@
       }, [active]);
 
       useEffect(() => {
-        fetchDataFromAppsScript();
-      }, [fetchDataFromAppsScript]);
+        fetchDataFromAppsScript(active);
+      }, [active, fetchDataFromAppsScript]);
 
       const saveSubItemToSheets = (catId, subId, newTarget, newActual) => {
           const updatedCategories = currentData.categories.map(c => {
@@ -389,7 +387,7 @@
               <div className="flex flex-col items-end gap-2">
                 <div className="flex items-center gap-2">
                     <button 
-                        onClick={fetchDataFromAppsScript}
+                        onClick={() => fetchDataFromAppsScript(active)}
                         title="Tarik data terbaru dari Google Sheets"
                         className="inline-flex items-center justify-center p-1.5 bg-white border border-slate-200 hover:bg-slate-100 rounded-full transition-colors shadow-sm text-base cursor-pointer"
                     >
@@ -418,7 +416,7 @@
                 <div className="flex gap-3">
                     <span className="text-xl">💡</span>
                     <p className="text-sm text-emerald-800 leading-relaxed font-medium">
-                        <strong>Sinkronisasi Kolom Urut (Kolom A - O).</strong> Data dibaca secara presisi: Kolom A untuk Periode, Kolom B untuk Unit CPUS, Kolom C untuk Lead Time, dan seterusnya secara berurutan sesuai layout sheet Anda.
+                        <strong>Sinkronisasi Kolom Berurutan Aktif.</strong> Data otomatis merujuk ke Kolom A (Periode), Kolom B (Unit CPUS), Kolom C (Lead Time), hingga Kolom P (NPS Real Promoter) pada sheet Aktual & Target Anda.
                     </p>
                 </div>
             </div>
