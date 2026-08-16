@@ -49,7 +49,7 @@
 
     function seedData() {
       return {
-        meta: { sa: "13C110 - DEDE KURNIAWAN", ytd: "Periode Berjalan" },
+        meta: { sa: "13C110 - DEDE KURNIAWAN", periods: ["Juli 2026", "Agustus 2026", "September 2026", "Oktober 2026", "November 2026", "Desember 2026"] },
         categories: [
           {
             id: uid(), name: "Business Process", weight: 60,
@@ -291,14 +291,11 @@
     };
 
     function App() {
-      const [periods, setPeriods] = useState(["Periode Utama"]);
-      const [active, setActive] = useState("Periode Utama");
+      const [periods, setPeriods] = useState(["Juli 2026", "Agustus 2026", "September 2026", "Oktober 2026", "November 2026", "Desember 2026"]);
+      const [active, setActive] = useState("Juli 2026");
       
       const [currentData, setCurrentData] = useState(seedData());
       const [syncStatus, setSyncStatus] = useState("Menghubungkan Google Sheets...");
-      
-      const [newPeriodName, setNewPeriodName] = useState("");
-      const [showNewPeriod, setShowNewPeriod] = useState(false);
 
       const fetchDataFromAppsScript = useCallback(() => {
         setSyncStatus("⏳ Sinkronisasi Apps Script...");
@@ -307,6 +304,10 @@
           .then(data => {
             if (data && data.categories) {
               setCurrentData(data);
+              if (data.meta && data.meta.periods && data.meta.periods.length > 0) {
+                setPeriods(data.meta.periods);
+                setActive(data.meta.periods[0]);
+              }
               setSyncStatus("✅ Terhubung Google Sheets");
             } else {
               setSyncStatus("⚠️ Format Data Kosong");
@@ -321,15 +322,6 @@
       useEffect(() => {
         fetchDataFromAppsScript();
       }, [fetchDataFromAppsScript]);
-
-      const createPeriod = () => {
-        const name = newPeriodName.trim();
-        if (!name || periods.includes(name)) return;
-        setPeriods([name, ...periods]);
-        setActive(name);
-        setNewPeriodName("");
-        setShowNewPeriod(false);
-      };
 
       const saveSubItemToSheets = (catId, subId, newTarget, newActual) => {
           const updatedCategories = currentData.categories.map(c => {
@@ -348,7 +340,7 @@
               method: 'POST',
               mode: 'no-cors',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(newData)
+              body: JSON.stringify({ ...newData, activePeriod: active })
           })
           .then(() => {
               setSyncStatus("✅ Tersimpan di Google Sheets");
@@ -364,8 +356,8 @@
       const overallStatus = statusStyle(total);
 
       const chartData = useMemo(() => {
-          return periods.map(p => ({ name: p, score: total })).reverse();
-      }, [periods, total]);
+          return periods.map(p => ({ name: p, score: p === active ? total : 0 }));
+      }, [periods, active, total]);
 
       const focusList = useMemo(() => {
         if (!currentData) return [];
@@ -390,7 +382,7 @@
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-6">
               <div>
                 <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 mb-1">KPI Service Advisor</h1>
-                <div className="text-slate-500 font-medium">{currentData.meta.sa}</div>
+                <div className="text-slate-500 font-medium">{currentData.meta?.sa || "13C110 - DEDE KURNIAWAN"}</div>
               </div>
               <div className="flex flex-col items-end gap-2">
                 <div className="flex items-center gap-2">
@@ -415,21 +407,6 @@
                   >
                     {periods.map((p) => <option key={p} value={p}>{p}</option>)}
                   </select>
-                  {!showNewPeriod ? (
-                    <button onClick={() => setShowNewPeriod(true)} className="bg-slate-100 text-slate-600 border border-slate-200 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-slate-200 transition-colors shadow-sm">+ Periode</button>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                        <input 
-                            type="text" 
-                            placeholder="mis. September 2026" 
-                            value={newPeriodName} 
-                            onChange={(e) => setNewPeriodName(e.target.value)} 
-                            className="border border-slate-300 rounded-lg px-3 py-2 text-sm w-40 outline-none focus:border-emerald-500 bg-white" 
-                        />
-                        <button onClick={createPeriod} className="bg-emerald-500 text-white rounded-lg px-4 py-2 text-sm font-bold hover:bg-emerald-600 shadow-sm">Buat</button>
-                        <button onClick={() => setShowNewPeriod(false)} className="text-slate-500 text-sm font-semibold hover:text-slate-700">Batal</button>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
@@ -439,7 +416,7 @@
                 <div className="flex gap-3">
                     <span className="text-xl">💡</span>
                     <p className="text-sm text-emerald-800 leading-relaxed font-medium">
-                        <strong>Google Apps Script Aktif 2 Arah.</strong> Setiap perubahan target atau nilai aktual yang Anda simpan di web dashboard akan langsung diperbarui secara otomatis ke dalam Google Spreadsheet Anda.
+                        <strong>Sinkronisasi Kolom Periode Google Sheets.</strong> Pilihan periode otomatis merujuk ke data kolom A dari spreadsheet Anda (Juli s.d. Desember 2026).
                     </p>
                 </div>
             </div>
@@ -469,7 +446,7 @@
                 <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 lg:col-span-2 flex flex-col">
                     <div className="flex items-center gap-2 mb-4">
                         <span className="text-xl">📈</span>
-                        <h2 className="text-lg font-bold text-slate-800">Grafik Kinerja</h2>
+                        <h2 className="text-lg font-bold text-slate-800">Grafik Kinerja Bulanan</h2>
                     </div>
                     <div className="w-full flex-grow min-h-[220px]">
                         <ResponsiveContainer>
