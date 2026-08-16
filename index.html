@@ -49,7 +49,7 @@
 
     function seedData() {
       return {
-        meta: { sa: "13C110 - DEDE KURNIAWAN", periods: ["Juli 2026", "Agustus 2026", "September 2026", "Oktober 2026", "November 2026", "Desember 2026"] },
+        meta: { sa: "13C110 - DEDE KURNIAWAN", periods: ["Juli 2026"] },
         categories: [
           {
             id: uid(), name: "Business Process", weight: 60,
@@ -58,19 +58,19 @@
               { id: uid(), name: "Lead Time (ALL UE)", unit: "menit", subWeight: 10, target: 0, actual: 0, inverse: true },
               { id: uid(), name: "FIR (Fix It Right)", unit: "%", subWeight: 0, target: 0, actual: 0, inverse: false },
               { id: uid(), name: "OTD (excl. TWC & RTJ)", unit: "%", subWeight: 10, target: 0, actual: 0, inverse: false },
-              { id: uid(), name: "% Pelanggan di Engagement", unit: "%", subWeight: 10, target: 90, actual: 90, inverse: false },
-              { id: uid(), name: "% Saran Service / CPUS", unit: "%", subWeight: 15, target: 50, actual: 50, inverse: false },
-              { id: uid(), name: "% CAI Saran Service", unit: "%", subWeight: 15, target: 65, actual: 65, inverse: false },
-              { id: uid(), name: "% SA Retention", unit: "%", subWeight: 15, target: 80, actual: 80, inverse: false },
+              { id: uid(), name: "% Pelanggan di Engagement", unit: "%", subWeight: 10, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "% Saran Service / CPUS", unit: "%", subWeight: 15, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "% CAI Saran Service", unit: "%", subWeight: 15, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "% SA Retention", unit: "%", subWeight: 15, target: 0, actual: 0, inverse: false },
             ],
           },
           {
             id: uid(), name: "Financial", weight: 30,
             subItems: [
-              { id: uid(), name: "Penjualan Jasa", unit: "Rp", subWeight: 50, target: 0, actual: 12649228, inverse: false },
-              { id: uid(), name: "Penjualan Spare Part", unit: "Rp", subWeight: 25, target: 0, actual: 19716943, inverse: false },
-              { id: uid(), name: "Penjualan Bahan", unit: "Rp", subWeight: 15, target: 0, actual: 17725639, inverse: false },
-              { id: uid(), name: "Penjualan Sublet", unit: "Rp", subWeight: 10, target: 0, actual: 4655242, inverse: false },
+              { id: uid(), name: "Penjualan Jasa", unit: "Rp", subWeight: 50, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "Penjualan Spare Part", unit: "Rp", subWeight: 25, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "Penjualan Bahan", unit: "Rp", subWeight: 15, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "Penjualan Sublet", unit: "Rp", subWeight: 10, target: 0, actual: 0, inverse: false },
             ],
           },
           {
@@ -291,8 +291,8 @@
     };
 
     function App() {
-      const [periods, setPeriods] = useState(["Juli 2026", "Agustus 2026", "September 2026", "Oktober 2026", "November 2026", "Desember 2026"]);
-      const [active, setActive] = useState("Juli 2026");
+      const [periods, setPeriods] = useState(["Periode Utama"]);
+      const [active, setActive] = useState("Periode Utama");
       
       const [currentData, setCurrentData] = useState(seedData());
       const [syncStatus, setSyncStatus] = useState("Menghubungkan Google Sheets...");
@@ -306,7 +306,9 @@
               setCurrentData(data);
               if (data.meta && data.meta.periods && data.meta.periods.length > 0) {
                 setPeriods(data.meta.periods);
-                setActive(data.meta.periods[0]);
+                if (!data.meta.periods.includes(active)) {
+                  setActive(data.meta.periods[0]);
+                }
               }
               setSyncStatus("✅ Terhubung Google Sheets");
             } else {
@@ -317,7 +319,7 @@
             console.error("Gagal sinkronisasi", err);
             setSyncStatus("⚠️ Gagal Akses Web App");
           });
-      }, []);
+      }, [active]);
 
       useEffect(() => {
         fetchDataFromAppsScript();
@@ -416,7 +418,7 @@
                 <div className="flex gap-3">
                     <span className="text-xl">💡</span>
                     <p className="text-sm text-emerald-800 leading-relaxed font-medium">
-                        <strong>Sinkronisasi Kolom Periode Google Sheets.</strong> Pilihan periode otomatis merujuk ke data kolom A dari spreadsheet Anda (Juli s.d. Desember 2026).
+                        <strong>Sinkronisasi Kolom Header & Periode Google Sheets.</strong> Dashboard secara dinamis mencocokkan nama indikator KPI dengan tajuk kolom header pada sheet Aktual dan Target Anda, serta membaca baris Periode dari Kolom A.
                     </p>
                 </div>
             </div>
