@@ -12,129 +12,84 @@
   <script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/recharts@2.12.7/umd/Recharts.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
   
   <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind Configuration -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
   
   <style>
-    * { box-sizing: border-box; }
-    body {
-      background: #090D16;
-      color: #F1F5F9;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      margin: 0;
-      padding: 0;
-      -webkit-font-smoothing: antialiased;
-    }
-    input[type=text], input[type=number] {
-      background: #111827;
-      border: 1px solid #1F2937;
-      color: #F8FAFC;
-      border-radius: 8px;
-      padding: 7px 11px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 13px;
-      width: 100%;
-      transition: all 0.2s ease;
-    }
-    input[type=text]:focus, input[type=number]:focus {
-      outline: none;
-      border-color: #10B981;
-      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
-    }
-    .name-input { font-family: 'Plus Jakarta Sans', sans-serif !important; font-size: 14px !important; font-weight: 600; }
-    .meta-input { font-family: 'Plus Jakarta Sans', sans-serif !important; font-size: 14px !important; font-weight: 500; }
-    
-    .icon-btn {
-      background: #111827;
-      border: 1px solid #1F2937;
-      color: #9CA3AF;
-      border-radius: 8px;
-      width: 32px;
-      height: 32px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s ease;
-    }
-    .icon-btn:hover {
-      border-color: #EF4444;
-      color: #EF4444;
-      background: rgba(239, 68, 68, 0.08);
-    }
-    .primary-btn {
-      background: #10B981;
-      color: #064E3B;
-      border: none;
-      border-radius: 9px;
-      padding: 9px 16px;
-      font-weight: 700;
-      font-size: 13px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
-    }
-    .primary-btn:hover { background: #059669; color: #FFFFFF; }
-    
-    .ghost-btn {
-      background: #111827;
-      color: #D1D5DB;
-      border: 1px solid #1F2937;
-      border-radius: 9px;
-      padding: 9px 14px;
-      font-weight: 600;
-      font-size: 13px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s ease;
-    }
-    .ghost-btn:hover { background: #1F2937; color: #FFFFFF; border-color: #374151; }
-    
-    select {
-      background: #111827;
-      border: 1px solid #1F2937;
-      color: #F8FAFC;
-      border-radius: 9px;
-      padding: 9px 12px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-weight: 500;
-      font-size: 13px;
-      outline: none;
-      cursor: pointer;
-    }
-    select:focus { border-color: #10B981; }
-
-    .field-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      padding: 7px 0;
-      border-bottom: 1px solid #111827;
-    }
-    .field-row:last-child { border-bottom: none; }
-    .field-label { font-size: 12px; color: #9CA3AF; font-weight: 500; }
-    
+    body { background-color: #F8FAFC; -webkit-font-smoothing: antialiased; }
     ::-webkit-scrollbar { height: 6px; width: 6px; }
-    ::-webkit-scrollbar-thumb { background: #1F2937; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+    /* Hilangkan panah spinner pada input number */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
   </style>
 </head>
 <body>
   <div id="root"></div>
 
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // Ekspor fungsi firestore ke window untuk diakses oleh React
+    window.fs = { doc, getDoc, setDoc };
+    
+    window.firebasePromise = (async () => {
+      try {
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'kpi-advisor-v1';
+        // Konfigurasi default fallback jika __firebase_config tidak tersedia di environment saat ini
+        const configStr = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
+        if (!configStr) {
+            console.warn("Mode Lokal (Cloud dinonaktifkan sementara)");
+            return null;
+        }
+        
+        const config = JSON.parse(configStr);
+        const app = initializeApp(config);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        const token = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        if (token) {
+            await signInWithCustomToken(auth, token);
+        } else {
+            await signInAnonymously(auth);
+        }
+        
+        return { auth, db, appId };
+      } catch (e) {
+        console.error("Gagal menginisialisasi Firebase:", e);
+        return null;
+      }
+    })();
+  </script>
+
   <script type="text/babel">
-    const { useState, useEffect, useCallback, useMemo, useRef } = React;
+    const { useState, useEffect, useCallback, useMemo } = React;
     const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } = Recharts;
 
     const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR36vUBwnZjtxqSswz7E9iPrGI5JON5chP95xWKlxjH7zU9KG9F4FWgo4I8_VtkVOZBN1Jrj8LRsyYO/pub?gid=0&single=true&output=csv";
     const uid = () => Math.random().toString(36).slice(2, 10);
 
+    // Default template fallback in case CSV fails completely
     function seedData() {
       return {
         meta: { sa: "13C110 - DEDE KURNIAWAN", ytd: "Juli s/d Juli" },
@@ -147,26 +102,6 @@
               { id: uid(), name: "FIR (Fix It Right)", unit: "%", subWeight: 0, target: 95, actual: 99.33, inverse: false },
               { id: uid(), name: "OTD (excl. TWC & RTJ)", unit: "%", subWeight: 10, target: 95, actual: 90.41, inverse: false },
               { id: uid(), name: "% Pelanggan di Engagement", unit: "%", subWeight: 10, target: 90, actual: 98.38, inverse: false },
-              { id: uid(), name: "% Saran Service / CPUS", unit: "%", subWeight: 15, target: 50, actual: 15.79, inverse: false },
-              { id: uid(), name: "% CAI Saran Service", unit: "%", subWeight: 15, target: 65, actual: 55.56, inverse: false },
-              { id: uid(), name: "% SA Retention", unit: "%", subWeight: 15, target: 80, actual: 80.00, inverse: false },
-            ],
-          },
-          {
-            id: uid(), name: "Financial", weight: 30,
-            subItems: [
-              { id: uid(), name: "Penjualan Jasa", unit: "Rp", subWeight: 50, target: 126492288, actual: 121857650, inverse: false },
-              { id: uid(), name: "Penjualan Spare Part", unit: "Rp", subWeight: 25, target: 197169493, actual: 166322453, inverse: false },
-              { id: uid(), name: "Penjualan Bahan", unit: "Rp", subWeight: 15, target: 17725639, actual: 11603108, inverse: false },
-              { id: uid(), name: "Penjualan Sublet", unit: "Rp", subWeight: 10, target: 46552425, actual: 32947261, inverse: false },
-            ],
-          },
-          {
-            id: uid(), name: "CS", weight: 10,
-            subItems: [
-              { id: uid(), name: "NPS Per SA - TTB", unit: "point", subWeight: 50, target: 85, actual: 100, inverse: false },
-              { id: uid(), name: "Kuantity VOC Per SA", unit: "point", subWeight: 25, target: 80, actual: 80, inverse: false },
-              { id: uid(), name: "NPS Real Promoter", unit: "point", subWeight: 25, target: 87, actual: 100, inverse: false },
             ],
           }
         ],
@@ -179,10 +114,10 @@
       if (!t || Number.isNaN(t)) return 0;
       if (sub.inverse) {
         if (!a || Number.isNaN(a)) return 0;
-        return (t / a) * 100;
+        return Math.min(130, (t / a) * 100); 
       }
       if (Number.isNaN(a)) return 0;
-      return (a / t) * 100;
+      return Math.min(130, (a / t) * 100); 
     }
     
     function subScore(sub, categoryWeight) {
@@ -198,30 +133,25 @@
       return categories.reduce((s, c) => s + categoryScore(c), 0);
     }
 
-    function statusColor(pct) {
-      if (pct >= 100) return { fg: "#34D399", bg: "rgba(52, 211, 153, 0.1)", label: "Target Utama Tercapai (100%+)" };
-      if (pct >= 85) return { fg: "#60A5FA", bg: "rgba(96, 165, 250, 0.1)", label: "Tahap Aman Level 2 (≥ 85%)" };
-      if (pct >= 80) return { fg: "#FBBF24", bg: "rgba(251, 191, 36, 0.1)", label: "Tahap Aman Level 1 (≥ 80%)" };
-      return { fg: "#F87171", bg: "rgba(248, 113, 113, 0.1)", label: "Perlu Perhatian (< 80%)" };
+    // Mengubah style pengelompokan warna sesuai dengan tema terang (Light Theme)
+    function statusStyle(pct) {
+      if (pct >= 100) return { hex: "#10B981", text: "text-emerald-700", bg: "bg-emerald-100", border: "border-emerald-200", label: "Target Utama Tercapai (100%+)" };
+      if (pct >= 85) return { hex: "#3B82F6", text: "text-blue-700", bg: "bg-blue-100", border: "border-blue-200", label: "Tahap Aman Level 2 (≥ 85%)" };
+      if (pct >= 80) return { hex: "#F59E0B", text: "text-amber-700", bg: "bg-amber-100", border: "border-amber-200", label: "Tahap Aman Level 1 (≥ 80%)" };
+      return { hex: "#EF4444", text: "text-red-700", bg: "bg-red-100", border: "border-red-200", label: "Perlu Perhatian (< 80%)" };
     }
 
-    function fmt(n, unit) {
+    function fmt(n) {
       const num = Number(n);
       if (Number.isNaN(num)) return "-";
-      
-      if (unit && unit.toLowerCase() === "rp") {
-        return "Rp " + num.toLocaleString("id-ID");
-      }
       return num.toLocaleString("id-ID");
     }
 
     function parseFormattedNumber(val) {
       if (!val) return 0;
       if (typeof val === 'number') return val;
-      // Hapus semua karakter kecuali angka, koma, dan minus
       let s = String(val).replace(/[^0-9,-]/g, '');
-      // Ganti koma dengan titik (karena ini input berbahasa indonesia biasanya)
-      s = s.replace(/,/g, '.');
+      s = s.replace(/,/g, '.'); // Kompatibilitas koma sbg desimal
       return parseFloat(s) || 0;
     }
 
@@ -233,28 +163,24 @@
       const rad = (angle * Math.PI) / 180;
       const needleLen = r - 15;
       const nx = cx + needleLen * Math.cos(rad), ny = cy + needleLen * Math.sin(rad);
-      const statusTheme = value >= 100 ? "#34D399" : value >= 85 ? "#60A5FA" : value >= 80 ? "#FBBF24" : "#F87171";
+
+      const st = statusStyle(value);
 
       return (
         <svg width={size} height={size / 2 + 35} viewBox={`0 0 ${size} ${size / 2 + 35}`}>
           <defs>
             <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#F87171" />
-              <stop offset="61%" stopColor="#FBBF24" />
-              <stop offset="77%" stopColor="#60A5FA" />
-              <stop offset="100%" stopColor="#34D399" />
+              <stop offset="0%" stopColor="#EF4444" />
+              <stop offset="61%" stopColor="#F59E0B" />
+              <stop offset="77%" stopColor="#3B82F6" />
+              <stop offset="100%" stopColor="#10B981" />
             </linearGradient>
-            <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="3" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
           </defs>
-          <path d={`M ${cx - r} ${cy} A ${r} ${r} 0 1 1 ${cx + r} ${cy}`} stroke="#1F2937" strokeWidth={10} fill="none" strokeLinecap="round" />
+          <path d={`M ${cx - r} ${cy} A ${r} ${r} 0 1 1 ${cx + r} ${cy}`} stroke="#E2E8F0" strokeWidth={10} fill="none" strokeLinecap="round" />
           <path d={`M ${cx - r} ${cy} A ${r} ${r} 0 1 1 ${cx + r} ${cy}`} stroke="url(#gaugeGrad)" strokeWidth={10} fill="none" strokeLinecap="round" strokeDasharray={`${Math.PI * r}`} strokeDashoffset={`${Math.PI * r * (1 - clamped / 130)}`} />
-          <line x1={cx} y1={cy} x2={nx} y2={ny} stroke="#F8FAFC" strokeWidth={3.5} strokeLinecap="round" filter="url(#glow)" />
-          <circle cx={cx} cy={cy} r={8} fill="#111827" stroke={statusTheme} strokeWidth={3} />
-          <circle cx={cx} cy={cy} r={3} fill={statusTheme} />
-          <text x={cx} y={cy + 30} textAnchor="middle" fontFamily="Plus Jakarta Sans" fontSize="24" fontWeight="800" fill="#F8FAFC">{value.toFixed(1)}%</text>
+          <line x1={cx} y1={cy} x2={nx} y2={ny} stroke="#334155" strokeWidth={3.5} strokeLinecap="round" />
+          <circle cx={cx} cy={cy} r={8} fill="#FFFFFF" stroke={st.hex} strokeWidth={3} />
+          <text x={cx} y={cy + 30} textAnchor="middle" fontFamily="Plus Jakarta Sans" fontSize="24" fontWeight="800" fill="#0F172A">{value.toFixed(1)}%</text>
         </svg>
       );
     }
@@ -262,21 +188,21 @@
     function ChartTooltip({ active, payload, label }) {
       if (!active || !payload || !payload.length) return null;
       const val = payload[0].value;
-      const st = statusColor(val);
+      const st = statusStyle(val);
       return (
-        <div style={{ background: "#111827", border: "1px solid #1F2937", borderRadius: 8, padding: "8px 12px", fontFamily: "'JetBrains Mono', monospace" }}>
-          <div style={{ fontSize: 11, color: "#9CA3AF", marginBottom: 3 }}>{label}</div>
-          <div style={{ fontSize: 14, fontWeight: 700, color: st.fg }}>{val.toFixed(2)}%</div>
+        <div className="bg-white border border-slate-200 rounded-lg p-3 shadow-lg font-mono">
+          <div className="text-xs text-slate-500 mb-1">{label}</div>
+          <div className="text-sm font-bold" style={{ color: st.hex }}>{val.toFixed(2)}%</div>
         </div>
       );
     }
 
+    // Pemetaan data dari Sheets ke struktur Dashboard
     function mapCsvToData(csvRows) {
       const categoriesMap = {};
       let metaSa = "Service Advisor";
       let isAnyMapped = false;
 
-      // Helper untuk membersihkan angka dari format ID/EN
       const cleanNum = (val) => {
         if (!val) return 0;
         if (typeof val === 'number') return val;
@@ -286,24 +212,19 @@
             else s = s.replace(/,/g, '');
         } else if (s.includes(',')) {
             if (/, \d{3}$/.test(s)) s = s.replace(/,/g, '');
-            else s = s.replace(',', '.'); // koma sebagai desimal
+            else s = s.replace(',', '.');
         }
         return parseFloat(s) || 0;
       };
 
       csvRows.forEach(row => {
-        // Cari kolom yang mengandung keyword tertentu (Case Insensitive)
         const getVal = (possibleKeys) => {
-          const matchedKey = Object.keys(row).find(key => 
-            possibleKeys.some(pk => key.toLowerCase().includes(pk.toLowerCase()))
-          );
+          const matchedKey = Object.keys(row).find(key => possibleKeys.some(pk => key.toLowerCase().includes(pk.toLowerCase())));
           return matchedKey ? row[matchedKey] : "";
         };
 
         const catName = getVal(['kategori', 'category', 'pilar', 'group']);
         const subName = getVal(['item', 'kpi', 'indikator', 'nama kpi', 'parameter']);
-        
-        // Skip baris kosong atau tidak memiliki nama KPI
         if (!subName) return; 
 
         isAnyMapped = true;
@@ -311,127 +232,268 @@
         const catWeight = parseFloat(getVal(['bobot kategori', 'cat weight', 'weight_cat'])) || 0;
         const unit = getVal(['satuan', 'unit']) || '';
         const subWeight = parseFloat(getVal(['bobot', 'sub weight', 'bobot kpi'])) || 0;
-        
         const target = cleanNum(getVal(['target', 'plan']));
         const actual = cleanNum(getVal(['aktual', 'actual', 'pencapaian', 'realisasi']));
-        
         const invStr = String(getVal(['inverse', 'kebalikan', 'terbalik'])).toLowerCase();
         const inverse = invStr === 'true' || invStr === '1' || invStr === 'ya' || invStr === 'yes';
-
         const saName = getVal(['nama', 'sa', 'advisor', 'karyawan']);
+        
         if (saName && metaSa === "Service Advisor") metaSa = saName;
+        if (!categoriesMap[catGroup]) categoriesMap[catGroup] = { id: uid(), name: catGroup, weight: catWeight, subItems: [] };
 
-        if (!categoriesMap[catGroup]) {
-          categoriesMap[catGroup] = { id: uid(), name: catGroup, weight: catWeight, subItems: [] };
-        }
-
-        categoriesMap[catGroup].subItems.push({
-          id: uid(), name: subName, unit, subWeight, target, actual, inverse
-        });
+        categoriesMap[catGroup].subItems.push({ id: uid(), name: subName, unit, subWeight, target, actual, inverse });
       });
 
       if (!isAnyMapped) return null;
-
-      return {
-        meta: { sa: metaSa, ytd: "Updated via Sheets" },
-        categories: Object.values(categoriesMap)
-      };
+      return { meta: { sa: metaSa, ytd: "Updated via Sheets" }, categories: Object.values(categoriesMap) };
     }
 
+    const SubItemRow = ({ sub, catWeight, activePeriod, onSave }) => {
+        const [isLocked, setIsLocked] = useState(true);
+        const isRp = sub.unit?.toLowerCase() === 'rp';
+        
+        const [targetNum, setTargetNum] = useState(Number(sub.target) || 0);
+        const [targetStr, setTargetStr] = useState(isRp ? targetNum.toLocaleString('id-ID') : targetNum.toString());
+        
+        const [actualNum, setActualNum] = useState(Number(sub.actual) || 0);
+        const [actualStr, setActualStr] = useState(isRp ? actualNum.toLocaleString('id-ID') : actualNum.toString());
+
+        // Sinkronisasi bila berpindah periode / menerima data baru dari cloud
+        useEffect(() => {
+            const t = Number(sub.target) || 0;
+            const a = Number(sub.actual) || 0;
+            setTargetNum(t);
+            setActualNum(a);
+            setTargetStr(isRp ? t.toLocaleString('id-ID') : t.toString());
+            setActualStr(isRp ? a.toLocaleString('id-ID') : a.toString());
+            setIsLocked(true);
+        }, [sub.target, sub.actual, activePeriod, isRp]);
+
+        const handleTargetChange = (e) => {
+            setTargetStr(e.target.value);
+            setTargetNum(parseFormattedNumber(e.target.value));
+        };
+
+        const handleActualChange = (e) => {
+            setActualStr(e.target.value);
+            setActualNum(parseFormattedNumber(e.target.value));
+        };
+
+        const handleToggleLock = () => {
+            if (!isLocked) {
+                // Proses penyimpanan data (Locking)
+                onSave(sub.id, targetNum, actualNum);
+            }
+            setIsLocked(!isLocked);
+        };
+
+        // Kalkulasi real-time saat sedang diedit
+        const currentSub = { ...sub, target: targetNum, actual: actualNum };
+        const ach = achievement(currentSub);
+        const sc = subScore(currentSub, catWeight);
+        const st = statusStyle(ach);
+
+        return (
+            <tr className="border-b border-slate-100 last:border-0 hover:bg-slate-50/70 transition-colors">
+                <td className="py-4 px-5">
+                    <div className="font-semibold text-slate-800 text-sm leading-tight">{sub.name}</div>
+                    {sub.inverse && <div className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider">Inverse Metric</div>}
+                </td>
+                <td className="py-4 px-4 text-center text-sm font-mono text-slate-500">{sub.unit}</td>
+                <td className="py-4 px-4 text-center text-sm font-medium text-slate-600">{sub.subWeight}%</td>
+                
+                {/* Kolom Edit/View Target */}
+                <td className="py-4 px-4 text-right">
+                    {isLocked ? (
+                        <span className="font-mono text-sm font-medium text-slate-700">
+                            {isRp ? `Rp ${fmt(targetNum)}` : fmt(targetNum)}
+                        </span>
+                    ) : (
+                        <div className="relative inline-block w-full max-w-[140px]">
+                            {isRp && <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none">Rp</span>}
+                            <input 
+                                type="text" 
+                                value={targetStr}
+                                onChange={handleTargetChange}
+                                className={`w-full text-right font-mono text-sm border-2 border-amber-400 bg-amber-50 rounded-lg py-1.5 px-3 focus:ring-4 focus:ring-amber-400/20 outline-none transition-all ${isRp ? 'pl-8' : ''}`} 
+                            />
+                        </div>
+                    )}
+                </td>
+
+                {/* Kolom Edit/View Aktual */}
+                <td className="py-4 px-4 text-right">
+                    {isLocked ? (
+                        <span className="font-mono text-sm font-medium text-slate-700">
+                            {isRp ? `Rp ${fmt(actualNum)}` : fmt(actualNum)}
+                        </span>
+                    ) : (
+                        <div className="relative inline-block w-full max-w-[140px]">
+                            {isRp && <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none">Rp</span>}
+                            <input 
+                                type="text" 
+                                value={actualStr}
+                                onChange={handleActualChange}
+                                className={`w-full text-right font-mono text-sm border-2 border-emerald-400 bg-emerald-50 rounded-lg py-1.5 px-3 focus:ring-4 focus:ring-emerald-400/20 outline-none transition-all ${isRp ? 'pl-8' : ''}`} 
+                            />
+                        </div>
+                    )}
+                </td>
+
+                <td className="py-4 px-4 text-center">
+                    <span className={`px-2.5 py-1.5 rounded-full text-xs font-bold ${st.bg} ${st.text} border ${st.border}`}>
+                        {ach.toFixed(1)}%
+                    </span>
+                </td>
+                <td className="py-4 px-4 text-center font-mono font-bold text-slate-800 text-base">
+                    {sc.toFixed(2)}
+                </td>
+                <td className="py-4 px-4 text-center">
+                    <button 
+                        onClick={handleToggleLock} 
+                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm
+                            ${isLocked 
+                                ? 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100' 
+                                : 'bg-emerald-500 border border-emerald-600 text-white hover:bg-emerald-600 hover:shadow-md'
+                            }`}
+                    >
+                        {isLocked ? '🔓 Edit' : '🔒 Simpan'}
+                    </button>
+                </td>
+            </tr>
+        );
+    };
+
     function App() {
-      const [periods, setPeriods] = useState(["Juli 2026", "Juni 2026", "Mei 2026"]);
-      const [active, setActive] = useState("Juli 2026");
-      const [data, setData] = useState(seedData()); // Fallback default
-      const [syncStatus, setSyncStatus] = useState("syncing");
-      const [expanded, setExpanded] = useState({});
+      const [periods, setPeriods] = useState(["Agustus 2026", "Juli 2026", "Juni 2026"]);
+      const [active, setActive] = useState("Agustus 2026");
+      
+      const [csvTemplate, setCsvTemplate] = useState(seedData()); // Template mentah dari CSV
+      const [cloudData, setCloudData] = useState({}); // Data tersimpan dari Cloud { period: data }
+      const [currentData, setCurrentData] = useState(seedData()); // Data yg ditampilkan di UI
+      
+      const [fb, setFb] = useState(null);
+      const [syncStatus, setSyncStatus] = useState("Memuat Template..."); // Pesan Status Sinkronisasi
+      
       const [newPeriodName, setNewPeriodName] = useState("");
       const [showNewPeriod, setShowNewPeriod] = useState(false);
-      const [otherScores, setOtherScores] = useState({ "Juni 2026": 88.5, "Mei 2026": 82.1 });
-      const [isMobile, setIsMobile] = useState(window.innerWidth < 760);
 
+      // Inisialisasi Firebase & Tarik Template CSV
       useEffect(() => {
-        const onResize = () => setIsMobile(window.innerWidth < 760);
-        window.addEventListener("resize", onResize);
-        return () => window.removeEventListener("resize", onResize);
-      }, []);
-
-      useEffect(() => {
-        setSyncStatus("syncing");
+        // Ambil Data CSV
         Papa.parse(CSV_URL, {
-          download: true,
-          header: true, // Mengambil baris pertama sebagai Header Name
-          skipEmptyLines: true,
-          complete: function(results) {
+          download: true, header: true, skipEmptyLines: true,
+          complete: (results) => {
             try {
-              if (results && results.data && results.data.length > 0) {
-                const mappedData = mapCsvToData(results.data);
-                
-                if (mappedData && mappedData.categories.length > 0) {
-                  setData(mappedData);
-                  setSyncStatus("synced");
-                } else {
-                  console.warn("CSV tidak memiliki kolom yang sesuai dengan format. Menggunakan data default.");
-                  setSyncStatus("offline");
-                }
-              } else {
-                setSyncStatus("offline");
+              if (results?.data?.length > 0) {
+                const mapped = mapCsvToData(results.data);
+                if (mapped) setCsvTemplate(mapped);
               }
-            } catch (err) {
-              console.error("Gagal memetakan CSV:", err);
-              setSyncStatus("offline");
-            }
-          },
-          error: function(error) {
-            console.error("Gagal mendownload CSV:", error);
-            setSyncStatus("offline");
+            } catch (err) { console.error("Error CSV map", err); }
           }
         });
+
+        // Inisialisasi Firebase
+        if (window.firebasePromise) {
+            window.firebasePromise.then(setFb).catch(console.error);
+        }
       }, []);
 
-      const updateData = (next) => { setData(next); };
-      const switchPeriod = (period) => { setActive(period); };
+      // Ambil Data dari Cloud setelah Firebase Ready
+      useEffect(() => {
+          if (!fb || !fb.auth.currentUser) return;
+          const fetchCloud = async () => {
+              setSyncStatus("Menghubungkan ke Cloud...");
+              try {
+                  const docRef = window.fs.doc(fb.db, 'artifacts', fb.appId, 'users', fb.auth.currentUser.uid, 'kpi_data', 'all_periods');
+                  const snap = await window.fs.getDoc(docRef);
+                  if (snap.exists()) {
+                      const data = snap.data();
+                      setCloudData(data);
+                      // Jika ada periode tersimpan, update list periode
+                      const savedPeriods = Object.keys(data).sort((a,b) => b.localeCompare(a));
+                      if(savedPeriods.length > 0) {
+                          setPeriods(prev => Array.from(new Set([...savedPeriods, ...prev])));
+                      }
+                      setSyncStatus("☁️ Tersinkronisasi");
+                  } else {
+                      setSyncStatus("📊 Template Sheets Aktif");
+                  }
+              } catch(e) {
+                  console.error(e);
+                  setSyncStatus("⚠️ Error Cloud");
+              }
+          };
+          fetchCloud();
+      }, [fb]);
+
+      // Menggabungkan dan menetapkan Data Aktif berdasarkan Periode
+      useEffect(() => {
+          // Jika ada rekaman tersimpan di cloud untuk periode ini, gunakan itu.
+          // Jika tidak, gunakan template default CSV.
+          if (cloudData[active]) {
+              setCurrentData(cloudData[active]);
+          } else {
+              setCurrentData(csvTemplate);
+          }
+      }, [active, cloudData, csvTemplate]);
 
       const createPeriod = () => {
         const name = newPeriodName.trim();
         if (!name || periods.includes(name)) return;
-        const nextPeriods = [...periods, name];
-        setPeriods(nextPeriods);
-        setOtherScores((s) => ({ ...s, [active]: overallScore(data.categories) }));
+        setPeriods([name, ...periods]);
+        setActive(name);
         setNewPeriodName("");
         setShowNewPeriod(false);
-        setActive(name);
       };
 
-      const updateMeta = (field, val) => updateData({ ...data, meta: { ...data.meta, [field]: val } });
-      const updateCategory = (catId, field, val) => updateData({ ...data, categories: data.categories.map((c) => c.id === catId ? { ...c, [field]: val } : c) });
-      const updateSub = (catId, subId, field, val) => updateData({
-        ...data,
-        categories: data.categories.map((c) => c.id !== catId ? c : { ...c, subItems: c.subItems.map((s) => s.id === subId ? { ...s, [field]: val } : s) }),
-      });
-      const addCategory = () => updateData({ ...data, categories: [...data.categories, { id: uid(), name: "Kategori Baru", weight: 0, subItems: [] }] });
-      const removeCategory = (catId) => updateData({ ...data, categories: data.categories.filter((c) => c.id !== catId) });
-      const addSub = (catId) => updateData({
-        ...data,
-        categories: data.categories.map((c) => c.id !== catId ? c : { ...c, subItems: [...c.subItems, { id: uid(), name: "Sub Item Baru", unit: "%", subWeight: 0, target: 100, actual: 0, inverse: false }] }),
-      });
-      const removeSub = (catId, subId) => updateData({
-        ...data,
-        categories: data.categories.map((c) => c.id !== catId ? c : { ...c, subItems: c.subItems.filter((s) => s.id !== subId) }),
-      });
+      // Fungsi penyimpanan saat "🔒 Simpan" di klik pada sub-item
+      const saveSubItemToCloud = async (catId, subId, newTarget, newActual) => {
+          // 1. Update secara lokal
+          const updatedCategories = currentData.categories.map(c => {
+              if (c.id !== catId) return c;
+              return {
+                  ...c,
+                  subItems: c.subItems.map(s => s.id === subId ? { ...s, target: newTarget, actual: newActual } : s)
+              };
+          });
+          const updatedData = { ...currentData, categories: updatedCategories };
+          
+          setCurrentData(updatedData);
+          setCloudData(prev => ({ ...prev, [active]: updatedData }));
 
-      const toggleExpand = (id) => setExpanded((e) => ({ ...e, [id]: !e[id] }));
+          // 2. Simpan ke Firestore
+          if (fb && fb.auth.currentUser) {
+              setSyncStatus("Menyimpan...");
+              try {
+                  const docRef = window.fs.doc(fb.db, 'artifacts', fb.appId, 'users', fb.auth.currentUser.uid, 'kpi_data', 'all_periods');
+                  await window.fs.setDoc(docRef, { [active]: updatedData }, { merge: true });
+                  setSyncStatus("☁️ Tersinkronisasi");
+              } catch (e) {
+                  console.error(e);
+                  setSyncStatus("⚠️ Gagal Menyimpan");
+              }
+          }
+      };
 
-      const totalCatWeight = useMemo(() => data ? data.categories.reduce((s, c) => s + (Number(c.weight) || 0), 0) : 0, [data]);
-      const total = useMemo(() => data ? overallScore(data.categories) : 0, [data]);
-      const overallStatus = statusColor(total);
+      const totalCatWeight = useMemo(() => currentData ? currentData.categories.reduce((s, c) => s + (Number(c.weight) || 0), 0) : 0, [currentData]);
+      const total = useMemo(() => currentData ? overallScore(currentData.categories) : 0, [currentData]);
+      const overallStatus = statusStyle(total);
 
-      const chartData = useMemo(() => periods.map((p) => ({ name: p, score: p === active ? total : (otherScores[p] ?? 85.0) })).reverse(), [periods, active, total, otherScores]);
-      const growthDelta = chartData.length >= 2 ? chartData[chartData.length - 1].score - chartData[chartData.length - 2].score : null;
+      // Data Chart Historis
+      const chartData = useMemo(() => {
+          return periods.map(p => {
+              let score = 85.0;
+              if (cloudData[p]) score = overallScore(cloudData[p].categories);
+              else if (p === active) score = total;
+              return { name: p, score };
+          }).reverse();
+      }, [periods, cloudData, active, total]);
 
       const focusList = useMemo(() => {
-        if (!data) return [];
+        if (!currentData) return [];
         const rows = [];
-        data.categories.forEach((cat) => {
+        currentData.categories.forEach((cat) => {
           cat.subItems.forEach((sub) => {
             const ach = achievement(sub);
             const potential = (Number(sub.subWeight) || 0) / 100 * (Number(cat.weight) || 0) / 100 * Math.max(0, 100 - ach);
@@ -440,236 +502,177 @@
             }
           });
         });
-        rows.sort((a, b) => b.potential - a.potential);
-        return rows.slice(0, 4);
-      }, [data]);
+        return rows.sort((a, b) => b.potential - a.potential).slice(0, 4);
+      }, [currentData]);
 
       return (
-        <div style={{ minHeight: "100vh", background: "#090D16", color: "#F8FAFC", padding: isMobile ? "16px 12px 48px" : "32px 24px 64px" }}>
-          <div style={{ maxWidth: 1040, margin: "0 auto" }}>
+        <div className="min-h-screen text-slate-800 font-sans pb-16">
+          <div className="max-w-6xl mx-auto px-4 pt-8">
             
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16, marginBottom: 20 }}>
+            {/* Header Area */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-6">
               <div>
-                <h1 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: isMobile ? 22 : 26, fontWeight: 700, margin: "0 0 8px", letterSpacing: "-0.02em" }}>KPI Service Advisor</h1>
-                <div>
-                  <input className="meta-input" type="text" value={data.meta.sa} onChange={(e) => updateMeta("sa", e.target.value)} style={{ width: isMobile ? "100%" : 260 }} />
-                </div>
+                <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 mb-1">KPI Service Advisor</h1>
+                <div className="text-slate-500 font-medium">{currentData.meta.sa}</div>
               </div>
-              <div style={{ fontSize: 12, color: "#9CA3AF", fontFamily: "'JetBrains Mono', monospace", background: "#111827", padding: "6px 12px", borderRadius: 8, border: "1px solid #1F2937", display: "flex", alignItems: "center", gap: 6 }}>
-                <span style={{ 
-                  width: 8, height: 8, borderRadius: "50%", 
-                  background: syncStatus === "synced" ? "#10B981" : syncStatus === "syncing" ? "#60A5FA" : "#FBBF24" 
-                }}></span>
-                <span>{syncStatus === "synced" ? "Terhubung Google Sheets ✓" : syncStatus === "syncing" ? "Mengambil Data..." : "Mode Standby (Offline)"}</span>
-              </div>
-            </div>
-
-            <div style={{ background: "linear-gradient(135deg, rgba(16, 185, 129, 0.06) 0%, rgba(59, 130, 246, 0.06) 100%)", border: "1px solid rgba(16, 185, 129, 0.2)", borderRadius: 12, padding: "14px 18px", marginBottom: 20, display: "flex", alignItems: "center", gap: 12 }}>
-              <span style={{ fontSize: 20 }}>✨</span>
-              <div style={{ fontSize: 13, color: "#34D399", fontWeight: 500, lineHeight: 1.5, fontStyle: "italic" }}>
-                "Pelayanan prima dan ketelitian hari ini adalah fondasi pencapaian target yang luar biasa di esok hari. Semangat memberikan yang terbaik!"
-              </div>
-            </div>
-
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 13, color: "#9CA3AF", fontWeight: 500 }}>Periode:</span>
-              <select value={active} onChange={(e) => switchPeriod(e.target.value)} style={{ flex: isMobile ? 1 : "none" }}>
-                {periods.map((p) => <option key={p} value={p}>{p}</option>)}
-              </select>
-              {!showNewPeriod ? (
-                <button className="ghost-btn" onClick={() => setShowNewPeriod(true)}>+ Periode Baru</button>
-              ) : (
-                <>
-                  <input type="text" placeholder="mis. Agustus 2026" value={newPeriodName} onChange={(e) => setNewPeriodName(e.target.value)} style={{ width: isMobile ? "100%" : 160 }} />
-                  <button className="primary-btn" onClick={createPeriod}>Buat</button>
-                  <button className="ghost-btn" onClick={() => setShowNewPeriod(false)}>Batal</button>
-                </>
-              )}
-            </div>
-
-            {}
-            <div style={{ background: "#111827", border: "1px solid #1F2937", borderRadius: 16, padding: 20, display: "flex", flexWrap: "wrap", gap: 24, alignItems: "center", justifyContent: "space-around", marginBottom: 20, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.3)" }}>
-              <div style={{ textAlign: "center" }}>
-                <Gauge value={total} size={190} />
-                <div style={{ fontSize: 12, color: "#9CA3AF", marginTop: 4, fontWeight: 500 }}>Total Score — {active}</div>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 12, minWidth: isMobile ? "100%" : 260 }}>
-                <div style={{ padding: "12px 16px", borderRadius: 10, background: overallStatus.bg, border: `1px solid ${overallStatus.fg}33` }}>
-                  <div style={{ fontSize: 11, color: "#9CA3AF", fontWeight: 500, marginBottom: 2 }}>Status Pencapaian</div>
-                  <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, color: overallStatus.fg, fontSize: 14 }}>{overallStatus.label}</div>
+              <div className="flex flex-col items-end gap-2">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-full shadow-sm text-xs font-semibold text-slate-600">
+                  <span className={`w-2 h-2 rounded-full ${syncStatus.includes('Error') ? 'bg-red-500' : syncStatus.includes('Menyimpan') ? 'bg-blue-500 animate-pulse' : 'bg-emerald-500'}`}></span>
+                  {syncStatus}
                 </div>
                 
-                <div style={{ padding: "12px 16px", borderRadius: 10, background: "#0D131F", border: "1px solid #1F2937", fontSize: 12 }}>
-                  <div style={{ fontWeight: 600, color: "#F8FAFC", marginBottom: 6 }}>Target Tahap Aman:</div>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4, color: "#9CA3AF" }}>
-                    <span>Tahap Aman 1 (≥ 80%):</span>
-                    <span style={{ color: total >= 80 ? "#34D399" : "#FBBF24", fontWeight: 700 }}>{total >= 80 ? "Tercapai ✓" : "Belum"}</span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", color: "#9CA3AF" }}>
-                    <span>Tahap Aman 2 (≥ 85%):</span>
-                    <span style={{ color: total >= 85 ? "#34D399" : "#FBBF24", fontWeight: 700 }}>{total >= 85 ? "Tercapai ✓" : "Belum"}</span>
-                  </div>
-                </div>
-
-                <div style={{ padding: "12px 16px", borderRadius: 10, background: Math.abs(totalCatWeight - 100) < 0.01 ? "rgba(52, 211, 153, 0.06)" : "rgba(251, 191, 36, 0.08)", border: `1px solid ${Math.abs(totalCatWeight - 100) < 0.01 ? "rgba(52, 211, 153, 0.2)" : "rgba(251, 191, 36, 0.2)"}` }}>
-                  <div style={{ fontSize: 11, color: "#9CA3AF", fontWeight: 500 }}>Total Bobot Kategori</div>
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 15, color: Math.abs(totalCatWeight - 100) < 0.01 ? "#34D399" : "#FBBF24" }}>{totalCatWeight}%</div>
-                </div>
-              </div>
-            </div>
-
-            <div style={{ background: "#111827", border: "1px solid #1F2937", borderRadius: 16, padding: 20, marginBottom: 20, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.3)" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontSize: 16 }}>📈</span>
-                  <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 15, fontWeight: 700, margin: 0 }}>Pertumbuhan KPI per Bulan</h2>
-                </div>
-                {growthDelta !== null && (
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 700, color: growthDelta >= 0 ? "#34D399" : "#F87171" }}>
-                    {growthDelta >= 0 ? "▲" : "▼"} {Math.abs(growthDelta).toFixed(2)} poin vs bulan lalu
-                  </div>
-                )}
-              </div>
-              <div style={{ width: "100%", height: isMobile ? 200 : 230 }}>
-                <ResponsiveContainer>
-                  <LineChart data={chartData} margin={{ top: 10, right: 20, left: -15, bottom: 0 }}>
-                    <CartesianGrid stroke="#1F2937" vertical={false} />
-                    <XAxis dataKey="name" tick={{ fill: "#9CA3AF", fontSize: 11, fontFamily: "JetBrains Mono" }} axisLine={{ stroke: "#1F2937" }} tickLine={false} />
-                    <YAxis tick={{ fill: "#9CA3AF", fontSize: 11, fontFamily: "JetBrains Mono" }} axisLine={false} tickLine={false} domain={[0, 130]} />
-                    <ReferenceLine y={100} stroke="#34D399" strokeDasharray="3 3" opacity={0.4} />
-                    <ReferenceLine y={85} stroke="#60A5FA" strokeDasharray="3 3" opacity={0.3} />
-                    <Tooltip content={<ChartTooltip />} />
-                    <Line type="monotone" dataKey="score" stroke="#34D399" strokeWidth={3} dot={{ r: 5, fill: "#34D399", stroke: "#111827", strokeWidth: 2 }} activeDot={{ r: 7 }} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            <div style={{ background: "#111827", border: "1px solid #1F2937", borderRadius: 16, padding: 20, marginBottom: 24, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.3)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                <span style={{ fontSize: 16 }}>🎯</span>
-                <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 15, fontWeight: 700, margin: 0 }}>Analisa & Rekomendasi Perbaikan Prioritas</h2>
-              </div>
-              <p style={{ fontSize: 13, color: "#9CA3AF", lineHeight: 1.6, margin: "0 0 14px" }}>
-                Total skor saat ini adalah <strong style={{ color: overallStatus.fg }}>{total.toFixed(2)}%</strong>.
-                {focusList.length > 0 ? (
-                  <> Fokuskan peningkatan kinerja pada sub-item berikut untuk mendongkrak pencapaian Anda:</>
-                ) : " Seluruh sub-item berbobot telah mencapai target. Pertahankan performa luar biasa ini."}
-              </p>
-              {focusList.length > 0 && (
-                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  {focusList.map((f, i) => {
-                    const st = statusColor(f.ach);
-                    return (
-                      <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#090D16", border: "1px solid #1F2937", borderRadius: 10, padding: "10px 14px", flexWrap: "wrap", gap: 8 }}>
-                        <div>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: "#F8FAFC" }}>{i + 1}. {f.name} <span style={{ fontSize: 11.5, color: "#9CA3AF", fontWeight: 400 }}>({f.cat})</span></div>
-                          <div style={{ fontSize: 11.5, color: "#9CA3AF", marginTop: 2 }}>Aktual: {fmt(f.actual, f.unit)} / Target: {fmt(f.target, f.unit)}</div>
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                          <span style={{ padding: "3px 10px", borderRadius: 99, background: st.bg, color: st.fg, fontFamily: "JetBrains Mono", fontSize: 12, fontWeight: 600 }}>{f.ach.toFixed(1)}%</span>
-                          <span style={{ fontFamily: "JetBrains Mono", fontSize: 12, color: "#34D399", fontWeight: 600 }}>+{f.potential.toFixed(2)} poin</span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
-              <button className="ghost-btn" onClick={addCategory}>+ Tambah Kategori</button>
-            </div>
-
-            {}
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {data.categories.map((cat) => {
-                const score = categoryScore(cat);
-                const isOpen = expanded[cat.id] !== false;
-                return (
-                  <div key={cat.id} style={{ background: "#111827", border: "1px solid #1F2937", borderRadius: 14, overflow: "hidden", boxShadow: "0 4px 12px rgba(0,0,0,0.2)" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 18px", cursor: "pointer", flexWrap: "wrap", background: "#111827" }} onClick={() => toggleExpand(cat.id)}>
-                      <button className="icon-btn" style={{ width: 28, height: 28, background: "#090D16" }} onClick={(e) => { e.stopPropagation(); toggleExpand(cat.id); }}>
-                        {isOpen ? "▼" : "▶"}
-                      </button>
-                      <input className="name-input" type="text" value={cat.name} onClick={(e) => e.stopPropagation()} onChange={(e) => updateCategory(cat.id, "name", e.target.value)} style={{ width: isMobile ? 130 : 220 }} />
-                      <div style={{ display: "flex", alignItems: "center", gap: 6 }} onClick={(e) => e.stopPropagation()}>
-                        <span style={{ fontSize: 12, color: "#9CA3AF", fontWeight: 500 }}>Bobot</span>
-                        <input type="number" value={cat.weight} onChange={(e) => updateCategory(cat.id, "weight", e.target.value)} style={{ width: 60 }} />
-                        <span style={{ fontSize: 12, color: "#9CA3AF" }}>%</span>
-                      </div>
-                      <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
-                        <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: 16, color: statusColor((score / (cat.weight || 1)) * 100).fg }}>{score.toFixed(2)}%</div>
-                        <button className="icon-btn" onClick={(e) => { e.stopPropagation(); removeCategory(cat.id); }}>✕</button>
-                      </div>
+                <div className="flex items-center gap-2 mt-1">
+                  <select 
+                    value={active} 
+                    onChange={(e) => setActive(e.target.value)}
+                    className="bg-white border border-slate-300 text-slate-700 rounded-lg px-4 py-2 text-sm font-semibold shadow-sm outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+                  >
+                    {periods.map((p) => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                  {!showNewPeriod ? (
+                    <button onClick={() => setShowNewPeriod(true)} className="bg-slate-100 text-slate-600 border border-slate-200 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-slate-200 transition-colors shadow-sm">+ Periode</button>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                        <input 
+                            type="text" 
+                            placeholder="mis. September 2026" 
+                            value={newPeriodName} 
+                            onChange={(e) => setNewPeriodName(e.target.value)} 
+                            className="border border-slate-300 rounded-lg px-3 py-2 text-sm w-40 outline-none focus:border-emerald-500" 
+                        />
+                        <button onClick={createPeriod} className="bg-emerald-500 text-white rounded-lg px-4 py-2 text-sm font-bold hover:bg-emerald-600 shadow-sm">Buat</button>
+                        <button onClick={() => setShowNewPeriod(false)} className="text-slate-500 text-sm font-semibold hover:text-slate-700">Batal</button>
                     </div>
+                  )}
+                </div>
+              </div>
+            </div>
 
-                    {isOpen && (
-                      <div style={{ borderTop: "1px solid #1F2937", padding: "16px", background: "#0D131F" }}>
-                        {cat.subItems.map((sub) => {
-                          const ach = achievement(sub);
-                          const st = statusColor(ach);
-                          const sc = subScore(sub, cat.weight);
-                          
-                          // Format target & actual based on unit type for display
-                          const isRp = sub.unit && sub.unit.toLowerCase() === "rp";
-                          const targetDisplay = isRp ? Number(sub.target).toLocaleString("id-ID") : sub.target;
-                          const actualDisplay = isRp ? Number(sub.actual).toLocaleString("id-ID") : sub.actual;
+            {/* Disclaimer Banner */}
+            <div className="bg-blue-50 border-l-4 border-blue-500 rounded-r-xl p-4 mb-8 shadow-sm">
+                <div className="flex gap-3">
+                    <span className="text-xl">💡</span>
+                    <p className="text-sm text-blue-800 leading-relaxed font-medium">
+                        <strong>Mode Terkunci (Read-Only) Aktif.</strong> Anda hanya dapat mengedit target dan nilai aktual dengan menekan tombol <strong className="text-emerald-700 bg-emerald-100 px-1 rounded">🔓 Edit</strong>. Data yang disimpan akan direkam ke dalam <strong>Secure Cloud Database</strong> secara otomatis, menggantikan format CSV Google Sheets.
+                    </p>
+                </div>
+            </div>
 
-                          return (
-                            <div key={sub.id} style={{ background: "#111827", border: "1px solid #1F2937", borderRadius: 10, padding: 14, marginBottom: 12 }}>
-                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10 }}>
-                                <input className="name-input" type="text" value={sub.name} onChange={(e) => updateSub(cat.id, sub.id, "name", e.target.value)} style={{ flex: 1 }} />
-                                <button className="icon-btn" onClick={() => removeSub(cat.id, sub.id)}>✕</button>
-                              </div>
-                              <label style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 8, fontSize: 11, color: "#9CA3AF", cursor: "pointer" }}>
-                                <input type="checkbox" checked={!!sub.inverse} onChange={(e) => updateSub(cat.id, sub.id, "inverse", e.target.checked)} style={{ width: "auto" }} />
-                                makin rendah makin baik (inverse metric)
-                              </label>
-                              <div style={{ marginTop: 10 }}>
-                                <div className="field-row"><span className="field-label">Satuan</span><input type="text" value={sub.unit} onChange={(e) => updateSub(cat.id, sub.id, "unit", e.target.value)} style={{ width: 100, textAlign: "right" }} /></div>
-                                <div className="field-row"><span className="field-label">Sub Bobot (%)</span><input type="number" value={sub.subWeight} onChange={(e) => updateSub(cat.id, sub.id, "subWeight", e.target.value)} style={{ width: 100, textAlign: "right" }} /></div>
-                                
-                                <div className="field-row">
-                                  <span className="field-label">Target</span>
-                                  {isRp ? (
-                                    <div style={{ position: "relative", width: 140 }}>
-                                      <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", fontSize: 12, color: "#9CA3AF", pointerEvents: "none" }}>Rp</span>
-                                      <input type="text" value={targetDisplay} 
-                                        onChange={(e) => updateSub(cat.id, sub.id, "target", parseFormattedNumber(e.target.value))} 
-                                        style={{ width: "100%", textAlign: "right", paddingLeft: 30 }} />
-                                    </div>
-                                  ) : (
-                                    <input type="number" value={sub.target} onChange={(e) => updateSub(cat.id, sub.id, "target", e.target.value)} style={{ width: 140, textAlign: "right" }} />
-                                  )}
-                                </div>
+            {/* Top Cards (Gauge & Chart) */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                
+                {/* Score Summary Card */}
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col items-center justify-center lg:col-span-1">
+                    <Gauge value={total} size={220} />
+                    <div className="text-sm font-bold text-slate-400 mt-2 tracking-wide uppercase">Skor Total — {active}</div>
+                    
+                    <div className="w-full mt-6 space-y-3">
+                        <div className={`w-full text-center py-2.5 rounded-lg border font-bold text-sm ${overallStatus.bg} ${overallStatus.text} ${overallStatus.border}`}>
+                            {overallStatus.label}
+                        </div>
+                        <div className="flex justify-between items-center text-xs font-semibold px-2">
+                            <span className="text-slate-500">Bobot KPI:</span>
+                            <span className={Math.abs(totalCatWeight - 100) < 0.1 ? "text-emerald-600" : "text-amber-600"}>{totalCatWeight}%</span>
+                        </div>
+                    </div>
+                </div>
 
-                                <div className="field-row">
-                                  <span className="field-label">Aktual</span>
-                                  {isRp ? (
-                                    <div style={{ position: "relative", width: 140 }}>
-                                      <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", fontSize: 12, color: "#9CA3AF", pointerEvents: "none" }}>Rp</span>
-                                      <input type="text" value={actualDisplay} 
-                                        onChange={(e) => updateSub(cat.id, sub.id, "actual", parseFormattedNumber(e.target.value))} 
-                                        style={{ width: "100%", textAlign: "right", paddingLeft: 30 }} />
-                                    </div>
-                                  ) : (
-                                    <input type="number" value={sub.actual} onChange={(e) => updateSub(cat.id, sub.id, "actual", e.target.value)} style={{ width: 140, textAlign: "right" }} />
-                                  )}
-                                </div>
-                                
-                                <div className="field-row">
-                                  <span className="field-label">Pencapaian</span>
-                                  <div style={{ display: "inline-flex", padding: "4px 10px", borderRadius: 999, background: st.bg, color: st.fg, fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600 }}>{ach.toFixed(1)}%</div>
-                                </div>
-                                <div className="field-row"><span className="field-label">Nilai/Score</span><span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: "#F8FAFC", fontWeight: 600 }}>{sc.toFixed(2)}</span></div>
+                {/* Line Chart Card */}
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 lg:col-span-2 flex flex-col">
+                    <div className="flex items-center gap-2 mb-4">
+                        <span className="text-xl">📈</span>
+                        <h2 className="text-lg font-bold text-slate-800">Pertumbuhan KPI</h2>
+                    </div>
+                    <div className="w-full flex-grow min-h-[220px]">
+                        <ResponsiveContainer>
+                          <LineChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                            <CartesianGrid stroke="#F1F5F9" vertical={false} />
+                            <XAxis dataKey="name" tick={{ fill: "#64748B", fontSize: 11, fontFamily: "JetBrains Mono" }} axisLine={{ stroke: "#E2E8F0" }} tickLine={false} />
+                            <YAxis tick={{ fill: "#64748B", fontSize: 11, fontFamily: "JetBrains Mono" }} axisLine={false} tickLine={false} domain={[0, 130]} />
+                            <ReferenceLine y={100} stroke="#10B981" strokeDasharray="4 4" opacity={0.6} />
+                            <ReferenceLine y={85} stroke="#3B82F6" strokeDasharray="4 4" opacity={0.5} />
+                            <Tooltip content={<ChartTooltip />} cursor={{ stroke: '#E2E8F0', strokeWidth: 2 }} />
+                            <Line type="monotone" dataKey="score" stroke="#10B981" strokeWidth={3} dot={{ r: 5, fill: "#10B981", stroke: "#FFFFFF", strokeWidth: 2 }} activeDot={{ r: 7 }} />
+                          </LineChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+            </div>
+
+            {/* Rekomendasi Prioritas */}
+            {focusList.length > 0 && (
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-8">
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="text-xl">🎯</span>
+                    <h2 className="text-lg font-bold text-slate-800">Prioritas Peningkatan Kinerja</h2>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {focusList.map((f, i) => {
+                        const st = statusStyle(f.ach);
+                        const isRp = f.unit?.toLowerCase() === 'rp';
+                        return (
+                          <div key={i} className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl p-4">
+                            <div>
+                              <div className="text-sm font-bold text-slate-800">{i + 1}. {f.name}</div>
+                              <div className="text-xs text-slate-500 mt-1">
+                                  Aktual: {isRp ? 'Rp ' : ''}{fmt(f.actual)} / Target: {isRp ? 'Rp ' : ''}{fmt(f.target)}
                               </div>
                             </div>
-                          );
-                        })}
-                        <button className="ghost-btn" onClick={() => addSub(cat.id)} style={{ width: "100%", justifyContent: "center", marginTop: 4 }}>+ Tambah Sub Item</button>
-                      </div>
-                    )}
+                            <div className="flex flex-col items-end gap-1">
+                              <span className={`px-2 py-1 rounded-md text-xs font-bold ${st.bg} ${st.text}`}>{f.ach.toFixed(1)}%</span>
+                              <span className="text-xs font-bold text-emerald-600">+{f.potential.toFixed(2)} poin</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+            )}
+
+            {/* KPI Cards (Categories) */}
+            <div className="space-y-8">
+              {currentData.categories.map((cat) => {
+                const catScore = categoryScore(cat);
+                return (
+                  <div key={cat.id} className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                    
+                    {/* Category Header (Locked) */}
+                    <div className="bg-slate-800 px-6 py-4 flex flex-col md:flex-row justify-between md:items-center gap-3">
+                        <h3 className="text-xl font-bold text-white tracking-tight">{cat.name}</h3>
+                        <div className="flex items-center gap-6">
+                            <div className="text-slate-300 text-sm">Bobot: <span className="font-bold text-white text-base ml-1">{cat.weight}%</span></div>
+                            <div className="text-slate-300 text-sm">Skor Kategori: <span className="font-bold text-emerald-400 text-base ml-1">{catScore.toFixed(2)}</span></div>
+                        </div>
+                    </div>
+
+                    {/* SubItems Table */}
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse min-w-[900px]">
+                            <thead className="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider font-bold border-b border-slate-200">
+                                <tr>
+                                   <th className="px-5 py-4 w-[28%]">Indikator KPI</th>
+                                   <th className="px-4 py-4 text-center w-[8%]">Satuan</th>
+                                   <th className="px-4 py-4 text-center w-[8%]">Bobot</th>
+                                   <th className="px-4 py-4 text-right w-[15%]">Target</th>
+                                   <th className="px-4 py-4 text-right w-[15%]">Aktual</th>
+                                   <th className="px-4 py-4 text-center w-[10%]">Capaian</th>
+                                   <th className="px-4 py-4 text-center w-[8%]">Skor</th>
+                                   <th className="px-4 py-4 text-center w-[8%]">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                                {cat.subItems.map((sub) => (
+                                    <SubItemRow 
+                                        key={sub.id + active} // Memaksa reset state lokal saat pindah tab periode
+                                        sub={sub} 
+                                        catWeight={cat.weight} 
+                                        activePeriod={active}
+                                        onSave={(subId, target, actual) => saveSubItemToCloud(cat.id, subId, target, actual)}
+                                    />
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                   </div>
                 );
               })}
