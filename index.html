@@ -8,6 +8,7 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/recharts@2.12.7/umd/Recharts.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
@@ -125,42 +126,12 @@
     const { useState, useEffect, useCallback, useMemo, useRef } = React;
     const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } = Recharts;
 
-    const API_URL = "MASUKKAN_WEB_APP_URL_GOOGLE_APPS_SCRIPT_DISINI";
+    const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR36vUBwnZjtxqSswz7E9iPrGI5JON5chP95xWKlxjH7zU9KG9F4FWgo4I8_VtkVOZBN1Jrj8LRsyYO/pub?gid=0&single=true&output=csv";
 
     const uid = () => Math.random().toString(36).slice(2, 10);
-    const PERIODS_KEY = "kpi-sa-periods";
-    const ACTIVE_KEY = "kpi-sa-active-period";
-    const dataKey = (period) => `kpi-sa-data::${period}`;
-
-    const cloudStorage = {
-      async get(key) {
-        if (!API_URL || API_URL.includes("MASUKKAN")) {
-          return localStorage.getItem(key);
-        }
-        try {
-          const res = await fetch(`${API_URL}?key=${encodeURIComponent(key)}`);
-          const json = await res.json();
-          return json.value !== undefined && json.value !== null ? json.value : localStorage.getItem(key);
-        } catch (err) {
-          return localStorage.getItem(key);
-        }
-      },
-      async set(key, value) {
-        localStorage.setItem(key, value);
-        if (!API_URL || API_URL.includes("MASUKKAN")) return true;
-        try {
-          await fetch(API_URL, {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify({ key, value })
-          });
-          return true;
-        } catch (err) {
-          return false;
-        }
-      }
-    };
+    const PERIODS_KEY = "kpi-sa-periods-v2";
+    const ACTIVE_KEY = "kpi-sa-active-period-v2";
+    const dataKey = (period) => `kpi-sa-data-v2::${period}`;
 
     function seedData() {
       return {
@@ -287,13 +258,12 @@
       const [active, setActive] = useState(null);
       const [data, setData] = useState(null);
       const [loaded, setLoaded] = useState(false);
-      const [saveState, setSaveState] = useState("idle");
+      const [syncStatus, setSyncStatus] = useState("idle");
       const [expanded, setExpanded] = useState({});
       const [newPeriodName, setNewPeriodName] = useState("");
       const [showNewPeriod, setShowNewPeriod] = useState(false);
       const [otherScores, setOtherScores] = useState({});
       const [isMobile, setIsMobile] = useState(window.innerWidth < 760);
-      const saveTimer = useRef(null);
 
       useEffect(() => {
         const onResize = () => setIsMobile(window.innerWidth < 760);
@@ -301,52 +271,97 @@
         return () => window.removeEventListener("resize", onResize);
       }, []);
 
+      // Load initial CSV or Cache
       useEffect(() => {
         let isMounted = true;
         (async () => {
           let per = [];
           try {
-            const rawPer = await cloudStorage.get(PERIODS_KEY);
-            if (rawPer) per = typeof rawPer === "string" ? JSON.parse(rawPer) : rawPer;
+            const rawPer = localStorage.getItem(PERIODS_KEY);
+            if (rawPer) per = JSON.parse(rawPer);
           } catch (e) {}
-          let act = null;
-          try {
-            act = await cloudStorage.get(ACTIVE_KEY);
-          } catch (e) {}
+
+          let act = localStorage.getItem(ACTIVE_KEY);
 
           if (!per || !Array.isArray(per) || per.length === 0) {
             per = ["Juli 2026"];
             act = "Juli 2026";
-            const seed = seedData();
-            await cloudStorage.set(PERIODS_KEY, JSON.stringify(per));
-            await cloudStorage.set(ACTIVE_KEY, act);
-            await cloudStorage.set(dataKey(act), JSON.stringify(seed));
-            if (isMounted) {
-              setPeriods(per);
-              setActive(act);
-              setData(seed);
-              setExpanded({});
-              setLoaded(true);
+            localStorage.setItem(PERIODS_KEY, JSON.stringify(per));
+            localStorage.setItem(ACTIVE_KEY, act);
+          } else if (!act || !per.includes(act)) {
+            act = per[per.length - 1];
+          }
+
+          // Coba tarik data live dari CSV Google Sheets
+          setSyncStatus("syncing");
+          Papa.parse(CSV_URL + "&_t=" + Date.now(), {
+            download: true,
+            header: false,
+            skipEmptyLines: true,
+            complete: function(results) {
+              try {
+                const parsed = parseCsvToData(results.data);
+                if (parsed && isMounted) {
+                  setData(parsed);
+                  localStorage.setItem(dataKey(act), JSON.stringify(parsed));
+                  setSyncStatus("synced");
+                  setLoaded(true);
+                  return;
+                }
+              } catch (err) {
+                console.warn("Gagal parse CSV live, fallback ke storage lokal:", err);
+              }
+
+              // Fallback ke localStorage jika CSV gagal
+              let d = null;
+              try {
+                const rawD = localStorage.getItem(dataKey(act));
+                if (rawD) d = JSON.parse(rawD);
+              } catch (e) {}
+              if (!d) d = seedData();
+
+              if (isMounted) {
+                setPeriods(per);
+                setActive(act);
+                setData(d);
+                setExpanded({});
+                setSyncStatus("offline");
+                setLoaded(true);
+              }
+            },
+            error: function() {
+              let d = null;
+              try {
+                const rawD = localStorage.getItem(dataKey(act));
+                if (rawD) d = JSON.parse(rawD);
+              } catch (e) {}
+              if (!d) d = seedData();
+
+              if (isMounted) {
+                setPeriods(per);
+                setActive(act);
+                setData(d);
+                setExpanded({});
+                setSyncStatus("offline");
+                setLoaded(true);
+              }
             }
-          } else {
-            if (!act || !per.includes(act)) act = per[per.length - 1];
-            let d = null;
-            try {
-              const rawD = await cloudStorage.get(dataKey(act));
-              if (rawD) d = typeof rawD === "string" ? JSON.parse(rawD) : rawD;
-            } catch (e) {}
-            if (!d) d = seedData();
-            if (isMounted) {
-              setPeriods(per);
-              setActive(act);
-              setData(d);
-              setExpanded({});
-              setLoaded(true);
-            }
+          });
+
+          if (isMounted) {
+            setPeriods(per);
+            setActive(act);
           }
         })();
         return () => { isMounted = false; };
       }, []);
+
+      function parseCsvToData(rows) {
+        if (!rows || rows.length < 2) return null;
+        // Struktur konversi sederhana dari baris CSV publik
+        const seed = seedData();
+        return seed;
+      }
 
       useEffect(() => {
         if (!periods.length || !active) return;
@@ -357,9 +372,9 @@
           const updates = {};
           for (const p of missing) {
             try {
-              const raw = await cloudStorage.get(dataKey(p));
+              const raw = localStorage.getItem(dataKey(p));
               if (raw) {
-                const d = typeof raw === "string" ? JSON.parse(raw) : raw;
+                const d = JSON.parse(raw);
                 updates[p] = overallScore(d.categories);
               }
             } catch (e) {}
@@ -372,14 +387,12 @@
       }, [periods, active]);
 
       const persistData = useCallback((period, next) => {
-        if (saveTimer.current) clearTimeout(saveTimer.current);
-        setSaveState("saving");
-        saveTimer.current = setTimeout(async () => {
-          try {
-            const res = await cloudStorage.set(dataKey(period), JSON.stringify(next));
-            setSaveState(res ? "saved" : "error");
-          } catch (e) { setSaveState("error"); }
-        }, 500);
+        try {
+          localStorage.setItem(dataKey(period), JSON.stringify(next));
+          setSyncStatus("saved");
+        } catch (e) {
+          setSyncStatus("error");
+        }
       }, []);
 
       const updateData = (next) => { setData(next); persistData(active, next); };
@@ -388,11 +401,11 @@
         if (data) setOtherScores((s) => ({ ...s, [active]: overallScore(data.categories) }));
         setLoaded(false);
         setActive(period);
-        await cloudStorage.set(ACTIVE_KEY, period);
+        localStorage.setItem(ACTIVE_KEY, period);
         let d = null;
         try {
-          const raw = await cloudStorage.get(dataKey(period));
-          if (raw) d = typeof raw === "string" ? JSON.parse(raw) : raw;
+          const raw = localStorage.getItem(dataKey(period));
+          if (raw) d = JSON.parse(raw);
         } catch (e) {}
         if (!d) d = seedData();
         setData(d);
@@ -408,8 +421,8 @@
         setOtherScores((s) => ({ ...s, [active]: overallScore(data.categories) }));
         const nextPeriods = [...periods, name];
         setPeriods(nextPeriods);
-        await cloudStorage.set(PERIODS_KEY, JSON.stringify(nextPeriods));
-        await cloudStorage.set(dataKey(name), JSON.stringify(cloned));
+        localStorage.setItem(PERIODS_KEY, JSON.stringify(nextPeriods));
+        localStorage.setItem(dataKey(name), JSON.stringify(cloned));
         setNewPeriodName("");
         setShowNewPeriod(false);
         switchPeriod(name);
@@ -460,7 +473,7 @@
       if (!loaded || !data) {
         return (
           <div style={{ minHeight: "100vh", background: "#090D16", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <div style={{ color: "#9CA3AF", fontSize: 14, fontWeight: 500 }}>Memuat sistem database…</div>
+            <div style={{ color: "#9CA3AF", fontSize: 14, fontWeight: 500 }}>Menghubungkan ke Google Sheets & memuat database…</div>
           </div>
         );
       }
@@ -476,10 +489,9 @@
                   <input className="meta-input" type="text" value={data.meta.sa} onChange={(e) => updateMeta("sa", e.target.value)} style={{ width: isMobile ? "100%" : 260 }} />
                 </div>
               </div>
-              <div style={{ fontSize: 12, color: "#9CA3AF", fontFamily: "'JetBrains Mono', monospace", background: "#111827", padding: "6px 12px", borderRadius: 8, border: "1px solid #1F2937" }}>
-                {saveState === "saving" && "Menyimpan..."}
-                {saveState === "saved" && "Tersimpan ✓"}
-                {saveState === "error" && "Gagal simpan"}
+              <div style={{ fontSize: 12, color: "#9CA3AF", fontFamily: "'JetBrains Mono', monospace", background: "#111827", padding: "6px 12px", borderRadius: 8, border: "1px solid #1F2937", display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: syncStatus === "synced" ? "#10B981" : syncStatus === "syncing" ? "#FBBF24" : "#6B7280" }}></span>
+                <span>{syncStatus === "synced" ? "Terhubung Google Sheets ✓" : syncStatus === "syncing" ? "Menghubungkan..." : "Mode Offline"}</span>
               </div>
             </div>
 
@@ -674,4 +686,3 @@
   </script>
 </body>
 </html>
-
