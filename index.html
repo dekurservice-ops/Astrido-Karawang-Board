@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KPI Service Advisor - Profesional Dashboard</title>
   
-  <!-- Libraries -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -14,10 +13,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Tailwind Configuration -->
   <script>
     tailwind.config = {
       theme: {
@@ -43,42 +40,6 @@
 <body>
   <div id="root"></div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-    window.fs = { doc, getDoc, setDoc };
-    
-    window.firebasePromise = (async () => {
-      try {
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'kpi-advisor-v1';
-        const configStr = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
-        if (!configStr) {
-            console.warn("Mode Lokal (Cloud dinonaktifkan sementara)");
-            return null;
-        }
-        
-        const config = JSON.parse(configStr);
-        const app = initializeApp(config);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        
-        const token = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-        if (token) {
-            await signInWithCustomToken(auth, token);
-        } else {
-            await signInAnonymously(auth);
-        }
-        
-        return { auth, db, appId };
-      } catch (e) {
-        console.error("Gagal menginisialisasi Firebase:", e);
-        return null;
-      }
-    })();
-  </script>
-
   <script type="text/babel">
     const { useState, useEffect, useCallback, useMemo } = React;
     const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } = Recharts;
@@ -86,43 +47,94 @@
     const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR36vUBwnZjtxqSswz7E9iPrGI5JON5chP95xWKlxjH7zU9KG9F4FWgo4I8_VtkVOZBN1Jrj8LRsyYO/pub?gid=0&single=true&output=csv";
     const uid = () => Math.random().toString(36).slice(2, 10);
 
-    // Template lengkap dengan semua indikator (Business Process, Financial, CS)
+    // Default template struktur data
     function seedData() {
       return {
-        meta: { sa: "13C110 - DEDE KURNIAWAN", ytd: "Agustus s/d Agustus" },
+        meta: { sa: "13C110 - DEDE KURNIAWAN", ytd: "Periode Berjalan" },
         categories: [
           {
             id: uid(), name: "Business Process", weight: 60,
             subItems: [
-              { id: uid(), name: "Unit CPUS (SBE + GRP)", unit: "unit", subWeight: 25, target: 215, actual: 190, inverse: false },
-              { id: uid(), name: "Lead Time (ALL UE)", unit: "menit", subWeight: 10, target: 110, actual: 100, inverse: true },
-              { id: uid(), name: "FIR (Fix It Right)", unit: "%", subWeight: 0, target: 95, actual: 99.33, inverse: false },
-              { id: uid(), name: "OTD (excl. TWC & RTJ)", unit: "%", subWeight: 10, target: 95, actual: 90.41, inverse: false },
-              { id: uid(), name: "% Pelanggan di Engagement", unit: "%", subWeight: 10, target: 90, actual: 98.38, inverse: false },
-              { id: uid(), name: "% Saran Service / CPUS", unit: "%", subWeight: 15, target: 50, actual: 15.79, inverse: false },
-              { id: uid(), name: "% CAI Saran Service", unit: "%", subWeight: 15, target: 65, actual: 55.56, inverse: false },
-              { id: uid(), name: "% SA Retention", unit: "%", subWeight: 15, target: 80, actual: 80.00, inverse: false },
+              { id: uid(), name: "Unit CPUS (SBE + GRP)", unit: "unit", subWeight: 25, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "Lead Time (ALL UE)", unit: "menit", subWeight: 10, target: 0, actual: 0, inverse: true },
+              { id: uid(), name: "FIR (Fix It Right)", unit: "%", subWeight: 0, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "OTD (excl. TWC & RTJ)", unit: "%", subWeight: 10, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "% Pelanggan di Engagement", unit: "%", subWeight: 10, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "% Saran Service / CPUS", unit: "%", subWeight: 15, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "% CAI Saran Service", unit: "%", subWeight: 15, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "% SA Retention", unit: "%", subWeight: 15, target: 0, actual: 0, inverse: false },
             ],
           },
           {
             id: uid(), name: "Financial", weight: 30,
             subItems: [
-              { id: uid(), name: "Penjualan Jasa", unit: "Rp", subWeight: 50, target: 126492288, actual: 121857650, inverse: false },
-              { id: uid(), name: "Penjualan Spare Part", unit: "Rp", subWeight: 25, target: 197169493, actual: 166322453, inverse: false },
-              { id: uid(), name: "Penjualan Bahan", unit: "Rp", subWeight: 15, target: 17725639, actual: 11603108, inverse: false },
-              { id: uid(), name: "Penjualan Sublet", unit: "Rp", subWeight: 10, target: 46552425, actual: 32947261, inverse: false },
+              { id: uid(), name: "Penjualan Jasa", unit: "Rp", subWeight: 50, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "Penjualan Spare Part", unit: "Rp", subWeight: 25, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "Penjualan Bahan", unit: "Rp", subWeight: 15, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "Penjualan Sublet", unit: "Rp", subWeight: 10, target: 0, actual: 0, inverse: false },
             ],
           },
           {
             id: uid(), name: "CS", weight: 10,
             subItems: [
-              { id: uid(), name: "NPS Per SA - TTB", unit: "point", subWeight: 50, target: 85, actual: 100, inverse: false },
-              { id: uid(), name: "Kuantity VOC Per SA", unit: "point", subWeight: 25, target: 80, actual: 80, inverse: false },
-              { id: uid(), name: "NPS Real Promoter", unit: "point", subWeight: 25, target: 87, actual: 100, inverse: false },
+              { id: uid(), name: "NPS Per SA - TTB", unit: "point", subWeight: 50, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "Kuantity VOC Per SA", unit: "point", subWeight: 25, target: 0, actual: 0, inverse: false },
+              { id: uid(), name: "NPS Real Promoter", unit: "point", subWeight: 25, target: 0, actual: 0, inverse: false },
             ],
           }
         ],
       };
+    }
+
+    // Mapping CSV dari link Google Sheets
+    function mapCsvToData(csvRows) {
+      const categoriesMap = {};
+      let metaSa = "13C110 - DEDE KURNIAWAN";
+      let isAnyMapped = false;
+
+      const cleanNum = (val) => {
+        if (!val) return 0;
+        if (typeof val === 'number') return val;
+        let s = String(val).replace(/[^0-9.,-]/g, '');
+        if (s.includes(',') && s.includes('.')) {
+            if (s.lastIndexOf(',') > s.lastIndexOf('.')) s = s.replace(/\./g, '').replace(',', '.');
+            else s = s.replace(/,/g, '');
+        } else if (s.includes(',')) {
+            if (/, \d{3}$/.test(s)) s = s.replace(/,/g, '');
+            else s = s.replace(',', '.');
+        }
+        return parseFloat(s) || 0;
+      };
+
+      csvRows.forEach(row => {
+        const getVal = (possibleKeys) => {
+          const matchedKey = Object.keys(row).find(key => possibleKeys.some(pk => key.toLowerCase().includes(pk.toLowerCase())));
+          return matchedKey ? row[matchedKey] : "";
+        };
+
+        const catName = getVal(['kategori', 'category', 'pilar', 'group']);
+        const subName = getVal(['item', 'kpi', 'indikator', 'nama kpi', 'parameter']);
+        if (!subName) return; 
+
+        isAnyMapped = true;
+        const catGroup = catName || 'Business Process';
+        const catWeight = parseFloat(getVal(['bobot kategori', 'cat weight'])) || (catGroup === 'Business Process' ? 60 : catGroup === 'Financial' ? 30 : 10);
+        const unit = getVal(['satuan', 'unit']) || '%';
+        const subWeight = parseFloat(getVal(['bobot', 'sub weight'])) || 10;
+        const target = cleanNum(getVal(['target', 'plan']));
+        const actual = cleanNum(getVal(['aktual', 'actual', 'pencapaian']));
+        const invStr = String(getVal(['inverse', 'kebalikan'])).toLowerCase();
+        const inverse = invStr === 'true' || invStr === '1' || invStr === 'ya';
+        const saName = getVal(['nama', 'sa', 'advisor']);
+        
+        if (saName && metaSa === "13C110 - DEDE KURNIAWAN") metaSa = saName;
+        if (!categoriesMap[catGroup]) categoriesMap[catGroup] = { id: uid(), name: catGroup, weight: catWeight, subItems: [] };
+
+        categoriesMap[catGroup].subItems.push({ id: uid(), name: subName, unit, subWeight, target, actual, inverse });
+      });
+
+      if (!isAnyMapped) return null;
+      return { meta: { sa: metaSa, ytd: "Live Google Sheets" }, categories: Object.values(categoriesMap) };
     }
 
     function achievement(sub) {
@@ -159,7 +171,7 @@
 
     function fmt(n) {
       const num = Number(n);
-      if (Number.isNaN(num)) return "-";
+      if (Number.isNaN(num) || num === 0) return "0";
       return num.toLocaleString("id-ID");
     }
 
@@ -171,33 +183,37 @@
       return parseFloat(s) || 0;
     }
 
-    function Gauge({ value, size = 210 }) {
+    function Gauge({ value, size = 260 }) {
       const clamped = Math.max(0, Math.min(130, value));
-      const angle = -120 + (clamped / 130) * 240;
-      const r = size / 2 - 20;
-      const cx = size / 2, cy = size / 2 + 10;
+      const angle = -180 + (clamped / 130) * 180;
+      const r = (size / 2) - 35;
+      const cx = size / 2;
+      const cy = size / 2 + 10;
       const rad = (angle * Math.PI) / 180;
-      const needleLen = r - 15;
-      const nx = cx + needleLen * Math.cos(rad), ny = cy + needleLen * Math.sin(rad);
+      const needleLen = r - 10;
+      const nx = cx + needleLen * Math.cos(rad);
+      const ny = cy + needleLen * Math.sin(rad);
 
       const st = statusStyle(value);
 
       return (
-        <svg width={size} height={size / 2 + 35} viewBox={`0 0 ${size} ${size / 2 + 35}`}>
-          <defs>
-            <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#EF4444" />
-              <stop offset="61%" stopColor="#F59E0B" />
-              <stop offset="77%" stopColor="#3B82F6" />
-              <stop offset="100%" stopColor="#10B981" />
-            </linearGradient>
-          </defs>
-          <path d={`M ${cx - r} ${cy} A ${r} ${r} 0 1 1 ${cx + r} ${cy}`} stroke="#E2E8F0" strokeWidth={10} fill="none" strokeLinecap="round" />
-          <path d={`M ${cx - r} ${cy} A ${r} ${r} 0 1 1 ${cx + r} ${cy}`} stroke="url(#gaugeGrad)" strokeWidth={10} fill="none" strokeLinecap="round" strokeDasharray={`${Math.PI * r}`} strokeDashoffset={`${Math.PI * r * (1 - clamped / 130)}`} />
-          <line x1={cx} y1={cy} x2={nx} y2={ny} stroke="#334155" strokeWidth={3.5} strokeLinecap="round" />
-          <circle cx={cx} cy={cy} r={8} fill="#FFFFFF" stroke={st.hex} strokeWidth={3} />
-          <text x={cx} y={cy + 30} textAnchor="middle" fontFamily="Plus Jakarta Sans" fontSize="24" fontWeight="800" fill="#0F172A">{value.toFixed(1)}%</text>
-        </svg>
+        <div className="flex flex-col items-center justify-center relative w-full overflow-hidden py-2">
+          <svg width={size} height={size / 2 + 45} viewBox={`0 0 ${size} ${size / 2 + 45}`} className="overflow-visible">
+            <defs>
+              <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#EF4444" />
+                <stop offset="61%" stopColor="#F59E0B" />
+                <stop offset="77%" stopColor="#3B82F6" />
+                <stop offset="100%" stopColor="#10B981" />
+              </linearGradient>
+            </defs>
+            <path d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`} stroke="#E2E8F0" strokeWidth={14} fill="none" strokeLinecap="round" />
+            <path d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`} stroke="url(#gaugeGrad)" strokeWidth={14} fill="none" strokeLinecap="round" strokeDasharray={`${Math.PI * r}`} strokeDashoffset={`${Math.PI * r * (1 - clamped / 130)}`} />
+            <line x1={cx} y1={cy} x2={nx} y2={ny} stroke="#1E293B" strokeWidth={4} strokeLinecap="round" />
+            <circle cx={cx} cy={cy} r={9} fill="#FFFFFF" stroke={st.hex} strokeWidth={4} />
+            <text x={cx} y={cy + 38} textAnchor="middle" fontFamily="Plus Jakarta Sans" fontSize="30" fontWeight="800" fill="#0F172A">{value.toFixed(1)}%</text>
+          </svg>
+        </div>
       );
     }
 
@@ -213,73 +229,23 @@
       );
     }
 
-    function mapCsvToData(csvRows) {
-      const categoriesMap = {};
-      let metaSa = "Service Advisor";
-      let isAnyMapped = false;
-
-      const cleanNum = (val) => {
-        if (!val) return 0;
-        if (typeof val === 'number') return val;
-        let s = String(val).replace(/[^0-9.,-]/g, '');
-        if (s.includes(',') && s.includes('.')) {
-            if (s.lastIndexOf(',') > s.lastIndexOf('.')) s = s.replace(/\./g, '').replace(',', '.');
-            else s = s.replace(/,/g, '');
-        } else if (s.includes(',')) {
-            if (/, \d{3}$/.test(s)) s = s.replace(/,/g, '');
-            else s = s.replace(',', '.');
-        }
-        return parseFloat(s) || 0;
-      };
-
-      csvRows.forEach(row => {
-        const getVal = (possibleKeys) => {
-          const matchedKey = Object.keys(row).find(key => possibleKeys.some(pk => key.toLowerCase().includes(pk.toLowerCase())));
-          return matchedKey ? row[matchedKey] : "";
-        };
-
-        const catName = getVal(['kategori', 'category', 'pilar', 'group']);
-        const subName = getVal(['item', 'kpi', 'indikator', 'nama kpi', 'parameter']);
-        if (!subName) return; 
-
-        isAnyMapped = true;
-        const catGroup = catName || 'Uncategorized';
-        const catWeight = parseFloat(getVal(['bobot kategori', 'cat weight', 'weight_cat'])) || 0;
-        const unit = getVal(['satuan', 'unit']) || '';
-        const subWeight = parseFloat(getVal(['bobot', 'sub weight', 'bobot kpi'])) || 0;
-        const target = cleanNum(getVal(['target', 'plan']));
-        const actual = cleanNum(getVal(['aktual', 'actual', 'pencapaian', 'realisasi']));
-        const invStr = String(getVal(['inverse', 'kebalikan', 'terbalik'])).toLowerCase();
-        const inverse = invStr === 'true' || invStr === '1' || invStr === 'ya' || invStr === 'yes';
-        const saName = getVal(['nama', 'sa', 'advisor', 'karyawan']);
-        
-        if (saName && metaSa === "Service Advisor") metaSa = saName;
-        if (!categoriesMap[catGroup]) categoriesMap[catGroup] = { id: uid(), name: catGroup, weight: catWeight, subItems: [] };
-
-        categoriesMap[catGroup].subItems.push({ id: uid(), name: subName, unit, subWeight, target, actual, inverse });
-      });
-
-      if (!isAnyMapped) return null;
-      return { meta: { sa: metaSa, ytd: "Updated via Sheets" }, categories: Object.values(categoriesMap) };
-    }
-
     const SubItemRow = ({ sub, catWeight, activePeriod, onSave }) => {
         const [isLocked, setIsLocked] = useState(true);
         const isRp = sub.unit?.toLowerCase() === 'rp';
         
         const [targetNum, setTargetNum] = useState(Number(sub.target) || 0);
-        const [targetStr, setTargetStr] = useState(isRp ? targetNum.toLocaleString('id-ID') : targetNum.toString());
+        const [targetStr, setTargetStr] = useState(isRp && sub.target > 0 ? targetNum.toLocaleString('id-ID') : (sub.target ? sub.target.toString() : ''));
         
         const [actualNum, setActualNum] = useState(Number(sub.actual) || 0);
-        const [actualStr, setActualStr] = useState(isRp ? actualNum.toLocaleString('id-ID') : actualNum.toString());
+        const [actualStr, setActualStr] = useState(isRp && sub.actual > 0 ? actualNum.toLocaleString('id-ID') : (sub.actual ? sub.actual.toString() : ''));
 
         useEffect(() => {
             const t = Number(sub.target) || 0;
             const a = Number(sub.actual) || 0;
             setTargetNum(t);
             setActualNum(a);
-            setTargetStr(isRp ? t.toLocaleString('id-ID') : t.toString());
-            setActualStr(isRp ? a.toLocaleString('id-ID') : a.toString());
+            setTargetStr(t > 0 ? (isRp ? t.toLocaleString('id-ID') : t.toString()) : '');
+            setActualStr(a > 0 ? (isRp ? a.toLocaleString('id-ID') : a.toString()) : '');
             setIsLocked(true);
         }, [sub.target, sub.actual, activePeriod, isRp]);
 
@@ -317,7 +283,7 @@
                 <td className="py-4 px-4 text-right">
                     {isLocked ? (
                         <span className="font-mono text-sm font-medium text-slate-700">
-                            {isRp ? `Rp ${fmt(targetNum)}` : fmt(targetNum)}
+                            {targetNum === 0 ? '-' : (isRp ? `Rp ${fmt(targetNum)}` : fmt(targetNum))}
                         </span>
                     ) : (
                         <div className="relative inline-block w-full max-w-[140px]">
@@ -326,6 +292,7 @@
                                 type="text" 
                                 value={targetStr}
                                 onChange={handleTargetChange}
+                                placeholder="0"
                                 className={`w-full text-right font-mono text-sm border-2 border-amber-400 bg-amber-50 rounded-lg py-1.5 px-3 focus:ring-4 focus:ring-amber-400/20 outline-none transition-all ${isRp ? 'pl-8' : ''}`} 
                             />
                         </div>
@@ -335,7 +302,7 @@
                 <td className="py-4 px-4 text-right">
                     {isLocked ? (
                         <span className="font-mono text-sm font-medium text-slate-700">
-                            {isRp ? `Rp ${fmt(actualNum)}` : fmt(actualNum)}
+                            {actualNum === 0 ? '-' : (isRp ? `Rp ${fmt(actualNum)}` : fmt(actualNum))}
                         </span>
                     ) : (
                         <div className="relative inline-block w-full max-w-[140px]">
@@ -344,6 +311,7 @@
                                 type="text" 
                                 value={actualStr}
                                 onChange={handleActualChange}
+                                placeholder="0"
                                 className={`w-full text-right font-mono text-sm border-2 border-emerald-400 bg-emerald-50 rounded-lg py-1.5 px-3 focus:ring-4 focus:ring-emerald-400/20 outline-none transition-all ${isRp ? 'pl-8' : ''}`} 
                             />
                         </div>
@@ -375,70 +343,42 @@
     };
 
     function App() {
-      const [periods, setPeriods] = useState(["Agustus 2026", "Juli 2026", "Juni 2026"]);
-      const [active, setActive] = useState("Agustus 2026");
+      const [periods, setPeriods] = useState(["Periode Utama"]);
+      const [active, setActive] = useState("Periode Utama");
       
-      const [csvTemplate, setCsvTemplate] = useState(seedData());
-      const [cloudData, setCloudData] = useState({});
       const [currentData, setCurrentData] = useState(seedData());
-      
-      const [fb, setFb] = useState(null);
-      const [syncStatus, setSyncStatus] = useState("Memuat Template...");
+      const [syncStatus, setSyncStatus] = useState("Menghubungkan Sheets...");
       
       const [newPeriodName, setNewPeriodName] = useState("");
       const [showNewPeriod, setShowNewPeriod] = useState(false);
 
-      useEffect(() => {
+      const fetchFromSheets = useCallback(() => {
+        setSyncStatus("⏳ Menarik data Sheets...");
         Papa.parse(CSV_URL, {
           download: true, header: true, skipEmptyLines: true,
           complete: (results) => {
             try {
               if (results?.data?.length > 0) {
                 const mapped = mapCsvToData(results.data);
-                if (mapped && mapped.categories.length > 0) setCsvTemplate(mapped);
+                if (mapped) {
+                  setCurrentData(mapped);
+                  setSyncStatus("✅ Sheets Terhubung Live");
+                } else {
+                  setSyncStatus("⚠️ Format Sheets Tidak Dikenali");
+                }
               }
-            } catch (err) { console.error("Error CSV map", err); }
-          }
+            } catch (err) {
+              console.error("Error CSV map", err);
+              setSyncStatus("⚠️ Error Proses Data");
+            }
+          },
+          error: () => setSyncStatus("⚠️ Gagal Akses Link Sheets")
         });
-
-        if (window.firebasePromise) {
-            window.firebasePromise.then(setFb).catch(console.error);
-        }
       }, []);
 
       useEffect(() => {
-          if (!fb || !fb.auth.currentUser) return;
-          const fetchCloud = async () => {
-              setSyncStatus("Menghubungkan ke Cloud...");
-              try {
-                  const docRef = window.fs.doc(fb.db, 'artifacts', fb.appId, 'users', fb.auth.currentUser.uid, 'kpi_data', 'all_periods');
-                  const snap = await window.fs.getDoc(docRef);
-                  if (snap.exists()) {
-                      const data = snap.data();
-                      setCloudData(data);
-                      const savedPeriods = Object.keys(data).sort((a,b) => b.localeCompare(a));
-                      if(savedPeriods.length > 0) {
-                          setPeriods(prev => Array.from(new Set([...savedPeriods, ...prev])));
-                      }
-                      setSyncStatus("☁️ Tersinkronisasi");
-                  } else {
-                      setSyncStatus("📊 Template Utama Aktif");
-                  }
-              } catch(e) {
-                  console.error(e);
-                  setSyncStatus("⚠️ Error Cloud");
-              }
-          };
-          fetchCloud();
-      }, [fb]);
-
-      useEffect(() => {
-          if (cloudData[active]) {
-              setCurrentData(cloudData[active]);
-          } else {
-              setCurrentData(csvTemplate);
-          }
-      }, [active, cloudData, csvTemplate]);
+        fetchFromSheets();
+      }, [fetchFromSheets]);
 
       const createPeriod = () => {
         const name = newPeriodName.trim();
@@ -449,7 +389,7 @@
         setShowNewPeriod(false);
       };
 
-      const saveSubItemToCloud = async (catId, subId, newTarget, newActual) => {
+      const saveSubItemLocally = (catId, subId, newTarget, newActual) => {
           const updatedCategories = currentData.categories.map(c => {
               if (c.id !== catId) return c;
               return {
@@ -457,22 +397,8 @@
                   subItems: c.subItems.map(s => s.id === subId ? { ...s, target: newTarget, actual: newActual } : s)
               };
           });
-          const updatedData = { ...currentData, categories: updatedCategories };
-          
-          setCurrentData(updatedData);
-          setCloudData(prev => ({ ...prev, [active]: updatedData }));
-
-          if (fb && fb.auth.currentUser) {
-              setSyncStatus("Menyimpan...");
-              try {
-                  const docRef = window.fs.doc(fb.db, 'artifacts', fb.appId, 'users', fb.auth.currentUser.uid, 'kpi_data', 'all_periods');
-                  await window.fs.setDoc(docRef, { [active]: updatedData }, { merge: true });
-                  setSyncStatus("☁️ Tersinkronisasi");
-              } catch (e) {
-                  console.error(e);
-                  setSyncStatus("⚠️ Gagal Menyimpan");
-              }
-          }
+          setCurrentData({ ...currentData, categories: updatedCategories });
+          setSyncStatus("✅ Tersimpan di Sesi Ini");
       };
 
       const totalCatWeight = useMemo(() => currentData ? currentData.categories.reduce((s, c) => s + (Number(c.weight) || 0), 0) : 0, [currentData]);
@@ -480,13 +406,8 @@
       const overallStatus = statusStyle(total);
 
       const chartData = useMemo(() => {
-          return periods.map(p => {
-              let score = 85.0;
-              if (cloudData[p]) score = overallScore(cloudData[p].categories);
-              else if (p === active) score = total;
-              return { name: p, score };
-          }).reverse();
-      }, [periods, cloudData, active, total]);
+          return periods.map(p => ({ name: p, score: total })).reverse();
+      }, [periods, total]);
 
       const focusList = useMemo(() => {
         if (!currentData) return [];
@@ -514,9 +435,18 @@
                 <div className="text-slate-500 font-medium">{currentData.meta.sa}</div>
               </div>
               <div className="flex flex-col items-end gap-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-full shadow-sm text-xs font-semibold text-slate-600">
-                  <span className={`w-2 h-2 rounded-full ${syncStatus.includes('Error') ? 'bg-red-500' : syncStatus.includes('Menyimpan') ? 'bg-blue-500 animate-pulse' : 'bg-emerald-500'}`}></span>
-                  {syncStatus}
+                <div className="flex items-center gap-2">
+                    <button 
+                        onClick={fetchFromSheets}
+                        title="Tarik data terbaru dari Google Sheets"
+                        className="inline-flex items-center justify-center p-1.5 bg-white border border-slate-200 hover:bg-slate-100 rounded-full transition-colors shadow-sm text-base cursor-pointer"
+                    >
+                        🔄
+                    </button>
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-full shadow-sm text-xs font-semibold text-slate-600">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                      {syncStatus}
+                    </div>
                 </div>
                 
                 <div className="flex items-center gap-2 mt-1">
@@ -536,7 +466,7 @@
                             placeholder="mis. September 2026" 
                             value={newPeriodName} 
                             onChange={(e) => setNewPeriodName(e.target.value)} 
-                            className="border border-slate-300 rounded-lg px-3 py-2 text-sm w-40 outline-none focus:border-emerald-500" 
+                            className="border border-slate-300 rounded-lg px-3 py-2 text-sm w-40 outline-none focus:border-emerald-500 bg-white" 
                         />
                         <button onClick={createPeriod} className="bg-emerald-500 text-white rounded-lg px-4 py-2 text-sm font-bold hover:bg-emerald-600 shadow-sm">Buat</button>
                         <button onClick={() => setShowNewPeriod(false)} className="text-slate-500 text-sm font-semibold hover:text-slate-700">Batal</button>
@@ -547,11 +477,11 @@
             </div>
 
             {/* Disclaimer Banner */}
-            <div className="bg-blue-50 border-l-4 border-blue-500 rounded-r-xl p-4 mb-8 shadow-sm">
+            <div className="bg-emerald-50 border-l-4 border-emerald-500 rounded-r-xl p-4 mb-8 shadow-sm">
                 <div className="flex gap-3">
                     <span className="text-xl">💡</span>
-                    <p className="text-sm text-blue-800 leading-relaxed font-medium">
-                        <strong>Mode Terkunci (Read-Only) Aktif.</strong> Anda dapat mengedit target dan nilai aktual dengan menekan tombol <strong className="text-emerald-700 bg-emerald-100 px-1 rounded">🔓 Edit</strong>. Data yang disimpan akan direkam ke dalam <strong>Secure Cloud Database</strong> secara otomatis.
+                    <p className="text-sm text-emerald-800 leading-relaxed font-medium">
+                        <strong>Live Google Sheets Terhubung.</strong> Aplikasi menarik data langsung dari link spreadsheet Anda secara dinamis. Klik tombol <strong className="text-emerald-900 bg-emerald-200 px-1 rounded">🔓 Edit</strong> pada masing-masing indikator jika ingin melakukan simulasi atau pengisian target & aktual secara interaktif.
                     </p>
                 </div>
             </div>
@@ -561,8 +491,10 @@
                 
                 {/* Score Summary Card */}
                 <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col items-center justify-center lg:col-span-1">
-                    <Gauge value={total} size={220} />
-                    <div className="text-sm font-bold text-slate-400 mt-2 tracking-wide uppercase">Skor Total — {active}</div>
+                    <div className="w-full flex justify-center py-2">
+                      <Gauge value={total} size={250} />
+                    </div>
+                    <div className="text-sm font-bold text-slate-400 mt-1 tracking-wide uppercase">Skor Total — {active}</div>
                     
                     <div className="w-full mt-6 space-y-3">
                         <div className={`w-full text-center py-2.5 rounded-lg border font-bold text-sm ${overallStatus.bg} ${overallStatus.text} ${overallStatus.border}`}>
@@ -579,7 +511,7 @@
                 <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 lg:col-span-2 flex flex-col">
                     <div className="flex items-center gap-2 mb-4">
                         <span className="text-xl">📈</span>
-                        <h2 className="text-lg font-bold text-slate-800">Pertumbuhan KPI</h2>
+                        <h2 className="text-lg font-bold text-slate-800">Grafik Kinerja</h2>
                     </div>
                     <div className="w-full flex-grow min-h-[220px]">
                         <ResponsiveContainer>
@@ -665,7 +597,7 @@
                                         sub={sub} 
                                         catWeight={cat.weight} 
                                         activePeriod={active}
-                                        onSave={(subId, target, actual) => saveSubItemToCloud(cat.id, subId, target, actual)}
+                                        onSave={(subId, target, actual) => saveSubItemLocally(cat.id, subId, target, actual)}
                                     />
                                 ))}
                             </tbody>
