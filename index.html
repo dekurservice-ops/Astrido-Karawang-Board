@@ -42,14 +42,14 @@
 
   <script type="text/babel">
     const { useState, useEffect, useCallback, useMemo } = React;
-    const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } = Recharts;
+    const { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Legend } = Recharts;
 
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx7G9_MPx8fpYpacPrdM9VW9m5JiUG7uDHK7t9UqxaQcjLLyMSDLmey2Vz9vjcLvwRYtg/exec";
     const uid = () => Math.random().toString(36).slice(2, 10);
 
     function seedData() {
       return {
-        meta: { sa: "13C110 - DEDE KURNIAWAN", periods: ["Juli 2026"] },
+        meta: { sa: "13C110 - DEDE KURNIAWAN", periods: ["Juli 2026"], allHistory: [{ name: "Juli 2026", score: 0 }] },
         categories: [
           {
             id: uid(), name: "Business Process", weight: 60,
@@ -179,7 +179,7 @@
       return (
         <div className="bg-white border border-slate-200 rounded-lg p-3 shadow-lg font-mono">
           <div className="text-xs text-slate-500 mb-1">{label}</div>
-          <div className="text-sm font-bold" style={{ color: st.hex }}>{val.toFixed(2)}%</div>
+          <div className="text-sm font-bold" style={{ color: st.hex }}>Skor: {val.toFixed(2)}%</div>
         </div>
       );
     }
@@ -309,9 +309,26 @@
     function App() {
       const [periods, setPeriods] = useState(["Juli 2026"]);
       const [active, setActive] = useState("Juli 2026");
+      const [historyData, setHistoryData] = useState([]);
       
       const [currentData, setCurrentData] = useState(seedData());
       const [syncStatus, setSyncStatus] = useState("Menghubungkan Google Sheets...");
+
+      const fetchAllPeriodsData = useCallback(async (periodList) => {
+        try {
+          const results = await Promise.all(
+            periodList.map(async (p) => {
+              const res = await fetch(`${APPS_SCRIPT_URL}?period=${encodeURIComponent(p)}`);
+              const json = await res.json();
+              const score = json && json.categories ? overallScore(json.categories) : 0;
+              return { name: p, score: score };
+            })
+          );
+          setHistoryData(results);
+        } catch (err) {
+          console.error("Gagal mengambil data riwayat grafik", err);
+        }
+      }, []);
 
       const fetchDataFromAppsScript = useCallback((selectedPeriod) => {
         setSyncStatus("⏳ Sinkronisasi Apps Script...");
@@ -323,6 +340,7 @@
               setCurrentData(data);
               if (data.meta && data.meta.periods && data.meta.periods.length > 0) {
                 setPeriods(data.meta.periods);
+                fetchAllPeriodsData(data.meta.periods);
               }
               setSyncStatus("✅ Terhubung Google Sheets");
             } else {
@@ -333,7 +351,7 @@
             console.error("Gagal sinkronisasi", err);
             setSyncStatus("⚠️ Gagal Akses Web App");
           });
-      }, [active]);
+      }, [active, fetchAllPeriodsData]);
 
       useEffect(() => {
         fetchDataFromAppsScript(active);
@@ -360,6 +378,7 @@
           })
           .then(() => {
               setSyncStatus("✅ Tersimpan di Google Sheets");
+              fetchAllPeriodsData(periods);
           })
           .catch(err => {
               console.error("Error post", err);
@@ -370,10 +389,6 @@
       const totalCatWeight = useMemo(() => currentData ? currentData.categories.reduce((s, c) => s + (Number(c.weight) || 0), 0) : 0, [currentData]);
       const total = useMemo(() => currentData ? overallScore(currentData.categories) : 0, [currentData]);
       const overallStatus = statusStyle(total);
-
-      const chartData = useMemo(() => {
-          return periods.map(p => ({ name: p, score: p === active ? total : 0 }));
-      }, [periods, active, total]);
 
       const focusList = useMemo(() => {
         if (!currentData) return [];
@@ -432,7 +447,7 @@
                 <div className="flex gap-3">
                     <span className="text-xl">💡</span>
                     <p className="text-sm text-emerald-800 leading-relaxed font-medium">
-                        <strong>Sinkronisasi Kolom & Format Persentase Aktif.</strong> Data otomatis merujuk ke Kolom A (Periode), Kolom B (Unit CPUS), Kolom C (Lead Time), hingga Kolom P (NPS Real Promoter) pada sheet Aktual & Target Anda tanpa duplikasi baris.
+                        <strong>Grafik Batang & Garis Utuh Aktif.</strong> Grafik kinerja bulanan kini menampilkan seluruh pencapaian aktual dari semua periode secara utuh (tidak terfilter oleh pilihan periode aktif).
                     </p>
                 </div>
             </div>
@@ -458,23 +473,25 @@
                     </div>
                 </div>
 
-                {/* Line Chart Card */}
+                {/* Combined Bar & Line Chart Card */}
                 <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 lg:col-span-2 flex flex-col">
                     <div className="flex items-center gap-2 mb-4">
                         <span className="text-xl">📈</span>
-                        <h2 className="text-lg font-bold text-slate-800">Grafik Kinerja Bulanan</h2>
+                        <h2 className="text-lg font-bold text-slate-800">Grafik Kinerja Bulanan (Batang & Garis)</h2>
                     </div>
                     <div className="w-full flex-grow min-h-[220px]">
                         <ResponsiveContainer>
-                          <LineChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                          <ComposedChart data={historyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                             <CartesianGrid stroke="#F1F5F9" vertical={false} />
                             <XAxis dataKey="name" tick={{ fill: "#64748B", fontSize: 11, fontFamily: "JetBrains Mono" }} axisLine={{ stroke: "#E2E8F0" }} tickLine={false} />
                             <YAxis tick={{ fill: "#64748B", fontSize: 11, fontFamily: "JetBrains Mono" }} axisLine={false} tickLine={false} domain={[0, 130]} />
                             <ReferenceLine y={100} stroke="#10B981" strokeDasharray="4 4" opacity={0.6} />
                             <ReferenceLine y={85} stroke="#3B82F6" strokeDasharray="4 4" opacity={0.5} />
-                            <Tooltip content={<ChartTooltip />} cursor={{ stroke: '#E2E8F0', strokeWidth: 2 }} />
-                            <Line type="monotone" dataKey="score" stroke="#10B981" strokeWidth={3} dot={{ r: 5, fill: "#10B981", stroke: "#FFFFFF", strokeWidth: 2 }} activeDot={{ r: 7 }} />
-                          </LineChart>
+                            <Tooltip content={<ChartTooltip />} cursor={{ fill: '#F1F5F9' }} />
+                            <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
+                            <Bar dataKey="score" name="Capaian Aktual (%)" fill="#3B82F6" radius={[6, 6, 0, 0]} barSize={36} />
+                            <Line type="monotone" dataKey="score" name="Tren Kinerja" stroke="#10B981" strokeWidth={3} dot={{ r: 5, fill: "#10B981", stroke: "#FFFFFF", strokeWidth: 2 }} activeDot={{ r: 7 }} />
+                          </ComposedChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
