@@ -336,7 +336,7 @@
                         <span class="text-[10px] font-bold uppercase tracking-wider">Ready Pasang</span>
                         <div class="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><i data-lucide="clock" class="w-4 h-4"></i></div>
                     </div>
-                    <h3 id="sop-kpi-pasang" class="text-2xl font-bold mt-2">0</h3>
+                    <h3 id="sop-kpi-pasang" class="text-2xl font-bold mt-2 text-blue-600">0</h3>
                 </div>
 
                 <div onclick="openSopKPIModal('Konfirmasi Jadwal', 'Order Tunggu Konfirmasi')" class="kpi-card bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
@@ -2699,10 +2699,10 @@
                 
                 let matchesStatus = true;
                 if (status) {
-                    const itemStatus = i['Status Part'].toUpperCase();
-                    const filterStatusUpper = status.toUpperCase();
-                    if (filterStatusUpper.includes('TUNGGU PASANG')) {
-                        matchesStatus = itemStatus.includes('TUNGGU') || itemStatus.includes('PASANG');
+                    const itemStatus = i['Status Part'].toUpperCase().trim();
+                    const filterStatusUpper = status.toUpperCase().trim();
+                    if (filterStatusUpper === 'TUNGGU PASANG') {
+                        matchesStatus = itemStatus === 'TUNGGU PASANG';
                     } else {
                         matchesStatus = itemStatus.includes(filterStatusUpper);
                     }
@@ -2739,18 +2739,18 @@
 
         function renderSopKPIs() {
             const getLen = (st) => {
-                const upperSt = st.toUpperCase();
-                return filteredSopData.filter(i => {
-                    const itemStatus = i['Status Part'].toUpperCase();
-                    if (upperSt.includes('TUNGGU PASANG')) {
-                        return itemStatus.includes('TUNGGU') || itemStatus.includes('PASANG');
+                const upperSt = st.toUpperCase().trim();
+                return groupedSopData.filter(i => {
+                    const itemStatus = i['Status Part'].toUpperCase().trim();
+                    if (upperSt === 'TUNGGU PASANG') {
+                        return itemStatus === 'TUNGGU PASANG';
                     }
                     return itemStatus.includes(upperSt);
                 }).length;
             };
 
             const counts = { 
-                total: filteredSopData.length, 
+                total: groupedSopData.length, 
                 sedang: getLen('SEDANG ORDER'),
                 bo: getLen('B/O'), 
                 pasang: getLen('TUNGGU PASANG'), 
@@ -2768,11 +2768,11 @@
 
         function getSopStatusColor(st) {
             if(!st) return 'bg-slate-100 text-slate-500 border-slate-200';
-            const statusUpper = st.toUpperCase();
+            const statusUpper = st.toUpperCase().trim();
             if (statusUpper.includes('SEDANG ORDER')) return 'bg-purple-50 text-purple-600 border-purple-200';
             if (statusUpper.includes('B/O')) return 'bg-red-50 text-red-600 border-red-200';
             if (statusUpper.includes('KONFIRMASI JADWAL')) return 'bg-amber-50 text-amber-600 border-amber-200';
-            if (statusUpper.includes('TUNGGU') || statusUpper.includes('PASANG')) return 'bg-blue-50 text-blue-600 border-blue-200';
+            if (statusUpper === 'TUNGGU PASANG') return 'bg-blue-50 text-blue-600 border-blue-200';
             if (statusUpper.includes('TERPASANG')) return 'bg-emerald-50 text-emerald-600 border-emerald-200';
             return 'bg-slate-100 text-slate-500 border-slate-200';
         }
@@ -2821,9 +2821,9 @@
             filteredSopData.forEach(i => {
                 const etaVal = String(i['ETA B/O'] || '').trim();
                 const actVal = String(i['Aktual Kedatangan'] || '').trim();
-                const statusVal = String(i['Status Part'] || '').toUpperCase();
+                const statusVal = String(i['Status Part'] || '').toUpperCase().trim();
 
-                const isTiba = actVal !== '' && actVal !== '-' || statusVal.includes('TERPASANG') || statusVal.includes('TUNGGU') || statusVal.includes('PASANG');
+                const isTiba = actVal !== '' && actVal !== '-' || statusVal.includes('TERPASANG') || statusVal === 'TUNGGU PASANG';
                 const isBo = etaVal !== '' && etaVal !== '-' || statusVal.includes('B/O');
 
                 if (isTiba) tiba++;
@@ -2920,14 +2920,14 @@
         function closeSopDetailModal() { document.getElementById('sopDetailModal').classList.add('hidden'); }
 
         function openSopKPIModal(st, title) {
-            const upperSt = st.toUpperCase();
-            const targetList = st ? filteredSopData.filter(i => {
-                const itemStatus = i['Status Part'].toUpperCase();
-                if (upperSt.includes('TUNGGU PASANG')) {
-                    return itemStatus.includes('TUNGGU') || itemStatus.includes('PASANG');
+            const upperSt = st.toUpperCase().trim();
+            const targetList = st ? groupedSopData.filter(i => {
+                const itemStatus = i['Status Part'].toUpperCase().trim();
+                if (upperSt === 'TUNGGU PASANG') {
+                    return itemStatus === 'TUNGGU PASANG';
                 }
                 return itemStatus.includes(upperSt);
-            }) : filteredSopData;
+            }) : groupedSopData;
 
             document.getElementById('sopKpiModalTitle').innerText = title;
             document.getElementById('sopKpiModalTableBody').innerHTML = targetList.map(i => {
