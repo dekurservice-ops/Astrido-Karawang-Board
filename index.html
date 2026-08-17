@@ -284,7 +284,7 @@
     };
 
     function App() {
-      const [periods] = useState(["Juli 2026", "Agustus 2026"]);
+      const [periods, setPeriods] = useState(["Juli 2026", "Agustus 2026"]);
       const [active, setActive] = useState("Juli 2026");
       const [currentData, setCurrentData] = useState(getFallbackData());
       const [historyData, setHistoryData] = useState([]);
@@ -315,6 +315,7 @@
             if (data && data.categories) {
               setCurrentData(data);
               if (data.meta && data.meta.periods) {
+                setPeriods(data.meta.periods);
                 fetchAllPeriodsScore(data.meta.periods);
               }
               setSyncStatus("✅ Terhubung Google Sheets");
@@ -331,6 +332,35 @@
       useEffect(() => {
         fetchData(active);
       }, [active, fetchData]);
+
+      const handleAddPeriod = () => {
+        const newPeriodName = prompt("Masukkan Nama Periode Baru (Contoh: September 2026):");
+        if (!newPeriodName || newPeriodName.trim() === "") return;
+        
+        const trimmedName = newPeriodName.trim();
+        if (periods.includes(trimmedName)) {
+          alert("Periode tersebut sudah ada!");
+          return;
+        }
+
+        setSyncStatus("⏳ Menambahkan Periode...");
+        fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: "add_period", activePeriod: trimmedName })
+        })
+        .then(() => {
+            setSyncStatus("✅ Periode Ditambahkan");
+            setPeriods(prev => [...prev, trimmedName]);
+            setActive(trimmedName);
+            fetchData(trimmedName);
+        })
+        .catch(err => {
+            console.error("Error add period", err);
+            setSyncStatus("⚠️ Gagal Tambah Periode");
+        });
+      };
 
       const saveSubItem = (catId, subId, newTarget, newActual) => {
           const updatedCategories = currentData.categories.map(c => {
@@ -349,7 +379,7 @@
               method: 'POST',
               mode: 'no-cors',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ ...newData, activePeriod: active })
+              body: JSON.stringify({ action: "save", ...newData, activePeriod: active })
           })
           .then(() => {
               setSyncStatus("✅ Tersimpan di Google Sheets");
@@ -389,7 +419,7 @@
                 <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">KPI Service Advisor</h1>
                 <div className="text-xs text-slate-500 font-medium">{currentData.meta.sa}</div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <button 
                     onClick={() => fetchData(active)}
                     title="Segarkan data dari Google Sheets"
@@ -408,6 +438,12 @@
                 >
                   {periods.map((p) => <option key={p} value={p}>{p}</option>)}
                 </select>
+                <button 
+                    onClick={handleAddPeriod}
+                    className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer flex items-center gap-1"
+                >
+                    <span>+ Periode</span>
+                </button>
               </div>
             </div>
 
