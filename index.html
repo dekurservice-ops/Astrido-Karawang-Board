@@ -49,7 +49,7 @@
 
     function seedData() {
       return {
-        meta: { sa: "13C110 - DEDE KURNIAWAN", periods: ["Juli 2026"] },
+        meta: { sa: "13C110 - DEDE KURNIAWAN", periods: ["Juli 2026", "Agustus 2026"] },
         categories: [
           {
             id: uid(), name: "Business Process", weight: 60,
@@ -166,7 +166,7 @@
             <path d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`} stroke="url(#gaugeGrad)" strokeWidth={12} fill="none" strokeLinecap="round" strokeDasharray={`${Math.PI * r}`} strokeDashoffset={`${Math.PI * r * (1 - clamped / 130)}`} />
             <line x1={cx} y1={cy} x2={nx} y2={ny} stroke="#1E293B" strokeWidth={3} strokeLinecap="round" />
             <circle cx={cx} cy={cy} r={7} fill="#FFFFFF" stroke={st.hex} strokeWidth={3} />
-            <text x={cx} y={cy + 32} textAnchor="middle" fontFamily="Plus Jakarta Sans" fontSize="26" fontWeight="800" fill="#0F172A">{value.toFixed(1)}%</text>
+            <text x={cx} y={cy + 32} textAnchor="middle" fontFamily="Plus Jakarta Sans" fontSize="26" fontWeight="800" fill="#0F172A">{value.toFixed(2)}%</text>
           </svg>
         </div>
       );
@@ -307,7 +307,7 @@
     };
 
     function App() {
-      const [periods, setPeriods] = useState(["Juli 2026"]);
+      const [periods, setPeriods] = useState(["Juli 2026", "Agustus 2026"]);
       const [active, setActive] = useState("Juli 2026");
       const [historyData, setHistoryData] = useState([]);
       
