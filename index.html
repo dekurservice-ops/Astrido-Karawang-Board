@@ -10,7 +10,6 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/recharts@2.12.7/umd/Recharts.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -44,16 +43,10 @@
     const { useState, useEffect, useCallback, useMemo } = React;
     const { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Legend } = Recharts;
 
-    // Kumpulan URL CSV Publik dari setiap Tab Google Spreadsheet Anda
-    const CSV_URLS = [
-      "https://docs.google.com/spreadsheets/d/e/2PACX-1vSEIpigrJgpJqlewVJg7PWWOxugLStPiycw7zijnRc4370xBB5As2URRQPwInTYyk1mB2L0ZHZcQVr8/pub?gid=2073594475&single=true&output=csv", // Business Process
-      "https://docs.google.com/spreadsheets/d/e/2PACX-1vSEIpigrJgpJqlewVJg7PWWOxugLStPiycw7zijnRc4370xBB5As2URRQPwInTYyk1mB2L0ZHZcQVr8/pub?gid=721702211&single=true&output=csv",  // Financial
-      "https://docs.google.com/spreadsheets/d/e/2PACX-1vSEIpigrJgpJqlewVJg7PWWOxugLStPiycw7zijnRc4370xBB5As2URRQPwInTYyk1mB2L0ZHZcQVr8/pub?gid=0&single=true&output=csv"           // CS
-    ];
-
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwG_6kdTltJTQg-dLycjRmRCWdw9XO-eym-7UIm8bXxK4XJylbvgw2WWgNftOll7fn9/exec";
     const uid = () => Math.random().toString(36).slice(2, 10);
 
-    function getInitialData() {
+    function getFallbackData() {
       return {
         meta: { sa: "13C110 - DEDE KURNIAWAN", periods: ["Juli 2026", "Agustus 2026"] },
         categories: [
@@ -293,70 +286,51 @@
     function App() {
       const [periods] = useState(["Juli 2026", "Agustus 2026"]);
       const [active, setActive] = useState("Juli 2026");
-      const [dataMap, setDataMap] = useState({
-        "Juli 2026": getInitialData(),
-        "Agustus 2026": getInitialData()
-      });
-      const [syncStatus, setSyncStatus] = useState("Menghubungkan Semua Tab CSV...");
+      const [currentData, setCurrentData] = useState(getFallbackData());
+      const [historyData, setHistoryData] = useState([]);
+      const [syncStatus, setSyncStatus] = useState("Menghubungkan Google Sheets...");
 
-      const fetchAllCSVData = useCallback(() => {
-        setSyncStatus("⏳ Memuat Semua Tab Sheets...");
-        
-        const newMap = {
-          "Juli 2026": getInitialData(),
-          "Agustus 2026": getInitialData()
-        };
-
-        let completedRequests = 0;
-
-        CSV_URLS.forEach((url) => {
-          Papa.parse(url, {
-            download: true,
-            header: true,
-            complete: (results) => {
-              completedRequests++;
-              if (results && results.data) {
-                results.data.forEach(row => {
-                  const rowPeriode = row["Periode"]?.trim();
-                  const rowIndikator = row["Indikator KPI"]?.trim();
-                  const targetVal = parseFormattedNumber(row["Target"]);
-                  const actualVal = parseFormattedNumber(row["Aktual"]);
-
-                  if (rowPeriode && rowIndikator && newMap[rowPeriode]) {
-                    newMap[rowPeriode].categories.forEach(cat => {
-                      cat.subItems.forEach(sub => {
-                        if (sub.name.toLowerCase() === rowIndikator.toLowerCase()) {
-                          sub.target = targetVal;
-                          sub.actual = actualVal;
-                        }
-                      });
-                    });
-                  }
-                });
-              }
-
-              if (completedRequests === CSV_URLS.length) {
-                setDataMap(newMap);
-                setSyncStatus("✅ Terhubung Google Sheets");
-              }
-            },
-            error: (err) => {
-              completedRequests++;
-              console.error("Gagal sinkronisasi salah satu CSV", err);
-              if (completedRequests === CSV_URLS.length) {
-                setDataMap(newMap);
-                setSyncStatus("✅ Terhubung Google Sheets");
-              }
-            }
-          });
-        });
+      const fetchAllPeriodsScore = useCallback(async (periodList) => {
+        try {
+          const results = await Promise.all(
+            periodList.map(async (p) => {
+              const res = await fetch(`${APPS_SCRIPT_URL}?period=${encodeURIComponent(p)}`);
+              const json = await res.json();
+              const score = json && json.categories ? overallScore(json.categories) : 0;
+              return { name: p, score: score };
+            })
+          );
+          setHistoryData(results);
+        } catch (err) {
+          console.error("Gagal mengambil riwayat grafik", err);
+        }
       }, []);
 
-      useEffect(() => {
-        fetchAllCSVData();
-      }, [fetchAllCSVData]);
+      const fetchData = useCallback((selectedPeriod) => {
+        setSyncStatus("⏳ Memuat Data...");
+        const targetPeriod = selectedPeriod || active;
+        fetch(`${APPS_SCRIPT_URL}?period=${encodeURIComponent(targetPeriod)}`)
+          .then(res => res.json())
+          .then(data => {
+            if (data && data.categories) {
+              setCurrentData(data);
+              if (data.meta && data.meta.periods) {
+                fetchAllPeriodsScore(data.meta.periods);
+              }
+              setSyncStatus("✅ Terhubung Google Sheets");
+            } else {
+              setSyncStatus("⚠️ Data Kosong");
+            }
+          })
+          .catch(err => {
+            console.error("Gagal fetch", err);
+            setSyncStatus("⚠️ Gagal Akses Apps Script");
+          });
+      }, [active, fetchAllPeriodsScore]);
 
-      const currentData = dataMap[active];
+      useEffect(() => {
+        fetchData(active);
+      }, [active, fetchData]);
 
       const saveSubItem = (catId, subId, newTarget, newActual) => {
           const updatedCategories = currentData.categories.map(c => {
@@ -366,18 +340,26 @@
                   subItems: c.subItems.map(s => s.id === subId ? { ...s, target: newTarget, actual: newActual } : s)
               };
           });
-          setDataMap(prev => ({
-              ...prev,
-              [active]: { ...currentData, categories: updatedCategories }
-          }));
-      };
+          
+          const newData = { ...currentData, categories: updatedCategories };
+          setCurrentData(newData);
+          setSyncStatus("⏳ Menyimpan ke Sheets...");
 
-      const historyData = useMemo(() => {
-        return periods.map(p => ({
-          name: p,
-          score: overallScore(dataMap[p].categories)
-        }));
-      }, [dataMap, periods]);
+          fetch(APPS_SCRIPT_URL, {
+              method: 'POST',
+              mode: 'no-cors',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ ...newData, activePeriod: active })
+          })
+          .then(() => {
+              setSyncStatus("✅ Tersimpan di Google Sheets");
+              fetchAllPeriodsScore(periods);
+          })
+          .catch(err => {
+              console.error("Error post", err);
+              setSyncStatus("⚠️ Gagal Menyimpan");
+          });
+      };
 
       const totalCatWeight = useMemo(() => currentData.categories.reduce((s, c) => s + (Number(c.weight) || 0), 0), [currentData]);
       const total = useMemo(() => overallScore(currentData.categories), [currentData]);
@@ -409,7 +391,7 @@
               </div>
               <div className="flex items-center gap-2">
                 <button 
-                    onClick={fetchAllCSVData}
+                    onClick={() => fetchData(active)}
                     title="Segarkan data dari Google Sheets"
                     className="p-1.5 bg-white border border-slate-200 hover:bg-slate-100 rounded-full transition-colors shadow-sm text-sm cursor-pointer"
                 >
