@@ -872,7 +872,8 @@
 
     <!-- SCRIPTS PORTAL & REACT KPI -->
     <script>
-        const CSV_BOOKING_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRgLQ8hj-ab5ZOJu31Z1d2gyWxeYNxl4BXHjXYZSq9eaAAnURBkcv61joIaU0Qpj-7G-eQ-yV2uGAIz/pub?gid=0&single=true&output=csv';
+        // URL Booking Analytics telah diperbarui dengan tautan CSV baru
+        const CSV_BOOKING_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQkzE8yLPJIYQjXxkl4J9H3cPdLS6ALrCXWT_CZU5L_H7ejoQEycr_KnUiRaR2ear_p5GHetEwrxT66/pub?gid=0&single=true&output=csv';
         const CSV_SOP_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTIDLFkByyO5KJDw2vLnF2kxcj1lSoDEeN_Hw9fnYOEnmXvuZuzynN1ncnaGsudHALaj-DR0nzMHB0j/pub?gid=0&single=true&output=csv';
         const CSV_DETAIL_PART_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTIDLFkByyO5KJDw2vLnF2kxcj1lSoDEeN_Hw9fnYOEnmXvuZuzynN1ncnaGsudHALaj-DR0nzMHB0j/pub?gid=539769690&single=true&output=csv';
         const CSV_REVENUE_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSJZFlXUlafjoXxaloZYYNXCBFTUAhtSSgb7c5rdLYxPoE3DRt6HTg6J-aIhOPg44xQs3VeZP1-3yuV/pub?gid=0&single=true&output=csv';
@@ -3444,7 +3445,7 @@
                 <div className="min-h-screen text-slate-800 font-sans pb-12">
                     <div className="max-w-6xl mx-auto px-4 pt-2">
                         
-                        {/* Header Area */}
+                        <!-- Header Area -->
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4">
                             <div>
                                 <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">KPI Service Advisor</h1>
@@ -3478,10 +3479,10 @@
                             </div>
                         </div>
 
-                        {/* Top Cards (Gauge & Chart) */}
+                        <!-- Top Cards (Gauge & Chart) -->
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
                             
-                            {/* Score Summary Card */}
+                            <!-- Score Summary Card -->
                             <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex flex-col items-center justify-center lg:col-span-1">
                                 <div className="w-full flex justify-center py-1">
                                     <Gauge value={total} size={210} />
@@ -3499,7 +3500,7 @@
                                 </div>
                             </div>
 
-                            {/* Combined Bar & Line Chart Card */}
+                            <!-- Combined Bar & Line Chart Card -->
                             <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 lg:col-span-2 flex flex-col">
                                 <div className="flex items-center gap-1.5 mb-2">
                                     <span className="text-base">📈</span>
@@ -3523,7 +3524,7 @@
                             </div>
                         </div>
 
-                        {/* Rekomendasi Prioritas (Compact Grid) */}
+                        <!-- Rekomendasi Prioritas (Compact Grid) -->
                         {focusList.length > 0 && (
                             <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 mb-6">
                               <div className="flex items-center gap-1.5 mb-3">
@@ -3552,7 +3553,7 @@
                             </div>
                         )}
 
-                        {/* KPI Cards (Categories) */}
+                        <!-- KPI Cards (Categories) -->
                         <div className="space-y-4">
                           {currentData.categories.map((cat) => {
                             const catScore = categoryScore(cat);
