@@ -113,6 +113,18 @@
                 <i data-lucide="truck" class="w-5 h-5"></i>
                 <span>Toyota Mobile Service</span>
             </button>
+            <button id="nav-waktu-servis" onclick="switchView('waktu-servis')" class="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 font-semibold rounded-xl transition-all">
+                <i data-lucide="clock" class="w-5 h-5"></i>
+                <span>Waktu Servis</span>
+            </button>
+            <button id="nav-kendaraan-servis" onclick="switchView('kendaraan-servis')" class="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 font-semibold rounded-xl transition-all">
+                <i data-lucide="car-front" class="w-5 h-5"></i>
+                <span>Kendaraan Servis</span>
+            </button>
+            <button id="nav-saran-servis" onclick="switchView('saran-servis')" class="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 font-semibold rounded-xl transition-all">
+                <i data-lucide="message-square-heart" class="w-5 h-5"></i>
+                <span>Saran Servis</span>
+            </button>
             <button id="nav-kpi" onclick="switchView('kpi')" class="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 font-semibold rounded-xl transition-all">
                 <i data-lucide="award" class="w-5 h-5"></i>
                 <span>Key Performance Index</span>
@@ -770,7 +782,40 @@
             </section>
         </div>
 
-        <!-- VIEW 5: KEY PERFORMANCE INDEX (KPI) - REACT INTEGRATION -->
+        <!-- VIEW 5: WAKTU SERVIS -->
+        <div id="view-waktu-servis" class="hidden space-y-6">
+            <section class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center py-16">
+                <div class="w-16 h-16 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="clock" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900">Modul Waktu Servis</h3>
+                <p class="text-xs text-slate-500 max-w-md mx-auto mt-1">Modul monitoring waktu tunggu, durasi pengerjaan, dan efisiensi waktu servis bengkel sedang disiapkan.</p>
+            </section>
+        </div>
+
+        <!-- VIEW 6: KENDARAAN SERVIS -->
+        <div id="view-kendaraan-servis" class="hidden space-y-6">
+            <section class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center py-16">
+                <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="car-front" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900">Modul Kendaraan Servis</h3>
+                <p class="text-xs text-slate-500 max-w-md mx-auto mt-1">Modul database kendaraan masuk, jenis model, dan riwayat servis unit kendaraan sedang disiapkan.</p>
+            </section>
+        </div>
+
+        <!-- VIEW 7: SARAN SERVIS -->
+        <div id="view-saran-servis" class="hidden space-y-6">
+            <section class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center py-16">
+                <div class="w-16 h-16 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="message-square-heart" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900">Modul Saran Servis</h3>
+                <p class="text-xs text-slate-500 max-w-md mx-auto mt-1">Modul ulasan, rekomendasi perawatan, dan feedback saran servis pelanggan sedang disiapkan.</p>
+            </section>
+        </div>
+
+        <!-- VIEW 8: KEY PERFORMANCE INDEX (KPI) - REACT INTEGRATION -->
         <div id="view-kpi" class="hidden space-y-6">
             <div id="kpi-react-root"></div>
         </div>
@@ -928,27 +973,35 @@
             const sopView = document.getElementById('view-sop');
             const revenueView = document.getElementById('view-revenue');
             const tmsView = document.getElementById('view-tms');
+            const waktuServisView = document.getElementById('view-waktu-servis');
+            const kendaraanServisView = document.getElementById('view-kendaraan-servis');
+            const saranServisView = document.getElementById('view-saran-servis');
             const kpiView = document.getElementById('view-kpi');
             
             const navBooking = document.getElementById('nav-booking');
             const navSop = document.getElementById('nav-sop');
             const navRevenue = document.getElementById('nav-revenue');
             const navTms = document.getElementById('nav-tms');
+            const navWaktuServis = document.getElementById('nav-waktu-servis');
+            const navKendaraanServis = document.getElementById('nav-kendaraan-servis');
+            const navSaranServis = document.getElementById('nav-saran-servis');
             const navKpi = document.getElementById('nav-kpi');
             
             const pageTitle = document.getElementById('page-title');
             const pageSubtitle = document.getElementById('page-subtitle');
 
-            navBooking.className = "w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 font-semibold rounded-xl transition-all";
-            navSop.className = "w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 font-semibold rounded-xl transition-all";
-            navRevenue.className = "w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 font-semibold rounded-xl transition-all";
-            navTms.className = "w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 font-semibold rounded-xl transition-all";
-            navKpi.className = "w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 font-semibold rounded-xl transition-all";
+            const allNavs = [navBooking, navSop, navRevenue, navTms, navWaktuServis, navKendaraanServis, navSaranServis, navKpi];
+            allNavs.forEach(nav => {
+                if(nav) nav.className = "w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 font-semibold rounded-xl transition-all";
+            });
 
             bookingView.classList.add('hidden');
             sopView.classList.add('hidden');
             revenueView.classList.add('hidden');
             tmsView.classList.add('hidden');
+            waktuServisView.classList.add('hidden');
+            kendaraanServisView.classList.add('hidden');
+            saranServisView.classList.add('hidden');
             kpiView.classList.add('hidden');
 
             if (viewName === 'booking') {
@@ -972,6 +1025,21 @@
                 pageTitle.textContent = "Toyota Mobile Service (TMS)";
                 pageSubtitle.textContent = "Monitoring Operasional & Kunjungan Servis Bergerak";
                 applyTmsFilters();
+            } else if (viewName === 'waktu-servis') {
+                waktuServisView.classList.remove('hidden');
+                navWaktuServis.className = "w-full flex items-center gap-3 px-4 py-3 bg-red-50 text-red-600 font-semibold rounded-xl transition-all";
+                pageTitle.textContent = "Waktu Servis";
+                pageSubtitle.textContent = "Monitoring Waktu Tunggu & Durasi Pengerjaan Bengkel";
+            } else if (viewName === 'kendaraan-servis') {
+                kendaraanServisView.classList.remove('hidden');
+                navKendaraanServis.className = "w-full flex items-center gap-3 px-4 py-3 bg-red-50 text-red-600 font-semibold rounded-xl transition-all";
+                pageTitle.textContent = "Kendaraan Servis";
+                pageSubtitle.textContent = "Database Unit Kendaraan Masuk & Riwayat Servis";
+            } else if (viewName === 'saran-servis') {
+                saranServisView.classList.remove('hidden');
+                navSaranServis.className = "w-full flex items-center gap-3 px-4 py-3 bg-red-50 text-red-600 font-semibold rounded-xl transition-all";
+                pageTitle.textContent = "Saran Servis";
+                pageSubtitle.textContent = "Ulasan Pelanggan & Rekomendasi Perawatan Kendaraan";
             } else if (viewName === 'kpi') {
                 kpiView.classList.remove('hidden');
                 navKpi.className = "w-full flex items-center gap-3 px-4 py-3 bg-red-50 text-red-600 font-semibold rounded-xl transition-all";
