@@ -29,7 +29,7 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .kpi-card { transition: all 0.2s ease-in-out; cursor: pointer; }
         .kpi-card:hover { transform: translateY(-3px); }
-        .chart-container { position: relative; height: 260px; width: 100%; }
+        .chart-container { position: relative; height: 280px; width: 100%; }
         .truncate-part { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
         .space-bg {
             background-image: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.95)), url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1920&auto=format&fit=crop');
@@ -99,7 +99,7 @@
         <nav class="p-4 space-y-1.5 flex-1 overflow-y-auto">
             <button id="nav-kpi" onclick="switchView('kpi')" class="w-full flex items-center gap-3 px-4 py-3 bg-red-50 text-red-600 font-semibold rounded-xl transition-all">
                 <i data-lucide="award" class="w-5 h-5"></i>
-                <span>Key Performance Index </span>
+                <span>Key Performance Index ( Utama )</span>
             </button>
             <button id="nav-kendaraan-servis" onclick="switchView('kendaraan-servis')" class="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 font-semibold rounded-xl transition-all">
                 <i data-lucide="car-front" class="w-5 h-5"></i>
@@ -798,12 +798,14 @@
             <section class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
                 <div class="flex items-center gap-2 text-slate-700 font-semibold text-sm">
                     <i data-lucide="filter" class="w-4 h-4 text-blue-600"></i>
-                    <span>Filter Kendaraan Servis:</span>
+                    <span>Filter Kendaraan Servis (Berdasarkan Tgl SPP):</span>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:flex gap-3 items-center flex-1 md:justify-end">
                     <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
-                        <label class="text-xs text-slate-500 whitespace-nowrap">Pencarian:</label>
-                        <input type="text" id="ksSearch" placeholder="No Pol / Model / SA..." oninput="applyKendaraanServisFilters()" class="bg-transparent text-xs text-slate-800 font-medium focus:outline-none w-full">
+                        <label class="text-xs text-slate-500 whitespace-nowrap">Rentang Tgl SPP:</label>
+                        <input type="date" id="ksStartDate" onchange="applyKendaraanServisFilters()" class="bg-transparent text-xs text-slate-800 font-medium focus:outline-none">
+                        <span class="text-xs text-slate-400">-</span>
+                        <input type="date" id="ksEndDate" onchange="applyKendaraanServisFilters()" class="bg-transparent text-xs text-slate-800 font-medium focus:outline-none">
                     </div>
                 </div>
             </section>
@@ -812,15 +814,15 @@
             <section class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                 <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                     <div class="flex items-center justify-between text-blue-600">
-                        <span class="text-[10px] font-bold uppercase tracking-wider">Total Kendaraan</span>
+                        <span class="text-[10px] font-bold uppercase tracking-wider">Total Kendaraan (Filtered)</span>
                         <div class="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><i data-lucide="car-front" class="w-4 h-4"></i></div>
                     </div>
                     <h3 id="kpiKsTotal" class="text-2xl font-bold mt-2 text-blue-600">0</h3>
-                    <p class="text-[10px] text-slate-400 mt-1 font-medium">Total Seluruh Kendaraan Servis</p>
+                    <p class="text-[10px] text-slate-400 mt-1 font-medium">Berdasarkan Tgl SPP</p>
                 </div>
                 <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                     <div class="flex items-center justify-between text-emerald-600">
-                        <span class="text-[10px] font-bold uppercase tracking-wider">Model Terbanyak</span>
+                        <span class="text-[10px] font-bold uppercase tracking-wider">Model Terbanyak (Kolom E)</span>
                         <div class="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg"><i data-lucide="award" class="w-4 h-4"></i></div>
                     </div>
                     <h3 id="kpiKsTopModel" class="text-xl font-bold mt-2 text-emerald-600">-</h3>
@@ -828,28 +830,53 @@
                 </div>
                 <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                     <div class="flex items-center justify-between text-purple-600">
-                        <span class="text-[10px] font-bold uppercase tracking-wider">Service Advisor Teraktif</span>
-                        <div class="p-1.5 bg-purple-50 text-purple-600 rounded-lg"><i data-lucide="user-check" class="w-4 h-4"></i></div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider">Kelompok Teraktif (Kolom H)</span>
+                        <div class="p-1.5 bg-purple-50 text-purple-600 rounded-lg"><i data-lucide="layers" class="w-4 h-4"></i></div>
                     </div>
-                    <h3 id="kpiKsTopSa" class="text-xl font-bold mt-2 text-purple-600">-</h3>
-                    <p id="kpiKsTopSaCount" class="text-[10px] text-slate-400 mt-1 font-medium">- unit</p>
+                    <h3 id="kpiKsTopKelompok" class="text-xl font-bold mt-2 text-purple-600">-</h3>
+                    <p id="kpiKsTopKelompokCount" class="text-[10px] text-slate-400 mt-1 font-medium">- unit</p>
                 </div>
             </section>
 
-            <!-- TABEL KENDARAAN SERVIS -->
-            <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div class="p-5 border-b border-slate-100 flex items-center justify-between">
-                    <div>
-                        <h3 class="font-bold text-slate-800 text-base">Database Kendaraan Servis Masuk</h3>
-                        <p class="text-xs text-slate-400">Monitoring data kendaraan yang masuk untuk melakukan servis di bengkel</p>
+            <!-- CHARTS KENDARAAN SERVIS (MODEL, KELOMPOK, KODE) -->
+            <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-sm">Distribusi Model (Kolom E)</h3>
+                            <p class="text-xs text-slate-400">Top model kendaraan servis</p>
+                        </div>
+                        <div class="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><i data-lucide="bar-chart-2" class="w-4 h-4"></i></div>
                     </div>
-                    <span id="ks-data-count" class="text-xs font-bold bg-slate-100 border border-slate-200 text-slate-600 px-3 py-1 rounded-full">0 Records</span>
+                    <div class="relative flex-1 min-h-[280px]">
+                        <canvas id="ksModelChart"></canvas>
+                    </div>
                 </div>
-                <div class="overflow-x-auto max-h-[500px] overflow-y-auto custom-scrollbar relative">
-                    <table class="w-full text-left text-xs text-slate-600 border-collapse">
-                        <thead id="ksTableHead" class="bg-slate-100 text-slate-700 font-semibold uppercase tracking-wider sticky top-0 z-20 shadow-sm border-b border-slate-200"></thead>
-                        <tbody id="ksTableBody" class="divide-y divide-slate-100 font-medium"></tbody>
-                    </table>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-sm">Distribusi Kelompok (Kolom H)</h3>
+                            <p class="text-xs text-slate-400">Kategori kelompok servis</p>
+                        </div>
+                        <div class="p-1.5 bg-purple-50 text-purple-600 rounded-lg"><i data-lucide="pie-chart" class="w-4 h-4"></i></div>
+                    </div>
+                    <div class="relative flex-1 min-h-[280px]">
+                        <canvas id="ksKelompokChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-sm">Distribusi Kode (Kolom Z)</h3>
+                            <p class="text-xs text-slate-400">Analisa kode unik transaksi servis</p>
+                        </div>
+                        <div class="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg"><i data-lucide="hash" class="w-4 h-4"></i></div>
+                    </div>
+                    <div class="relative flex-1 min-h-[280px]">
+                        <canvas id="ksKodeChart"></canvas>
+                    </div>
                 </div>
             </section>
         </div>
@@ -982,6 +1009,7 @@
         let rawTmsData = [], tmsHeaders = [];
         let tmsTrendCziInstance = null, tmsTrendSrrInstance = null;
         let rawKendaraanServisData = [], kendaraanServisHeaders = [];
+        let ksModelChartInstance = null, ksKelompokChartInstance = null, ksKodeChartInstance = null;
 
         Chart.register(ChartDataLabels);
 
@@ -1086,7 +1114,7 @@
                 kendaraanServisView.classList.remove('hidden');
                 navKendaraanServis.className = "w-full flex items-center gap-3 px-4 py-3 bg-red-50 text-red-600 font-semibold rounded-xl transition-all";
                 pageTitle.textContent = "Kendaraan Servis";
-                pageSubtitle.textContent = "Database Unit Kendaraan Masuk & Riwayat Servis";
+                pageSubtitle.textContent = "Analisa Model, Kelompok & Kode Kendaraan Servis Masuk";
                 applyKendaraanServisFilters();
             } else if (viewName === 'saran-servis') {
                 saranServisView.classList.remove('hidden');
@@ -1650,63 +1678,124 @@
         }
 
         function applyKendaraanServisFilters() {
-            const search = document.getElementById('ksSearch')?.value.toLowerCase() || '';
+            const startDateVal = document.getElementById('ksStartDate')?.value || '';
+            const endDateVal = document.getElementById('ksEndDate')?.value || '';
+            const startLimit = startDateVal ? new Date(startDateVal + 'T00:00:00') : null;
+            const endLimit = endDateVal ? new Date(endDateVal + 'T23:59:59') : null;
+
+            // Cari Kolom Tanggal SPP
+            const sppDateKey = kendaraanServisHeaders.find(h => {
+                const low = h.toLowerCase();
+                return low.includes('spp') || low.includes('tgl spp') || low.includes('tanggal spp');
+            }) || kendaraanServisHeaders[0];
 
             const filteredRows = rawKendaraanServisData.filter(row => {
-                if (!search) return true;
-                return Object.values(row).some(val => String(val).toLowerCase().includes(search));
+                if (!startLimit && !endLimit) return true;
+                if (!sppDateKey) return true;
+                const rowDate = parseUniversalDate(row[sppDateKey]);
+                if (!rowDate) return true;
+                if (startLimit && rowDate < startLimit) return false;
+                if (endLimit && rowDate > endLimit) return false;
+                return true;
             });
-
-            const thead = document.getElementById('ksTableHead');
-            const tbody = document.getElementById('ksTableBody');
-            if(!thead || !tbody) return;
-
-            if (!kendaraanServisHeaders || kendaraanServisHeaders.length === 0) {
-                thead.innerHTML = `<tr><th class="py-3.5 px-4">Data Kosong</th></tr>`;
-                tbody.innerHTML = `<tr><td class="py-6 px-4 text-center text-slate-400">Tidak ada header terdeteksi</td></tr>`;
-                return;
-            }
-
-            thead.innerHTML = `<tr>${kendaraanServisHeaders.map(h => `<th class="py-3.5 px-4 bg-slate-100">${h}</th>`).join('')}</tr>`;
-
-            tbody.innerHTML = filteredRows.map(row => {
-                return `
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        ${kendaraanServisHeaders.map(h => `<td class="py-3.5 px-4 text-slate-700">${row[h] || '-'}</td>`).join('')}
-                    </tr>
-                `;
-            }).join('');
 
             const totalKs = filteredRows.length;
             document.getElementById('kpiKsTotal').textContent = totalKs.toLocaleString('id-ID');
-            document.getElementById('ks-data-count').textContent = `${totalKs} Records`;
 
-            // Cari Model Terbanyak & SA Teraktif
-            const modelHeader = kendaraanServisHeaders.find(h => h.toLowerCase().includes('model') || h.toLowerCase().includes('tipe') || h.toLowerCase().includes('kendaraan'));
-            const saHeader = kendaraanServisHeaders.find(h => h.toLowerCase().includes('sa') || h.toLowerCase().includes('advisor'));
+            // Kolom E (index 4) adalah Model, Kolom H (index 7) adalah Kelompok, Kolom Z (index 25) adalah Kode
+            const modelHeader = kendaraanServisHeaders[4] || kendaraanServisHeaders.find(h => h.toLowerCase().includes('model')) || 'Model';
+            const kelompokHeader = kendaraanServisHeaders[7] || kendaraanServisHeaders.find(h => h.toLowerCase().includes('kelompok')) || 'Kelompok';
+            const kodeHeader = kendaraanServisHeaders[25] || kendaraanServisHeaders.find(h => h.toLowerCase().includes('kode')) || 'Kode';
 
             const modelCounts = {};
-            const saCounts = {};
+            const kelompokCounts = {};
+            const kodeCounts = {};
 
             filteredRows.forEach(row => {
-                if (modelHeader && row[modelHeader]) {
-                    const m = row[modelHeader];
-                    modelCounts[m] = (modelCounts[m] || 0) + 1;
-                }
-                if (saHeader && row[saHeader]) {
-                    const s = row[saHeader];
-                    saCounts[s] = (saCounts[s] || 0) + 1;
-                }
+                const modelVal = String(row[modelHeader] || 'Lainnya').trim();
+                if (modelVal && modelVal !== '-') modelCounts[modelVal] = (modelCounts[modelVal] || 0) + 1;
+
+                const kelompokVal = String(row[kelompokHeader] || 'Lainnya').trim();
+                if (kelompokVal && kelompokVal !== '-') kelompokCounts[kelompokVal] = (kelompokCounts[kelompokVal] || 0) + 1;
+
+                const kodeVal = String(row[kodeHeader] || 'Lainnya').trim();
+                if (kodeVal && kodeVal !== '-') kodeCounts[kodeVal] = (kodeCounts[kodeVal] || 0) + 1;
             });
 
             const topModel = Object.entries(modelCounts).sort((a,b) => b[1] - a[1])[0];
-            const topSa = Object.entries(saCounts).sort((a,b) => b[1] - a[1])[0];
+            const topKelompok = Object.entries(kelompokCounts).sort((a,b) => b[1] - a[1])[0];
 
             document.getElementById('kpiKsTopModel').textContent = topModel ? topModel[0] : '-';
             document.getElementById('kpiKsTopModelCount').textContent = topModel ? `${topModel[1]} unit` : '- unit';
 
-            document.getElementById('kpiKsTopSa').textContent = topSa ? topSa[0] : '-';
-            document.getElementById('kpiKsTopSaCount').textContent = topSa ? `${topSa[1]} unit` : '- unit';
+            document.getElementById('kpiKsTopKelompok').textContent = topKelompok ? topKelompok[0] : '-';
+            document.getElementById('kpiKsTopKelompokCount').textContent = topKelompok ? `${topKelompok[1]} unit` : '- unit';
+
+            renderKendaraanServisCharts(modelCounts, kelompokCounts, kodeCounts);
+        }
+
+        function renderKendaraanServisCharts(modelCounts, kelompokCounts, kodeCounts) {
+            // 1. Model Chart (Bar)
+            const sortedModels = Object.entries(modelCounts).sort((a,b) => b[1] - a[1]).slice(0, 8);
+            if (ksModelChartInstance) ksModelChartInstance.destroy();
+            const ctxModel = document.getElementById('ksModelChart').getContext('2d');
+            ksModelChartInstance = new Chart(ctxModel, {
+                type: 'bar',
+                data: {
+                    labels: sortedModels.map(x => x[0]),
+                    datasets: [{ label: 'Jumlah Unit', data: sortedModels.map(x => x[1]), backgroundColor: '#3b82f6', borderRadius: 6 }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, datalabels: { anchor: 'end', align: 'top', color: '#1e293b', font: { weight: 'bold', size: 10 } } },
+                    scales: { x: { grid: { display: false } }, y: { beginAtZero: true, ticks: { precision: 0 }, grace: '15%' } }
+                }
+            });
+
+            // 2. Kelompok Chart (Doughnut)
+            const sortedKelompok = Object.entries(kelompokCounts).sort((a,b) => b[1] - a[1]).slice(0, 6);
+            if (ksKelompokChartInstance) ksKelompokChartInstance.destroy();
+            const ctxKelompok = document.getElementById('ksKelompokChart').getContext('2d');
+            ksKelompokChartInstance = new Chart(ctxKelompok, {
+                type: 'doughnut',
+                data: {
+                    labels: sortedKelompok.map(x => x[0]),
+                    datasets: [{ data: sortedKelompok.map(x => x[1]), backgroundColor: ['#a855f7', '#6366f1', '#3b82f6', '#10b981', '#f59e0b', '#ec4899'], borderWidth: 0 }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, cutout: '65%',
+                    plugins: { 
+                        legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } },
+                        datalabels: {
+                            color: '#ffffff',
+                            font: { weight: 'bold', size: 10 },
+                            formatter: (value, ctx) => {
+                                let sum = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                let percentage = sum > 0 ? ((value * 100) / sum).toFixed(1) + "%" : "";
+                                return value > 0 ? percentage : '';
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 3. Kode Chart (Bar horizontal)
+            const sortedKode = Object.entries(kodeCounts).sort((a,b) => b[1] - a[1]).slice(0, 8);
+            if (ksKodeChartInstance) ksKodeChartInstance.destroy();
+            const ctxKode = document.getElementById('ksKodeChart').getContext('2d');
+            ksKodeChartInstance = new Chart(ctxKode, {
+                type: 'bar',
+                data: {
+                    labels: sortedKode.map(x => x[0]),
+                    datasets: [{ label: 'Jumlah', data: sortedKode.map(x => x[1]), backgroundColor: '#6366f1', borderRadius: 6 }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, datalabels: { anchor: 'end', align: 'right', color: '#1e293b', font: { weight: 'bold', size: 10 } } },
+                    scales: { x: { beginAtZero: true, ticks: { precision: 0 }, grace: '15%' }, y: { grid: { display: false } } }
+                }
+            });
         }
 
         // ================= PENDAPATAN BENGKEL LOGIC =================
