@@ -97,37 +97,37 @@
         </div>
 
         <nav class="p-4 space-y-1.5 flex-1 overflow-y-auto">
-            <button id="nav-booking" onclick="switchView('booking')" class="w-full flex items-center gap-3 px-4 py-3 bg-red-50 text-red-600 font-semibold rounded-xl transition-all">
-                <i data-lucide="calendar-check" class="w-5 h-5"></i>
-                <span>Booking Analytics</span>
-            </button>
-            <button id="nav-sop" onclick="switchView('sop')" class="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 font-semibold rounded-xl transition-all">
-                <i data-lucide="package-check" class="w-5 h-5"></i>
-                <span>Special Order Part</span>
-            </button>
-            <button id="nav-revenue" onclick="switchView('revenue')" class="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 font-semibold rounded-xl transition-all">
-                <i data-lucide="wallet" class="w-5 h-5"></i>
-                <span>Pendapatan Bengkel</span>
-            </button>
-            <button id="nav-tms" onclick="switchView('tms')" class="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 font-semibold rounded-xl transition-all">
-                <i data-lucide="truck" class="w-5 h-5"></i>
-                <span>Toyota Mobile Service</span>
-            </button>
-            <button id="nav-waktu-servis" onclick="switchView('waktu-servis')" class="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 font-semibold rounded-xl transition-all">
-                <i data-lucide="clock" class="w-5 h-5"></i>
-                <span>Waktu Servis</span>
+            <button id="nav-kpi" onclick="switchView('kpi')" class="w-full flex items-center gap-3 px-4 py-3 bg-red-50 text-red-600 font-semibold rounded-xl transition-all">
+                <i data-lucide="award" class="w-5 h-5"></i>
+                <span>Key Performance Index</span>
             </button>
             <button id="nav-kendaraan-servis" onclick="switchView('kendaraan-servis')" class="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 font-semibold rounded-xl transition-all">
                 <i data-lucide="car-front" class="w-5 h-5"></i>
                 <span>Kendaraan Servis</span>
             </button>
+            <button id="nav-waktu-servis" onclick="switchView('waktu-servis')" class="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 font-semibold rounded-xl transition-all">
+                <i data-lucide="clock" class="w-5 h-5"></i>
+                <span>Waktu Servis</span>
+            </button>
             <button id="nav-saran-servis" onclick="switchView('saran-servis')" class="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 font-semibold rounded-xl transition-all">
                 <i data-lucide="message-square-heart" class="w-5 h-5"></i>
                 <span>Saran Servis</span>
             </button>
-            <button id="nav-kpi" onclick="switchView('kpi')" class="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 font-semibold rounded-xl transition-all">
-                <i data-lucide="award" class="w-5 h-5"></i>
-                <span>Key Performance Index</span>
+            <button id="nav-revenue" onclick="switchView('revenue')" class="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 font-semibold rounded-xl transition-all">
+                <i data-lucide="wallet" class="w-5 h-5"></i>
+                <span>Pendapatan Bengkel</span>
+            </button>
+            <button id="nav-booking" onclick="switchView('booking')" class="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 font-semibold rounded-xl transition-all">
+                <i data-lucide="calendar-check" class="w-5 h-5"></i>
+                <span>Booking Analytics</span>
+            </button>
+            <button id="nav-tms" onclick="switchView('tms')" class="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 font-semibold rounded-xl transition-all">
+                <i data-lucide="truck" class="w-5 h-5"></i>
+                <span>Toyota Mobile Service</span>
+            </button>
+            <button id="nav-sop" onclick="switchView('sop')" class="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 font-semibold rounded-xl transition-all">
+                <i data-lucide="package-check" class="w-5 h-5"></i>
+                <span>Special Order Part</span>
             </button>
         </nav>
         <div class="p-4 border-t border-slate-100">
@@ -145,8 +145,8 @@
                     <i data-lucide="menu" class="w-5 h-5"></i>
                 </button>
                 <div>
-                    <h1 id="page-title" class="text-base sm:text-xl font-bold text-slate-900 leading-tight">Astrido Karawang Booking Analytics</h1>
-                    <p id="page-subtitle" class="text-xs text-slate-500">Monitoring Kedatangan & Performance Booking MRA</p>
+                    <h1 id="page-title" class="text-base sm:text-xl font-bold text-slate-900 leading-tight">Key Performance Index (KPI)</h1>
+                    <p id="page-subtitle" class="text-xs text-slate-500">Dashboard Profesional Evaluasi Kinerja Service Advisor</p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
@@ -163,7 +163,7 @@
     <main class="flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
         
         <!-- VIEW 1: BOOKING ANALYTICS -->
-        <div id="view-booking" class="space-y-6">
+        <div id="view-booking" class="hidden space-y-6">
             <section class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
                 <div class="flex items-center gap-2 text-slate-700 font-semibold text-sm">
                     <i data-lucide="filter" class="w-4 h-4 text-red-600"></i>
@@ -816,7 +816,7 @@
         </div>
 
         <!-- VIEW 8: KEY PERFORMANCE INDEX (KPI) - REACT INTEGRATION -->
-        <div id="view-kpi" class="hidden space-y-6">
+        <div id="view-kpi" class="space-y-6">
             <div id="kpi-react-root"></div>
         </div>
 
