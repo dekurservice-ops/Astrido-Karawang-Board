@@ -795,33 +795,21 @@
 
         <!-- VIEW 6: KENDARAAN SERVIS -->
         <div id="view-kendaraan-servis" class="hidden space-y-6">
-            <section class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-4">
+            <section class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
                 <div class="flex items-center gap-2 text-slate-700 font-semibold text-sm">
                     <i data-lucide="filter" class="w-4 h-4 text-blue-600"></i>
-                    <span>Filter Kendaraan Servis & Periode Pembanding (Tanggal Kolom B):</span>
+                    <span>Filter Kendaraan Servis (Tanggal Berdasarkan Kolom B):</span>
                 </div>
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-center">
-                    <div class="flex flex-col gap-1 bg-slate-50 border border-slate-200 rounded-xl p-3">
-                        <label class="text-[10px] font-bold text-slate-500 uppercase">Periode Utama:</label>
-                        <div class="flex items-center gap-2">
-                            <input type="date" id="ksStartDate" onchange="applyKendaraanServisFilters()" class="bg-transparent text-xs text-slate-800 font-medium focus:outline-none w-full">
-                            <span class="text-xs text-slate-400">-</span>
-                            <input type="date" id="ksEndDate" onchange="applyKendaraanServisFilters()" class="bg-transparent text-xs text-slate-800 font-medium focus:outline-none w-full">
-                        </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:flex gap-3 items-center flex-1 md:justify-end">
+                    <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
+                        <label class="text-xs text-slate-500 whitespace-nowrap">Rentang Tgl (Kolom B):</label>
+                        <input type="date" id="ksStartDate" onchange="applyKendaraanServisFilters()" class="bg-transparent text-xs text-slate-800 font-medium focus:outline-none">
+                        <span class="text-xs text-slate-400">-</span>
+                        <input type="date" id="ksEndDate" onchange="applyKendaraanServisFilters()" class="bg-transparent text-xs text-slate-800 font-medium focus:outline-none">
                     </div>
-
-                    <div class="flex flex-col gap-1 bg-blue-50/50 border border-blue-200 rounded-xl p-3">
-                        <label class="text-[10px] font-bold text-blue-700 uppercase">Periode Pembanding:</label>
-                        <div class="flex items-center gap-2">
-                            <input type="date" id="ksCompStartDate" onchange="applyKendaraanServisFilters()" class="bg-transparent text-xs text-slate-800 font-medium focus:outline-none w-full">
-                            <span class="text-xs text-slate-400">-</span>
-                            <input type="date" id="ksCompEndDate" onchange="applyKendaraanServisFilters()" class="bg-transparent text-xs text-slate-800 font-medium focus:outline-none w-full">
-                        </div>
-                    </div>
-
-                    <div class="flex flex-col gap-1 bg-slate-50 border border-slate-200 rounded-xl p-3">
-                        <label class="text-[10px] font-bold text-slate-500 uppercase">Nama SA (Kolom I):</label>
-                        <select id="ksFilterSa" onchange="applyKendaraanServisFilters()" class="bg-transparent text-xs text-slate-800 font-medium focus:outline-none w-full mt-1">
+                    <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
+                        <label class="text-xs text-slate-500 whitespace-nowrap">Nama SA (Kolom I):</label>
+                        <select id="ksFilterSa" onchange="applyKendaraanServisFilters()" class="bg-transparent text-xs text-slate-800 font-medium focus:outline-none w-full">
                             <option value="ALL">Semua SA</option>
                         </select>
                     </div>
@@ -830,144 +818,80 @@
 
             <!-- KPI CARDS KENDARAAN SERVIS -->
             <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-9 gap-3">
-                <div onclick="openKsSaDetailModal('total', 'Total Kendaraan')" class="kpi-card bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm col-span-2 sm:col-span-1 flex flex-col justify-between">
-                    <div>
-                        <div class="flex items-center justify-between text-blue-600">
-                            <span class="text-[10px] font-bold uppercase tracking-wider">Total Kendaraan</span>
-                            <div class="p-1 bg-blue-50 text-blue-600 rounded-lg"><i data-lucide="car-front" class="w-3.5 h-3.5"></i></div>
-                        </div>
-                        <div class="flex items-baseline justify-between mt-1.5">
-                            <h3 id="kpiKsTotal" class="text-xl font-bold text-blue-600">0</h3>
-                            <span id="growthKsTotal" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700">+0%</span>
-                        </div>
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm col-span-2 sm:col-span-1">
+                    <div class="flex items-center justify-between text-blue-600">
+                        <span class="text-[10px] font-bold uppercase tracking-wider">Total Kendaraan</span>
+                        <div class="p-1 bg-blue-50 text-blue-600 rounded-lg"><i data-lucide="car-front" class="w-3.5 h-3.5"></i></div>
                     </div>
-                    <div class="mt-2 pt-1 border-t border-slate-100 flex justify-between items-center text-[9px] text-slate-400 font-medium">
-                        <span>Pembanding:</span>
-                        <span id="compKsTotal" class="font-semibold text-slate-600">0</span>
-                    </div>
+                    <h3 id="kpiKsTotal" class="text-xl font-bold mt-1.5 text-blue-600">0</h3>
+                    <p class="text-[9px] text-slate-400 mt-0.5 font-medium">100.0%</p>
                 </div>
 
-                <div onclick="openKsSaDetailModal('cpus', 'Total CPUS')" class="kpi-card bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                    <div>
-                        <div class="flex items-center justify-between text-indigo-600">
-                            <span class="text-[10px] font-bold uppercase tracking-wider">Total CPUS</span>
-                            <div class="p-1 bg-indigo-50 text-indigo-600 rounded-lg"><i data-lucide="layers" class="w-3.5 h-3.5"></i></div>
-                        </div>
-                        <div class="flex items-baseline justify-between mt-1.5">
-                            <h3 id="kpiKsCpus" class="text-xl font-bold text-indigo-600">0</h3>
-                            <span id="growthKsCpus" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700">+0%</span>
-                        </div>
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between text-indigo-600">
+                        <span class="text-[10px] font-bold uppercase tracking-wider">Total CPUS</span>
+                        <div class="p-1 bg-indigo-50 text-indigo-600 rounded-lg"><i data-lucide="layers" class="w-3.5 h-3.5"></i></div>
                     </div>
-                    <div class="mt-2 pt-1 border-t border-slate-100 flex justify-between items-center text-[9px] text-slate-400 font-medium">
-                        <span>Pembanding:</span>
-                        <span id="compKsCpus" class="font-semibold text-slate-600">0</span>
-                    </div>
+                    <h3 id="kpiKsCpus" class="text-xl font-bold mt-1.5 text-indigo-600">0</h3>
+                    <p id="pctKsCpus" class="text-[9px] text-slate-400 mt-0.5 font-medium">0.0%</p>
                 </div>
 
-                <div onclick="openKsSaDetailModal('tcare', 'T-Care')" class="kpi-card bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                    <div>
-                        <div class="flex items-center justify-between text-emerald-600">
-                            <span class="text-[10px] font-bold uppercase tracking-wider">T-Care</span>
-                            <div class="p-1 bg-emerald-50 text-emerald-600 rounded-lg"><i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i></div>
-                        </div>
-                        <div class="flex items-baseline justify-between mt-1.5">
-                            <h3 id="kpiKsTcare" class="text-xl font-bold text-emerald-600">0</h3>
-                            <span id="growthKsTcare" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700">+0%</span>
-                        </div>
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between text-emerald-600">
+                        <span class="text-[10px] font-bold uppercase tracking-wider">T-Care</span>
+                        <div class="p-1 bg-emerald-50 text-emerald-600 rounded-lg"><i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i></div>
                     </div>
-                    <div class="mt-2 pt-1 border-t border-slate-100 flex justify-between items-center text-[9px] text-slate-400 font-medium">
-                        <span>Pembanding:</span>
-                        <span id="compKsTcare" class="font-semibold text-slate-600">0</span>
-                    </div>
+                    <h3 id="kpiKsTcare" class="text-xl font-bold mt-1.5 text-emerald-600">0</h3>
+                    <p id="pctKsTcare" class="text-[9px] text-slate-400 mt-0.5 font-medium">0.0%</p>
                 </div>
 
-                <div onclick="openKsSaDetailModal('sbeNonTcare', 'SBE Non TCare')" class="kpi-card bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                    <div>
-                        <div class="flex items-center justify-between text-purple-600">
-                            <span class="text-[10px] font-bold uppercase tracking-wider">SBE Non TCare</span>
-                            <div class="p-1 bg-purple-50 text-purple-600 rounded-lg"><i data-lucide="wrench" class="w-3.5 h-3.5"></i></div>
-                        </div>
-                        <div class="flex items-baseline justify-between mt-1.5">
-                            <h3 id="kpiKsSbeNonTcare" class="text-xl font-bold text-purple-600">0</h3>
-                            <span id="growthKsSbeNonTcare" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700">+0%</span>
-                        </div>
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between text-purple-600">
+                        <span class="text-[10px] font-bold uppercase tracking-wider">SBE Non TCare</span>
+                        <div class="p-1 bg-purple-50 text-purple-600 rounded-lg"><i data-lucide="wrench" class="w-3.5 h-3.5"></i></div>
                     </div>
-                    <div class="mt-2 pt-1 border-t border-slate-100 flex justify-between items-center text-[9px] text-slate-400 font-medium">
-                        <span>Pembanding:</span>
-                        <span id="compKsSbeNonTcare" class="font-semibold text-slate-600">0</span>
-                    </div>
+                    <h3 id="kpiKsSbeNonTcare" class="text-xl font-bold mt-1.5 text-purple-600">0</h3>
+                    <p id="pctKsSbeNonTcare" class="text-[9px] text-slate-400 mt-0.5 font-medium">0.0%</p>
                 </div>
 
-                <div onclick="openKsSaDetailModal('grp', 'GRP')" class="kpi-card bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                    <div>
-                        <div class="flex items-center justify-between text-amber-600">
-                            <span class="text-[10px] font-bold uppercase tracking-wider">GRP</span>
-                            <div class="p-1 bg-amber-50 text-amber-600 rounded-lg"><i data-lucide="shield" class="w-3.5 h-3.5"></i></div>
-                        </div>
-                        <div class="flex items-baseline justify-between mt-1.5">
-                            <h3 id="kpiKsGrp" class="text-xl font-bold text-amber-600">0</h3>
-                            <span id="growthKsGrp" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700">+0%</span>
-                        </div>
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between text-amber-600">
+                        <span class="text-[10px] font-bold uppercase tracking-wider">GRP</span>
+                        <div class="p-1 bg-amber-50 text-amber-600 rounded-lg"><i data-lucide="shield" class="w-3.5 h-3.5"></i></div>
                     </div>
-                    <div class="mt-2 pt-1 border-t border-slate-100 flex justify-between items-center text-[9px] text-slate-400 font-medium">
-                        <span>Pembanding:</span>
-                        <span id="compKsGrp" class="font-semibold text-slate-600">0</span>
-                    </div>
+                    <h3 id="kpiKsGrp" class="text-xl font-bold mt-1.5 text-amber-600">0</h3>
+                    <p id="pctKsGrp" class="text-[9px] text-slate-400 mt-0.5 font-medium">0.0%</p>
                 </div>
 
-                <div onclick="openKsSaDetailModal('go', 'GO')" class="kpi-card bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                    <div>
-                        <div class="flex items-center justify-between text-pink-600">
-                            <span class="text-[10px] font-bold uppercase tracking-wider">GO</span>
-                            <div class="p-1 bg-pink-50 text-pink-600 rounded-lg"><i data-lucide="zap" class="w-3.5 h-3.5"></i></div>
-                        </div>
-                        <div class="flex items-baseline justify-between mt-1.5">
-                            <h3 id="kpiKsGo" class="text-xl font-bold text-pink-600">0</h3>
-                            <span id="growthKsGo" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700">+0%</span>
-                        </div>
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between text-pink-600">
+                        <span class="text-[10px] font-bold uppercase tracking-wider">GO</span>
+                        <div class="p-1 bg-pink-50 text-pink-600 rounded-lg"><i data-lucide="zap" class="w-3.5 h-3.5"></i></div>
                     </div>
-                    <div class="mt-2 pt-1 border-t border-slate-100 flex justify-between items-center text-[9px] text-slate-400 font-medium">
-                        <span>Pembanding:</span>
-                        <span id="compKsGo" class="font-semibold text-slate-600">0</span>
-                    </div>
+                    <h3 id="kpiKsGo" class="text-xl font-bold mt-1.5 text-pink-600">0</h3>
+                    <p id="pctKsGo" class="text-[9px] text-slate-400 mt-0.5 font-medium">0.0%</p>
                 </div>
 
-                <div onclick="openKsSaDetailModal('sbi', 'SBI')" class="kpi-card bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                    <div>
-                        <div class="flex items-center justify-between text-teal-600">
-                            <span class="text-[10px] font-bold uppercase tracking-wider">SBI</span>
-                            <div class="p-1 bg-teal-50 text-teal-600 rounded-lg"><i data-lucide="activity" class="w-3.5 h-3.5"></i></div>
-                        </div>
-                        <div class="flex items-baseline justify-between mt-1.5">
-                            <h3 id="kpiKsSbi" class="text-xl font-bold text-teal-600">0</h3>
-                            <span id="growthKsSbi" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700">+0%</span>
-                        </div>
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between text-teal-600">
+                        <span class="text-[10px] font-bold uppercase tracking-wider">SBI</span>
+                        <div class="p-1 bg-teal-50 text-teal-600 rounded-lg"><i data-lucide="activity" class="w-3.5 h-3.5"></i></div>
                     </div>
-                    <div class="mt-2 pt-1 border-t border-slate-100 flex justify-between items-center text-[9px] text-slate-400 font-medium">
-                        <span>Pembanding:</span>
-                        <span id="compKsSbi" class="font-semibold text-slate-600">0</span>
-                    </div>
+                    <h3 id="kpiKsSbi" class="text-xl font-bold mt-1.5 text-teal-600">0</h3>
+                    <p id="pctKsSbi" class="text-[9px] text-slate-400 mt-0.5 font-medium">0.0%</p>
                 </div>
 
-                <div onclick="openKsSaDetailModal('twc', 'TWC')" class="kpi-card bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                    <div>
-                        <div class="flex items-center justify-between text-rose-600">
-                            <span class="text-[10px] font-bold uppercase tracking-wider">TWC</span>
-                            <div class="p-1 bg-rose-50 text-rose-600 rounded-lg"><i data-lucide="award" class="w-3.5 h-3.5"></i></div>
-                        </div>
-                        <div class="flex items-baseline justify-between mt-1.5">
-                            <h3 id="kpiKsTwc" class="text-xl font-bold text-rose-600">0</h3>
-                            <span id="growthKsTwc" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700">+0%</span>
-                        </div>
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between text-rose-600">
+                        <span class="text-[10px] font-bold uppercase tracking-wider">TWC</span>
+                        <div class="p-1 bg-rose-50 text-rose-600 rounded-lg"><i data-lucide="award" class="w-3.5 h-3.5"></i></div>
                     </div>
-                    <div class="mt-2 pt-1 border-t border-slate-100 flex justify-between items-center text-[9px] text-slate-400 font-medium">
-                        <span>Pembanding:</span>
-                        <span id="compKsTwc" class="font-semibold text-slate-600">0</span>
-                    </div>
+                    <h3 id="kpiKsTwc" class="text-xl font-bold mt-1.5 text-rose-600">0</h3>
+                    <p id="pctKsTwc" class="text-[9px] text-slate-400 mt-0.5 font-medium">0.0%</p>
                 </div>
             </section>
 
-            <!-- CHARTS KENDARAAN SERVIS (MODEL, KELOMPOK, KODE, MOM) -->
+            <!-- CHARTS KENDARAAN SERVIS (MODEL, KELOMPOK, KODE) -->
             <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
                     <div class="flex items-center justify-between mb-4">
@@ -1005,19 +929,6 @@
                     </div>
                     <div class="relative flex-1 min-h-[280px]">
                         <canvas id="ksKodeChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm lg:col-span-3 flex flex-col">
-                    <div class="flex items-center justify-between mb-4">
-                        <div>
-                            <h3 class="font-bold text-slate-800 text-base">Analisa Month on Month (MoM) Total Kendaraan Servis</h3>
-                            <p class="text-xs text-slate-400">Menampilkan seluruh bulan secara kronologis (Tidak terpengaruh filter tanggal)</p>
-                        </div>
-                        <div class="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg"><i data-lucide="trending-up" class="w-4 h-4"></i></div>
-                    </div>
-                    <div class="relative min-h-[300px]">
-                        <canvas id="ksMomChart"></canvas>
                     </div>
                 </div>
             </section>
@@ -1104,40 +1015,6 @@
         </div>
     </div>
 
-    <!-- MODAL DETAIL SA KENDARAAN SERVIS -->
-    <div id="ksSaDetailModal" class="fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-5xl shadow-2xl overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
-            <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
-                <div>
-                    <h3 id="ksSaModalTitle" class="text-base font-bold text-slate-950 uppercase">Analisa Service Advisor</h3>
-                    <p id="ksSaModalSubtitle" class="text-xs text-slate-500">Diurutkan berdasarkan pertumbuhan (Growth) tertinggi</p>
-                </div>
-                <button onclick="closeKsSaDetailModal()" class="text-slate-400 hover:text-slate-700 transition-colors"><i data-lucide="x" class="w-6 h-6"></i></button>
-            </div>
-            <div class="p-6 overflow-y-auto flex-1 space-y-6">
-                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 relative min-h-[320px]">
-                    <canvas id="ksSaHorizontalChart"></canvas>
-                </div>
-                <div class="rounded-xl border border-slate-200 overflow-x-auto">
-                    <table class="w-full text-left text-xs border-collapse">
-                        <thead class="bg-slate-100 text-slate-700 font-bold uppercase text-[10px] sticky top-0 border-b border-slate-200 z-10">
-                            <tr>
-                                <th class="px-4 py-3">Nama SA</th>
-                                <th class="px-4 py-3 text-right">Nilai Utama</th>
-                                <th class="px-4 py-3 text-right">Nilai Pembanding</th>
-                                <th class="px-4 py-3 text-center">Growth (%)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ksSaModalTableBody" class="divide-y divide-slate-100 font-medium"></tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="bg-slate-50 px-6 py-3 border-t border-slate-200 flex justify-end">
-                <button onclick="closeKsSaDetailModal()" class="px-5 py-2 bg-slate-800 text-white font-bold rounded-xl text-xs hover:bg-slate-900 transition-colors">Tutup</button>
-            </div>
-        </div>
-    </div>
-
     <div id="sopKpiModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-5xl shadow-2xl overflow-hidden border border-slate-200 flex flex-col max-h-[85vh]">
             <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
@@ -1184,8 +1061,8 @@
         let revenueTrendChartInstance = null, revenueCompositionChartInstance = null, revenueSaChartInstance = null, revenueMonthlyComparisonChartInstance = null, revenueSaHorizontalChartInstance = null;
         let rawTmsData = [], tmsHeaders = [];
         let tmsTrendCziInstance = null, tmsTrendSrrInstance = null;
-        let rawKendaraanServisData = [], filteredKendaraanServisData = [], filteredCompKendaraanServisData = [], kendaraanServisHeaders = [];
-        let ksModelChartInstance = null, ksKelompokChartInstance = null, ksKodeChartInstance = null, ksMomChartInstance = null, ksSaHorizontalChartInstance = null;
+        let rawKendaraanServisData = [], kendaraanServisHeaders = [];
+        let ksModelChartInstance = null, ksKelompokChartInstance = null, ksKodeChartInstance = null;
 
         Chart.register(ChartDataLabels);
 
@@ -1835,6 +1712,7 @@
         function formatModelName(modelStr) {
             if (!modelStr || modelStr === '-') return 'Lainnya';
             let cleaned = String(modelStr).trim();
+            // Jika mengandung kata "veloz" (case-insensitive), ubah/singkat menjadi "VELOZ"
             if (/veloz/i.test(cleaned)) {
                 return 'VELOZ';
             }
@@ -1858,6 +1736,7 @@
                     let colName = headers[j] || `Col_${j}`;
                     let val = String(r[j] || '').trim();
                     
+                    // Normalisasi khusus kolom Model (Kolom E)
                     if (j === modelHeaderIndex) {
                         val = formatModelName(val);
                     }
@@ -1875,6 +1754,7 @@
             if (!select) return;
             const current = select.value;
 
+            // Kolom I adalah index ke-8 (atau cari header yang mengandung "sa" atau "advisor")
             const saHeader = kendaraanServisHeaders[8] || kendaraanServisHeaders.find(h => {
                 const low = h.toLowerCase();
                 return low.includes('sa') || low.includes('advisor') || low.includes('nama sa');
@@ -1894,27 +1774,31 @@
         function applyKendaraanServisFilters() {
             const startDateVal = document.getElementById('ksStartDate')?.value || '';
             const endDateVal = document.getElementById('ksEndDate')?.value || '';
-            const compStartDateVal = document.getElementById('ksCompStartDate')?.value || '';
-            const compEndDateVal = document.getElementById('ksCompEndDate')?.value || '';
             const selectedSa = document.getElementById('ksFilterSa')?.value || 'ALL';
 
             const startLimit = startDateVal ? new Date(startDateVal + 'T00:00:00') : null;
             const endLimit = endDateVal ? new Date(endDateVal + 'T23:59:59') : null;
-            const compStartLimit = compStartDateVal ? new Date(compStartDateVal + 'T00:00:00') : null;
-            const compEndLimit = compEndDateVal ? new Date(compEndDateVal + 'T23:59:59') : null;
 
+            // Tanggal Berdasarkan Kolom B (index 1)
             const dateHeaderKey = kendaraanServisHeaders[1] || kendaraanServisHeaders.find(h => {
                 const low = h.toLowerCase();
                 return low.includes('tanggal') || low.includes('date') || low.includes('tgl');
             }) || kendaraanServisHeaders[1];
 
+            // Cari Kolom SA (Kolom I / index 8)
             const saHeader = kendaraanServisHeaders[8] || kendaraanServisHeaders.find(h => {
                 const low = h.toLowerCase();
                 return low.includes('sa') || low.includes('advisor');
             }) || kendaraanServisHeaders[8];
 
-            filteredKendaraanServisData = rawKendaraanServisData.filter(row => {
-                if (selectedSa !== 'ALL' && String(row[saHeader] || '').trim() !== selectedSa) return false;
+            const filteredRows = rawKendaraanServisData.filter(row => {
+                // Filter SA
+                if (selectedSa !== 'ALL') {
+                    const rowSa = String(row[saHeader] || '').trim();
+                    if (rowSa !== selectedSa) return false;
+                }
+
+                // Filter Tanggal Kolom B
                 if (startLimit || endLimit) {
                     if (dateHeaderKey) {
                         const rowDate = parseUniversalDate(row[dateHeaderKey]);
@@ -1926,71 +1810,9 @@
                 return true;
             });
 
-            filteredCompKendaraanServisData = rawKendaraanServisData.filter(row => {
-                if (selectedSa !== 'ALL' && String(row[saHeader] || '').trim() !== selectedSa) return false;
-                if (compStartLimit || compEndLimit) {
-                    if (dateHeaderKey) {
-                        const rowDate = parseUniversalDate(row[dateHeaderKey]);
-                        if (!rowDate) return false;
-                        if (compStartLimit && rowDate < compStartLimit) return false;
-                        if (compEndLimit && rowDate > compEndLimit) return false;
-                    } else {
-                        return false;
-                    }
-                }
-                return true;
-            });
+            const totalKs = filteredRows.length;
 
-            updateKendaraanServisUI();
-        }
-
-        function calculateKsCustomGrowth(metricsKey) {
-            let currentTotal = 0;
-            filteredKendaraanServisData.forEach(row => {
-                if (evaluateKsMetric(row, metricsKey)) currentTotal++;
-            });
-
-            let compTotal = 0;
-            filteredCompKendaraanServisData.forEach(row => {
-                if (evaluateKsMetric(row, metricsKey)) compTotal++;
-            });
-
-            if (compTotal === 0) {
-                return currentTotal > 0 ? "+100.0%" : "0.0%";
-            }
-
-            const growthRate = ((currentTotal - compTotal) / compTotal) * 100;
-            return (growthRate >= 0 ? "+" : "") + growthRate.toFixed(1) + "%";
-        }
-
-        function evaluateKsMetric(row, metricsKey) {
-            const kodeHeader = kendaraanServisHeaders[25] || kendaraanServisHeaders.find(h => h.toLowerCase().includes('kolom z') || h.toLowerCase().includes('z')) || kendaraanServisHeaders[25];
-            const zVal = kodeHeader ? String(row[kodeHeader] || '').trim() : '';
-            const zUpper = zVal.toUpperCase();
-
-            const isTcare = (zUpper === 'T-CARE' || zUpper === 'TCARE');
-            const isSbeNonTcare = (zUpper === 'SBE NON TCARE' || zUpper === 'SBE NON-TCARE');
-            const isGrp = (zUpper === 'GRP');
-            const isGo = (zUpper === 'GO');
-            const isSbi = (zUpper === 'SBI');
-            const isTwc = (zUpper === 'TWC');
-            const isCpus = (isTcare || isSbeNonTcare || isGrp || isGo);
-
-            if (metricsKey === 'total') return true;
-            if (metricsKey === 'cpus') return isCpus;
-            if (metricsKey === 'tcare') return isTcare;
-            if (metricsKey === 'sbeNonTcare') return isSbeNonTcare;
-            if (metricsKey === 'grp') return isGrp;
-            if (metricsKey === 'go') return isGo;
-            if (metricsKey === 'sbi') return isSbi;
-            if (metricsKey === 'twc') return isTwc;
-            return false;
-        }
-
-        function updateKendaraanServisUI() {
-            const totalKs = filteredKendaraanServisData.length;
-            const compTotalKs = filteredCompKendaraanServisData.length;
-
+            // Kolom E (index 4) adalah Model, Kolom H (index 7) adalah Kelompok, Kolom Z (index 25) adalah Kolom Z
             const modelHeader = kendaraanServisHeaders[4] || kendaraanServisHeaders.find(h => h.toLowerCase().includes('model')) || 'Model';
             const kelompokHeader = kendaraanServisHeaders[7] || kendaraanServisHeaders.find(h => h.toLowerCase().includes('kelompok')) || 'Kelompok';
             const kodeHeader = kendaraanServisHeaders[25] || kendaraanServisHeaders.find(h => h.toLowerCase().includes('kolom z') || h.toLowerCase().includes('z')) || kendaraanServisHeaders[25];
@@ -1999,14 +1821,14 @@
             const kelompokCounts = {};
             const kodeCounts = {};
 
-            let countTcare = 0, compTcare = 0;
-            let countSbeNonTcare = 0, compSbeNonTcare = 0;
-            let countGrp = 0, compGrp = 0;
-            let countGo = 0, compGo = 0;
-            let countSbi = 0, compSbi = 0;
-            let countTwc = 0, compTwc = 0;
+            let countTcare = 0;
+            let countSbeNonTcare = 0;
+            let countGrp = 0;
+            let countGo = 0;
+            let countSbi = 0;
+            let countTwc = 0;
 
-            filteredKendaraanServisData.forEach(row => {
+            filteredRows.forEach(row => {
                 let modelVal = String(row[modelHeader] || 'Lainnya').trim();
                 modelVal = formatModelName(modelVal);
                 if (modelVal && modelVal !== '-') modelCounts[modelVal] = (modelCounts[modelVal] || 0) + 1;
@@ -2014,61 +1836,62 @@
                 const kelompokVal = String(row[kelompokHeader] || '').trim();
                 if (kelompokVal && kelompokVal !== '-') kelompokCounts[kelompokVal] = (kelompokCounts[kelompokVal] || 0) + 1;
 
-                const zVal = kodeHeader ? String(row[kodeHeader] || '').trim() : '';
-                const zUpper = zVal.toUpperCase();
-                if (zVal && zVal !== '-') kodeCounts[zVal] = (kodeCounts[zVal] || 0) + 1;
-
-                if (zUpper === 'T-CARE' || zUpper === 'TCARE') countTcare++;
-                else if (zUpper === 'SBE NON TCARE' || zUpper === 'SBE NON-TCARE') countSbeNonTcare++;
-                else if (zUpper === 'GRP') countGrp++;
-                else if (zUpper === 'GO') countGo++;
-                else if (zUpper === 'SBI') countSbi++;
-                else if (zUpper === 'TWC') countTwc++;
-            });
-
-            filteredCompKendaraanServisData.forEach(row => {
+                // KPI Card diambil dari Kolom Z (index 25)
                 const zVal = kodeHeader ? String(row[kodeHeader] || '').trim() : '';
                 const zUpper = zVal.toUpperCase();
 
-                if (zUpper === 'T-CARE' || zUpper === 'TCARE') compTcare++;
-                else if (zUpper === 'SBE NON TCARE' || zUpper === 'SBE NON-TCARE') compSbeNonTcare++;
-                else if (zUpper === 'GRP') compGrp++;
-                else if (zUpper === 'GO') compGo++;
-                else if (zUpper === 'SBI') compSbi++;
-                else if (zUpper === 'TWC') compTwc++;
-            });
-
-            const totalCpus = countTcare + countSbeNonTcare + countGrp + countGo;
-            const compCpus = compTcare + compSbeNonTcare + compGrp + compGo;
-
-            const setKsCardData = (metricKey, currentVal, compVal, elementIdVal, elementIdComp, elementIdGrowth) => {
-                document.getElementById(elementIdVal).textContent = currentVal.toLocaleString('id-ID');
-                document.getElementById(elementIdComp).textContent = compVal.toLocaleString('id-ID');
-                const growthStr = calculateKsCustomGrowth(metricKey);
-                const elGrowth = document.getElementById(elementIdGrowth);
-                if (elGrowth) {
-                    elGrowth.textContent = growthStr;
-                    const isNeg = growthStr.startsWith('-');
-                    elGrowth.className = isNeg 
-                        ? "text-[10px] font-bold px-1.5 py-0.5 rounded bg-rose-100 text-rose-700" 
-                        : "text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700";
+                if (zVal && zVal !== '-') {
+                    kodeCounts[zVal] = (kodeCounts[zVal] || 0) + 1;
                 }
-            };
 
-            setKsCardData('total', totalKs, compTotalKs, 'kpiKsTotal', 'compKsTotal', 'growthKsTotal');
-            setKsCardData('cpus', totalCpus, compCpus, 'kpiKsCpus', 'compKsCpus', 'growthKsCpus');
-            setKsCardData('tcare', countTcare, compTcare, 'kpiKsTcare', 'compKsTcare', 'growthKsTcare');
-            setKsCardData('sbeNonTcare', countSbeNonTcare, compSbeNonTcare, 'kpiKsSbeNonTcare', 'compKsSbeNonTcare', 'growthKsSbeNonTcare');
-            setKsCardData('grp', countGrp, compGrp, 'kpiKsGrp', 'compKsGrp', 'growthKsGrp');
-            setKsCardData('go', countGo, compGo, 'kpiKsGo', 'compKsGo', 'growthKsGo');
-            setKsCardData('sbi', countSbi, compSbi, 'kpiKsSbi', 'compKsSbi', 'growthKsSbi');
-            setKsCardData('twc', countTwc, compTwc, 'kpiKsTwc', 'compKsTwc', 'growthKsTwc');
+                // Perbaikan pembacaan KPI Card: TCARE hanya "TCARE" (atau mengandung T-CARE / TCARE persis) dan SBE NON TCARE hanya "SBE NON TCARE" persis
+                if (zUpper === 'T-CARE' || zUpper === 'TCARE') {
+                    countTcare++;
+                } else if (zUpper === 'SBE NON TCARE' || zUpper === 'SBE NON-TCARE') {
+                    countSbeNonTcare++;
+                } else if (zUpper === 'GRP') {
+                    countGrp++;
+                } else if (zUpper === 'GO') {
+                    countGo++;
+                } else if (zUpper === 'SBI') {
+                    countSbi++;
+                } else if (zUpper === 'TWC') {
+                    countTwc++;
+                }
+            });
+
+            // TOTAL CPUS = TCARE + SBE NON TCARE + GRP + GO
+            const totalCpus = countTcare + countSbeNonTcare + countGrp + countGo;
+
+            const calcPct = (val) => totalKs > 0 ? ((val / totalKs) * 100).toFixed(1) + '%' : '0.0%';
+
+            document.getElementById('kpiKsTotal').textContent = totalKs.toLocaleString('id-ID');
+            document.getElementById('kpiKsCpus').textContent = totalCpus.toLocaleString('id-ID');
+            document.getElementById('pctKsCpus').textContent = calcPct(totalCpus);
+
+            document.getElementById('kpiKsTcare').textContent = countTcare.toLocaleString('id-ID');
+            document.getElementById('pctKsTcare').textContent = calcPct(countTcare);
+
+            document.getElementById('kpiKsSbeNonTcare').textContent = countSbeNonTcare.toLocaleString('id-ID');
+            document.getElementById('pctKsSbeNonTcare').textContent = calcPct(countSbeNonTcare);
+
+            document.getElementById('kpiKsGrp').textContent = countGrp.toLocaleString('id-ID');
+            document.getElementById('pctKsGrp').textContent = calcPct(countGrp);
+
+            document.getElementById('kpiKsGo').textContent = countGo.toLocaleString('id-ID');
+            document.getElementById('pctKsGo').textContent = calcPct(countGo);
+
+            document.getElementById('kpiKsSbi').textContent = countSbi.toLocaleString('id-ID');
+            document.getElementById('pctKsSbi').textContent = calcPct(countSbi);
+
+            document.getElementById('kpiKsTwc').textContent = countTwc.toLocaleString('id-ID');
+            document.getElementById('pctKsTwc').textContent = calcPct(countTwc);
 
             renderKendaraanServisCharts(modelCounts, kelompokCounts, kodeCounts);
-            renderKsMomChart();
         }
 
         function renderKendaraanServisCharts(modelCounts, kelompokCounts, kodeCounts) {
+            // 1. Model Chart (Bar)
             const sortedModels = Object.entries(modelCounts).sort((a,b) => b[1] - a[1]).slice(0, 8);
             if (ksModelChartInstance) ksModelChartInstance.destroy();
             const ctxModel = document.getElementById('ksModelChart').getContext('2d');
@@ -2085,6 +1908,7 @@
                 }
             });
 
+            // 2. Kelompok Chart (Doughnut)
             const sortedKelompok = Object.entries(kelompokCounts).sort((a,b) => b[1] - a[1]).slice(0, 6);
             if (ksKelompokChartInstance) ksKelompokChartInstance.destroy();
             const ctxKelompok = document.getElementById('ksKelompokChart').getContext('2d');
@@ -2111,6 +1935,7 @@
                 }
             });
 
+            // 3. Kolom Z Chart (Bar horizontal)
             const sortedKode = Object.entries(kodeCounts).sort((a,b) => b[1] - a[1]).slice(0, 8);
             if (ksKodeChartInstance) ksKodeChartInstance.destroy();
             const ctxKode = document.getElementById('ksKodeChart').getContext('2d');
@@ -2129,172 +1954,19 @@
             });
         }
 
-        function renderKsMomChart() {
-            const monthsShort = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-            const dateHeaderKey = kendaraanServisHeaders[1] || kendaraanServisHeaders.find(h => {
-                const low = h.toLowerCase();
-                return low.includes('tanggal') || low.includes('date') || low.includes('tgl');
-            }) || kendaraanServisHeaders[1];
-
-            const momMap = {};
-            rawKendaraanServisData.forEach(row => {
-                if (!dateHeaderKey) return;
-                const rowDate = parseUniversalDate(row[dateHeaderKey]);
-                if (!rowDate) return;
-
-                const groupKey = `${rowDate.getFullYear()}-${String(rowDate.getMonth() + 1).padStart(2, '0')}`;
-                const displayLabel = `${monthsShort[rowDate.getMonth()]} ${rowDate.getFullYear()}`;
-
-                if (!momMap[groupKey]) {
-                    momMap[groupKey] = { label: displayLabel, total: 0 };
-                }
-                momMap[groupKey].total++;
-            });
-
-            const sortedKeys = Object.keys(momMap).sort();
-            const labels = sortedKeys.map(k => momMap[k].label);
-            const dataVals = sortedKeys.map(k => momMap[k].total);
-
-            if (ksMomChartInstance) ksMomChartInstance.destroy();
-            const ctxMom = document.getElementById('ksMomChart').getContext('2d');
-            ksMomChartInstance = new Chart(ctxMom, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Total Kendaraan Servis',
-                        data: dataVals,
-                        backgroundColor: '#10b981',
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        datalabels: {
-                            anchor: 'end',
-                            align: 'top',
-                            color: '#065f46',
-                            font: { weight: 'bold', size: 10 },
-                            formatter: (value) => value > 0 ? value : ''
-                        }
-                    },
-                    scales: {
-                        x: { grid: { display: false } },
-                        y: { beginAtZero: true, ticks: { precision: 0 } }
-                    }
-                }
-            });
-        }
-
-        function openKsSaDetailModal(metricKey, metricLabel) {
-            document.getElementById('ksSaModalTitle').textContent = `Analisa Service Advisor: ${metricLabel}`;
-            document.getElementById('ksSaModalSubtitle').textContent = `Perbandingan Utama vs Pembanding per SA (Diurutkan berdasarkan Growth tertinggi)`;
-
-            const saHeader = kendaraanServisHeaders[8] || kendaraanServisHeaders.find(h => {
-                const low = h.toLowerCase();
-                return low.includes('sa') || low.includes('advisor');
-            }) || kendaraanServisHeaders[8];
-
-            const saMap = {};
-
-            filteredKendaraanServisData.forEach(row => {
-                const sa = String(row[saHeader] || 'General SA').trim();
-                if (!saMap[sa]) saMap[sa] = { utama: 0, pembanding: 0 };
-                if (evaluateKsMetric(row, metricKey)) saMap[sa].utama++;
-            });
-
-            filteredCompKendaraanServisData.forEach(row => {
-                const sa = String(row[saHeader] || 'General SA').trim();
-                if (!saMap[sa]) saMap[sa] = { utama: 0, pembanding: 0 };
-                if (evaluateKsMetric(row, metricKey)) saMap[sa].pembanding++;
-            });
-
-            const saList = Object.keys(saMap).map(sa => {
-                const utama = saMap[sa].utama;
-                const pembanding = saMap[sa].pembanding;
-                let growth = 0;
-                if (pembanding === 0) {
-                    growth = utama > 0 ? 100 : 0;
-                } else {
-                    growth = ((utama - pembanding) / pembanding) * 100;
-                }
-                return { sa, utama, pembanding, growth };
-            });
-
-            saList.sort((a, b) => b.growth - a.growth);
-
-            const labels = saList.map(item => item.sa);
-            const utamaData = saList.map(item => item.utama);
-            const pembandingData = saList.map(item => item.pembanding);
-
-            if (ksSaHorizontalChartInstance) ksSaHorizontalChartInstance.destroy();
-
-            const ctx = document.getElementById('ksSaHorizontalChart').getContext('2d');
-            ksSaHorizontalChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        { label: 'Nilai Utama', data: utamaData, backgroundColor: '#3b82f6', borderRadius: 4 },
-                        { label: 'Nilai Pembanding', data: pembandingData, backgroundColor: '#cbd5e1', borderRadius: 4 }
-                    ]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } },
-                        datalabels: {
-                            anchor: 'end',
-                            align: 'right',
-                            color: '#1e293b',
-                            font: { weight: 'bold', size: 9 },
-                            formatter: (value) => value > 0 ? value : ''
-                        }
-                    },
-                    scales: {
-                        x: { beginAtZero: true, ticks: { precision: 0 } },
-                        y: { grid: { display: false } }
-                    }
-                }
-            });
-
-            const tbody = document.getElementById('ksSaModalTableBody');
-            tbody.innerHTML = '';
-
-            if (saList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="py-6 text-center text-slate-400">Tidak ada data SA ditemukan</td></tr>`;
-            } else {
-                saList.forEach(row => {
-                    const growthStr = (row.growth >= 0 ? "+" : "") + row.growth.toFixed(1) + "%";
-                    const badgeClass = row.growth >= 0 ? "bg-emerald-50 text-emerald-600 border-emerald-200" : "bg-rose-50 text-rose-600 border-rose-200";
-
-                    const tr = document.createElement('tr');
-                    tr.className = "hover:bg-slate-50 transition-colors";
-                    tr.innerHTML = `
-                        <td class="px-4 py-3 font-bold text-slate-800">${row.sa}</td>
-                        <td class="px-4 py-3 text-right font-bold text-blue-600">${row.utama.toLocaleString('id-ID')} Unit</td>
-                        <td class="px-4 py-3 text-right font-medium text-slate-600">${row.pembanding.toLocaleString('id-ID')} Unit</td>
-                        <td class="px-4 py-3 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-bold border ${badgeClass}">${growthStr}</span></td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            }
-
-            document.getElementById('ksSaDetailModal').classList.remove('hidden');
-        }
-
-        function closeKsSaDetailModal() {
-            document.getElementById('ksSaDetailModal').classList.add('hidden');
-        }
-
         // ================= PENDAPATAN BENGKEL LOGIC =================
+        function parseNumericValue(val) {
+            if (!val) return 0;
+            const strVal = String(val).trim();
+            if (isNaN(strVal) && /^[a-zA-Z]+$/.test(strVal)) return 0;
+            const cleaned = strVal.replace(/[^0-9.-]+/g,"");
+            return parseFloat(cleaned) || 0;
+        }
+
         function processRevenueData(rows) {
             const result = [];
             if (!rows || rows.length === 0) return result;
+
             const headerRow = rows[0].map(h => String(h || '').trim().toLowerCase());
             
             const getColIndex = (keywords) => {
@@ -2317,6 +1989,7 @@
             for (let i = 1; i < rows.length; i++) {
                 const r = rows[i];
                 if (!r || r.length === 0) continue;
+
                 const dateVal = idxTanggal !== -1 ? String(r[idxTanggal] || '').trim() : String(r[0] || '').trim();
                 const saName = idxSa !== -1 ? String(r[idxSa] || 'General SA').trim() : String(r[1] || 'General SA').trim();
 
@@ -2337,7 +2010,12 @@
                     date: formatDisplayDate(dateVal),
                     rawDate: dateVal,
                     sa: saName,
-                    jasaUmum, part, bahan, oli, sublet, dpp
+                    jasaUmum,
+                    part,
+                    bahan,
+                    oli,
+                    sublet,
+                    dpp
                 });
             }
             return result;
@@ -2360,12 +2038,15 @@
         function applyRevenueFilters() {
             const startDateVal = document.getElementById('revStartDate')?.value || '';
             const endDateVal = document.getElementById('revEndDate')?.value || '';
+            
             const compStartDateVal = document.getElementById('revCompStartDate')?.value || '';
             const compEndDateVal = document.getElementById('revCompEndDate')?.value || '';
+            
             const selectedSa = document.getElementById('filterRevSa')?.value || 'ALL';
 
             const startLimit = startDateVal ? new Date(startDateVal + 'T00:00:00') : null;
             const endLimit = endDateVal ? new Date(endDateVal + 'T23:59:59') : null;
+
             const compStartLimit = compStartDateVal ? new Date(compStartDateVal + 'T00:00:00') : null;
             const compEndLimit = compEndDateVal ? new Date(compEndDateVal + 'T23:59:59') : null;
 
@@ -2388,6 +2069,8 @@
                     if (itemDate) {
                         if (compStartLimit && itemDate < compStartLimit) return false;
                         if (compEndLimit && itemDate > compEndLimit) return false;
+                    } else {
+                        return false;
                     }
                 }
                 return true;
@@ -2398,11 +2081,19 @@
 
         function calculateCustomGrowth(componentKey) {
             let currentTotal = 0;
-            filteredRevenueData.forEach(item => { currentTotal += (item[componentKey] || 0); });
-            let compTotal = 0;
-            filteredCompRevenueData.forEach(item => { compTotal += (item[componentKey] || 0); });
+            filteredRevenueData.forEach(item => {
+                currentTotal += (item[componentKey] || 0);
+            });
 
-            if (compTotal === 0) return currentTotal > 0 ? "+100.0%" : "0.0%";
+            let compTotal = 0;
+            filteredCompRevenueData.forEach(item => {
+                compTotal += (item[componentKey] || 0);
+            });
+
+            if (compTotal === 0) {
+                return currentTotal > 0 ? "+100.0%" : "0.0%";
+            }
+
             const growthRate = ((currentTotal - compTotal) / compTotal) * 100;
             return (growthRate >= 0 ? "+" : "") + growthRate.toFixed(1) + "%";
         }
@@ -2410,14 +2101,22 @@
         function updateRevenueUI() {
             let totalDpp = 0, totalJasa = 0, totalPart = 0, totalOli = 0, totalBahan = 0, totalSublet = 0;
             filteredRevenueData.forEach(item => {
-                totalDpp += item.dpp; totalJasa += item.jasaUmum; totalPart += item.part;
-                totalOli += item.oli; totalBahan += item.bahan; totalSublet += item.sublet;
+                totalDpp += item.dpp;
+                totalJasa += item.jasaUmum;
+                totalPart += item.part;
+                totalOli += item.oli;
+                totalBahan += item.bahan;
+                totalSublet += item.sublet;
             });
 
             let compDpp = 0, compJasa = 0, compPart = 0, compOli = 0, compBahan = 0, compSublet = 0;
             filteredCompRevenueData.forEach(item => {
-                compDpp += item.dpp; compJasa += item.jasaUmum; compPart += item.part;
-                compOli += item.oli; compBahan += item.bahan; compSublet += item.sublet;
+                compDpp += item.dpp;
+                compJasa += item.jasaUmum;
+                compPart += item.part;
+                compOli += item.oli;
+                compBahan += item.bahan;
+                compSublet += item.sublet;
             });
 
             const formatIDR = (val) => {
@@ -2440,12 +2139,19 @@
             document.getElementById('kpiCompBahan').textContent = formatIDR(compBahan);
             document.getElementById('kpiCompSublet').textContent = formatIDR(compSublet);
 
+            const growthDpp = calculateCustomGrowth('dpp');
+            const growthJasa = calculateCustomGrowth('jasaUmum');
+            const growthPart = calculateCustomGrowth('part');
+            const growthOli = calculateCustomGrowth('oli');
+            const growthBahan = calculateCustomGrowth('bahan');
+            const growthSublet = calculateCustomGrowth('sublet');
+
             const setGrowthBadge = (id, val) => {
                 const el = document.getElementById(id);
                 if (!el) return;
                 el.textContent = val;
-                const isNeg = val.startsWith('-');
-                el.className = isNeg 
+                const isNegative = val.startsWith('-');
+                el.className = isNegative 
                     ? "text-xs font-bold px-2 py-0.5 rounded-md bg-rose-950 text-rose-400" 
                     : "text-xs font-bold px-2 py-0.5 rounded-md bg-emerald-950 text-emerald-400";
             };
@@ -2454,16 +2160,18 @@
                 const el = document.getElementById(id);
                 if (!el) return;
                 el.textContent = val;
-                const isNeg = val.startsWith('-');
-                el.className = isNeg ? "text-[11px] font-bold text-rose-500" : "text-[11px] font-bold text-emerald-600";
+                const isNegative = val.startsWith('-');
+                el.className = isNegative 
+                    ? "text-[11px] font-bold text-rose-500" 
+                    : "text-[11px] font-bold text-emerald-600";
             };
 
-            setGrowthBadge('revGrowthDpp', calculateCustomGrowth('dpp'));
-            setSmallGrowthBadge('growthJasa', calculateCustomGrowth('jasaUmum'));
-            setSmallGrowthBadge('growthPart', calculateCustomGrowth('part'));
-            setSmallGrowthBadge('growthOli', calculateCustomGrowth('oli'));
-            setSmallGrowthBadge('growthBahan', calculateCustomGrowth('bahan'));
-            setSmallGrowthBadge('growthSublet', calculateCustomGrowth('sublet'));
+            setGrowthBadge('revGrowthDpp', growthDpp);
+            setSmallGrowthBadge('growthJasa', growthJasa);
+            setSmallGrowthBadge('growthPart', growthPart);
+            setSmallGrowthBadge('growthOli', growthOli);
+            setSmallGrowthBadge('growthBahan', growthBahan);
+            setSmallGrowthBadge('growthSublet', growthSublet);
 
             renderRevenueTrendChart();
             renderRevenueCompositionChart();
@@ -2471,16 +2179,19 @@
             renderRevenueMonthlyComparisonChart();
         }
 
+        // ================= MODAL DETAIL SA PENDAPATAN BENGKEL =================
         function openRevenueSaDetailModal(componentKey, componentLabel) {
             document.getElementById('revenueSaModalTitle').textContent = `Analisa Service Advisor: ${componentLabel}`;
             document.getElementById('revenueSaModalSubtitle').textContent = `Perbandingan Utama vs Pembanding per SA (Diurutkan berdasarkan Growth tertinggi)`;
 
             const saMap = {};
+
             filteredRevenueData.forEach(item => {
                 const sa = item.sa || 'General SA';
                 if (!saMap[sa]) saMap[sa] = { utama: 0, pembanding: 0 };
                 saMap[sa].utama += (item[componentKey] || 0);
             });
+
             filteredCompRevenueData.forEach(item => {
                 const sa = item.sa || 'General SA';
                 if (!saMap[sa]) saMap[sa] = { utama: 0, pembanding: 0 };
@@ -2490,54 +2201,97 @@
             const saList = Object.keys(saMap).map(sa => {
                 const utama = saMap[sa].utama;
                 const pembanding = saMap[sa].pembanding;
-                let growth = pembanding === 0 ? (utama > 0 ? 100 : 0) : ((utama - pembanding) / pembanding) * 100;
+                let growth = 0;
+                if (pembanding === 0) {
+                    growth = utama > 0 ? 100 : 0;
+                } else {
+                    growth = ((utama - pembanding) / pembanding) * 100;
+                }
                 return { sa, utama, pembanding, growth };
             });
+
             saList.sort((a, b) => b.growth - a.growth);
 
+            const labels = saList.map(item => item.sa);
+            const utamaData = saList.map(item => item.utama);
+            const pembandingData = saList.map(item => item.pembanding);
+
             if (revenueSaHorizontalChartInstance) revenueSaHorizontalChartInstance.destroy();
+
             const ctx = document.getElementById('revenueSaHorizontalChart').getContext('2d');
             revenueSaHorizontalChartInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: saList.map(item => item.sa),
+                    labels: labels,
                     datasets: [
-                        { label: 'Nilai Utama', data: saList.map(item => item.utama), backgroundColor: '#6366f1', borderRadius: 4 },
-                        { label: 'Nilai Pembanding', data: saList.map(item => item.pembanding), backgroundColor: '#cbd5e1', borderRadius: 4 }
+                        { label: 'Nilai Utama', data: utamaData, backgroundColor: '#6366f1', borderRadius: 4 },
+                        { label: 'Nilai Pembanding', data: pembandingData, backgroundColor: '#cbd5e1', borderRadius: 4 }
                     ]
                 },
                 options: {
-                    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
                     plugins: {
                         legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } },
                         datalabels: {
-                            anchor: 'end', align: 'right', color: '#1e293b', font: { weight: 'bold', size: 9 },
+                            anchor: 'end',
+                            align: 'right',
+                            color: '#1e293b',
+                            font: { weight: 'bold', size: 9 },
                             formatter: (value) => value > 0 ? formatShortIDR(value) : ''
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` ${context.dataset.label}: Rp ${context.parsed.x.toLocaleString('id-ID')}`;
+                                }
+                            }
                         }
                     },
-                    scales: { x: { beginAtZero: true }, y: { grid: { display: false } } }
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    if (value >= 1000000) return `Rp ${(value / 1000000).toFixed(0)}Jt`;
+                                    return `Rp ${value}`;
+                                }
+                            }
+                        },
+                        y: { grid: { display: false } }
+                    }
                 }
             });
 
             const tbody = document.getElementById('revenueSaModalTableBody');
             tbody.innerHTML = '';
-            saList.forEach(row => {
-                const growthStr = (row.growth >= 0 ? "+" : "") + row.growth.toFixed(1) + "%";
-                const badgeClass = row.growth >= 0 ? "bg-emerald-50 text-emerald-600 border-emerald-200" : "bg-rose-50 text-rose-600 border-rose-200";
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 transition-colors";
-                tr.innerHTML = `
-                    <td class="px-4 py-3 font-bold text-slate-800">${row.sa}</td>
-                    <td class="px-4 py-3 text-right font-bold text-indigo-600">Rp ${row.utama.toLocaleString('id-ID')}</td>
-                    <td class="px-4 py-3 text-right font-medium text-slate-600">Rp ${row.pembanding.toLocaleString('id-ID')}</td>
-                    <td class="px-4 py-3 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-bold border ${badgeClass}">${growthStr}</span></td>
-                `;
-                tbody.appendChild(tr);
-            });
+
+            if (saList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="py-6 text-center text-slate-400">Tidak ada data SA ditemukan</td></tr>`;
+            } else {
+                saList.forEach(row => {
+                    const growthStr = (row.growth >= 0 ? "+" : "") + row.growth.toFixed(1) + "%";
+                    const badgeClass = row.growth >= 0 ? "bg-emerald-50 text-emerald-600 border-emerald-200" : "bg-rose-50 text-rose-600 border-rose-200";
+
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-50 transition-colors";
+                    tr.innerHTML = `
+                        <td class="px-4 py-3 font-bold text-slate-800">${row.sa}</td>
+                        <td class="px-4 py-3 text-right font-bold text-indigo-600">Rp ${row.utama.toLocaleString('id-ID')}</td>
+                        <td class="px-4 py-3 text-right font-medium text-slate-600">Rp ${row.pembanding.toLocaleString('id-ID')}</td>
+                        <td class="px-4 py-3 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-bold border ${badgeClass}">${growthStr}</span></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
             document.getElementById('revenueSaDetailModal').classList.remove('hidden');
         }
 
-        function closeRevenueSaDetailModal() { document.getElementById('revenueSaDetailModal').classList.add('hidden'); }
+        function closeRevenueSaDetailModal() {
+            document.getElementById('revenueSaDetailModal').classList.add('hidden');
+        }
 
         function renderRevenueTrendChart() {
             const granularity = document.getElementById('revenueTrendGranularity')?.value || 'weekly';
@@ -2547,6 +2301,7 @@
             filteredRevenueData.forEach(item => {
                 const pDate = parseUniversalDate(item.rawDate);
                 if (!pDate) return;
+
                 let groupKey = '', displayLabel = '';
                 if (granularity === 'monthly') {
                     groupKey = `${pDate.getFullYear()}-${String(pDate.getMonth() + 1).padStart(2, '0')}`;
@@ -2559,23 +2314,64 @@
                     groupKey = `${monday.getFullYear()}-${String(monday.getMonth() + 1).padStart(2, '0')}-${String(monday.getDate()).padStart(2, '0')}`;
                     displayLabel = `Minggu (${String(monday.getDate()).padStart(2, '0')} ${monthsShort[monday.getMonth()]})`;
                 }
-                if (!groupMap[groupKey]) groupMap[groupKey] = { label: displayLabel, revenue: 0 };
+
+                if (!groupMap[groupKey]) {
+                    groupMap[groupKey] = { label: displayLabel, revenue: 0 };
+                }
                 groupMap[groupKey].revenue += item.dpp;
             });
 
             const sortedKeys = Object.keys(groupMap).sort();
+            const labels = sortedKeys.map(k => groupMap[k].label);
+            const dataVals = sortedKeys.map(k => groupMap[k].revenue);
+
             if (revenueTrendChartInstance) revenueTrendChartInstance.destroy();
+
             const ctx = document.getElementById('revenueTrendChart').getContext('2d');
             revenueTrendChartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: sortedKeys.map(k => groupMap[k].label),
-                    datasets: [{ label: 'Total DPP (Rp)', data: sortedKeys.map(k => groupMap[k].revenue), borderColor: '#10b981', backgroundColor: '#10b98120', tension: 0.3, fill: true }]
+                    labels,
+                    datasets: [{
+                        label: 'Total DPP (Rp)',
+                        data: dataVals,
+                        borderColor: '#10b981',
+                        backgroundColor: '#10b98120',
+                        tension: 0.3,
+                        fill: true
+                    }]
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false }, datalabels: { display: false } },
-                    scales: { x: { grid: { display: false } }, y: { beginAtZero: true } }
+                    plugins: {
+                        legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } },
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            color: '#065f46',
+                            font: { weight: 'bold', size: 9 },
+                            formatter: (value) => value > 0 ? formatShortIDR(value) : ''
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` DPP: Rp ${context.parsed.y.toLocaleString('id-ID')}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    if (value >= 1000000) return `Rp ${(value / 1000000).toFixed(0)}Jt`;
+                                    return `Rp ${value}`;
+                                }
+                            }
+                        }
+                    }
                 }
             });
         }
@@ -2583,131 +2379,1161 @@
         function renderRevenueCompositionChart() {
             let tJasa = 0, tPart = 0, tBahan = 0, tOli = 0, tSublet = 0;
             filteredRevenueData.forEach(item => {
-                tJasa += item.jasaUmum; tPart += item.part; tBahan += item.bahan; tOli += item.oli; tSublet += item.sublet;
+                tJasa += item.jasaUmum;
+                tPart += item.part;
+                tBahan += item.bahan;
+                tOli += item.oli;
+                tSublet += item.sublet;
             });
+
             if (revenueCompositionChartInstance) revenueCompositionChartInstance.destroy();
+
             const ctx = document.getElementById('revenueCompositionChart').getContext('2d');
             revenueCompositionChartInstance = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     labels: ['Jasa Umum', 'Part', 'Bahan', 'Oli', 'Sublet'],
-                    datasets: [{ data: [tJasa, tPart, tBahan, tOli, tSublet], backgroundColor: ['#a855f7', '#6366f1', '#3b82f6', '#10b981', '#f59e0b'], borderWidth: 0 }]
+                    datasets: [{
+                        data: [tJasa, tPart, tBahan, tOli, tSublet],
+                        backgroundColor: ['#a855f7', '#6366f1', '#3b82f6', '#10b981', '#f59e0b'],
+                        borderWidth: 0
+                    }]
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false, cutout: '70%',
-                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }, datalabels: { display: false } }
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } },
+                        datalabels: {
+                            color: '#ffffff',
+                            font: { weight: 'bold', size: 10 },
+                            formatter: (value, ctx) => {
+                                let sum = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                let percentage = sum > 0 ? ((value * 100) / sum).toFixed(1) + "%" : "";
+                                return value > 0 ? percentage : '';
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` ${context.label}: Rp ${context.parsed.toLocaleString('id-ID')}`;
+                                }
+                            }
+                        }
+                    }
                 }
             });
         }
 
         function renderRevenueSaChart() {
             const saMap = {};
-            filteredRevenueData.forEach(item => { saMap[item.sa] = (saMap[item.sa] || 0) + item.dpp; });
+            filteredRevenueData.forEach(item => {
+                const saName = item.sa || 'General SA';
+                saMap[saName] = (saMap[saName] || 0) + item.dpp;
+            });
+
             const sortedSas = Object.keys(saMap).sort((a,b) => saMap[b] - saMap[a]).slice(0, 8);
+            const saValues = sortedSas.map(sa => saMap[sa]);
+
             if (revenueSaChartInstance) revenueSaChartInstance.destroy();
+
             const ctx = document.getElementById('revenueSaChart').getContext('2d');
             revenueSaChartInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: sortedSas,
-                    datasets: [{ label: 'DPP SA', data: sortedSas.map(sa => saMap[sa]), backgroundColor: '#6366f1', borderRadius: 6 }]
+                    datasets: [{
+                        label: 'Total DPP per Service Advisor (Rp)',
+                        data: saValues,
+                        backgroundColor: '#6366f1',
+                        borderRadius: 6
+                    }]
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false }, datalabels: { display: false } },
-                    scales: { x: { grid: { display: false } }, y: { beginAtZero: true } }
+                    plugins: {
+                        legend: { display: false },
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            color: '#312e81',
+                            font: { weight: 'bold', size: 9 },
+                            formatter: (value) => value > 0 ? formatShortIDR(value) : ''
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` DPP: Rp ${context.parsed.y.toLocaleString('id-ID')}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    if (value >= 1000000) return `Rp ${(value / 1000000).toFixed(0)}Jt`;
+                                    return `Rp ${value}`;
+                                }
+                            }
+                        }
+                    }
                 }
             });
         }
 
         function renderRevenueMonthlyComparisonChart() {
             const monthsShort = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+            const selectedSa = document.getElementById('filterRevSa')?.value || 'ALL';
+
+            const baseRaw = rawRevenueData.filter(item => {
+                if (selectedSa !== 'ALL' && item.sa !== selectedSa) return false;
+                return true;
+            });
+
             const monthlyYearMap = {};
             const yearsSet = new Set();
-            rawRevenueData.forEach(item => {
+            const monthNamesOrdered = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+            baseRaw.forEach(item => {
                 const pDate = parseUniversalDate(item.rawDate);
                 if (!pDate) return;
                 const mIndex = pDate.getMonth();
                 const yearStr = String(pDate.getFullYear());
+                
                 yearsSet.add(yearStr);
                 if (!monthlyYearMap[mIndex]) monthlyYearMap[mIndex] = {};
                 if (!monthlyYearMap[mIndex][yearStr]) monthlyYearMap[mIndex][yearStr] = 0;
+                
                 monthlyYearMap[mIndex][yearStr] += item.dpp;
             });
+
             const sortedYears = Array.from(yearsSet).sort();
             if (sortedYears.length === 0) return;
+
+            const labels = [];
             const datasets = [];
-            const yearColors = ['#10b981', '#6366f1', '#f59e0b', '#ec4899', '#3b82f6'];
+
+            const activeMonths = [];
+            for (let m = 0; m < 12; m++) {
+                if (monthlyYearMap[m]) activeMonths.push(m);
+            }
+
+            labels.push(...activeMonths.map(m => monthNamesOrdered[m]));
+
+            const yearColors = ['#10b981', '#6366f1', '#f59e0b', '#ec4899', '#3b82f6', '#8b5cf6'];
+            
             sortedYears.forEach((year, idx) => {
-                const yearData = [];
-                for (let m = 0; m < 12; m++) {
-                    yearData.push((monthlyYearMap[m] && monthlyYearMap[m][year]) ? monthlyYearMap[m][year] : 0);
-                }
+                const yearData = activeMonths.map(m => (monthlyYearMap[m] && monthlyYearMap[m][year]) ? monthlyYearMap[m][year] : 0);
+                const color = yearColors[idx % yearColors.length];
+
                 datasets.push({
-                    type: 'bar', label: `Tahun ${year}`, data: yearData, backgroundColor: yearColors[idx % yearColors.length], borderRadius: 6
+                    type: 'bar',
+                    label: `Tahun ${year}`,
+                    data: yearData,
+                    backgroundColor: color,
+                    borderRadius: 6,
+                    order: 2
                 });
             });
+
+            const trendLineData = activeMonths.map(m => {
+                let sum = 0, count = 0;
+                sortedYears.forEach(year => {
+                    if (monthlyYearMap[m] && monthlyYearMap[m][year]) {
+                        sum += monthlyYearMap[m][year];
+                        count++;
+                    }
+                });
+                return count > 0 ? sum / count : 0;
+            });
+
+            datasets.push({
+                type: 'line',
+                label: 'Tren Rata-rata Bulanan',
+                data: trendLineData,
+                borderColor: '#ef4444',
+                backgroundColor: '#ef444420',
+                borderWidth: 3,
+                tension: 0.3,
+                fill: false,
+                order: 1
+            });
+
             if (revenueMonthlyComparisonChartInstance) revenueMonthlyComparisonChartInstance.destroy();
+
             const ctx = document.getElementById('revenueMonthlyComparisonChart').getContext('2d');
             revenueMonthlyComparisonChartInstance = new Chart(ctx, {
-                data: { labels: monthsShort, datasets: datasets },
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
                 options: {
                     responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { position: 'top' }, datalabels: { display: false } },
-                    scales: { x: { grid: { display: false } }, y: { beginAtZero: true } }
+                    plugins: {
+                        legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } },
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            color: '#1e293b',
+                            font: { weight: 'bold', size: 9 },
+                            formatter: (value) => (value > 0 && typeof value === 'number') ? formatShortIDR(value) : ''
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` ${context.dataset.label}: Rp ${context.parsed.y.toLocaleString('id-ID')}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    if (value >= 1000000) return `Rp ${(value / 1000000).toFixed(0)}Jt`;
+                                    return `Rp ${value}`;
+                                }
+                            }
+                        }
+                    }
                 }
             });
         }
 
-        // ================= TMS & OTHER LOGIC =================
+        // ================= TOYOTA MOBILE SERVICE (TMS) LOGIC =================
         function processTmsData(rows) {
             if (!rows || rows.length === 0) return { headers: [], rows: [] };
+
             const headers = rows[0].map(h => String(h || '').trim());
             const resultRows = [];
+
             for (let i = 1; i < rows.length; i++) {
                 const r = rows[i];
                 if (!r || r.length === 0) continue;
+
                 const rowObj = {};
-                let hasVal = false;
+                let hasValue = false;
                 for (let j = 0; j < headers.length; j++) {
-                    rowObj[headers[j] || `Col_${j}`] = String(r[j] || '').trim();
-                    if (r[j]) hasVal = true;
+                    const colName = headers[j] || `Col_${j}`;
+                    const val = String(r[j] || '').trim();
+                    rowObj[colName] = val;
+                    if (val && val !== '-') hasValue = true;
                 }
-                if (hasVal) resultRows.push(rowObj);
+
+                if (hasValue) {
+                    resultRows.push(rowObj);
+                }
             }
             return { headers, rows: resultRows };
         }
 
         function applyTmsFilters() {
-            const tbody = document.getElementById('tmsTableBody');
+            const startDateVal = document.getElementById('tmsStartDate')?.value || '';
+            const endDateVal = document.getElementById('tmsEndDate')?.value || '';
+            const startLimit = startDateVal ? new Date(startDateVal + 'T00:00:00') : null;
+            const endLimit = endDateVal ? new Date(endDateVal + 'T23:59:59') : null;
+
+            const dateHeaderKey = tmsHeaders.find(h => {
+                const low = h.toLowerCase();
+                return low.includes('tanggal') || low.includes('date') || low.includes('tgl');
+            });
+
+            const filteredTmsRows = rawTmsData.filter(row => {
+                if (!startLimit && !endLimit) return true;
+                if (!dateHeaderKey) return true;
+                const rowDate = parseUniversalDate(row[dateHeaderKey]);
+                if (!rowDate) return true;
+                if (startLimit && rowDate < startLimit) return false;
+                if (endLimit && rowDate > endLimit) return false;
+                return true;
+            });
+
             const thead = document.getElementById('tmsTableHead');
-            if(!tbody || !thead || !tmsHeaders.length) return;
-            thead.innerHTML = `<tr>${tmsHeaders.map(h => `<th class="py-3 px-4">${h}</th>`).join('')}</tr>`;
-            tbody.innerHTML = rawTmsData.slice(0, 50).map(row => `<tr>${tmsHeaders.map(h => `<td class="py-2.5 px-4">${row[h] || '-'}</td>`).join('')}</tr>`).join('');
-            document.getElementById('kpiTmsTotal').textContent = rawTmsData.length;
+            const tbody = document.getElementById('tmsTableBody');
+            if(!thead || !tbody) return;
+
+            if (!tmsHeaders || tmsHeaders.length === 0) {
+                thead.innerHTML = `<tr><th class="py-3.5 px-4">Data Kosong</th></tr>`;
+                tbody.innerHTML = `<tr><td class="py-6 px-4 text-center text-slate-400">Tidak ada header terdeteksi</td></tr>`;
+                return;
+            }
+
+            thead.innerHTML = `<tr>${tmsHeaders.map(h => `<th class="py-3.5 px-4 bg-slate-100">${h}</th>`).join('')}</tr>`;
+
+            tbody.innerHTML = filteredTmsRows.map(row => {
+                return `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        ${tmsHeaders.map(h => `<td class="py-3.5 px-4 text-slate-700">${row[h] || '-'}</td>`).join('')}
+                    </tr>
+                `;
+            }).join('');
+
+            const totalKunjungan = filteredTmsRows.length;
+
+            const nopolHeaderKey = tmsHeaders[1] || tmsHeaders.find(h => {
+                const low = h.toLowerCase();
+                return low.includes('nopol') || low.includes('plat') || low.includes('nomor');
+            }) || tmsHeaders[0];
+
+            const normVal = (str) => String(str || '').replace(/[\s-]/g, '').toUpperCase();
+
+            let countCzi = 0;
+            let countSrr = 0;
+
+            filteredTmsRows.forEach(row => {
+                const val = normVal(row[nopolHeaderKey]);
+                if (val === 'B1092CZI') countCzi++;
+                if (val === 'B2953SRR') countSrr++;
+            });
+
+            const pctCzi = totalKunjungan > 0 ? ((countCzi / totalKunjungan) * 100).toFixed(1) : 0;
+            const pctSrr = totalKunjungan > 0 ? ((countSrr / totalKunjungan) * 100).toFixed(1) : 0;
+
+            document.getElementById('kpiTmsTotal').textContent = totalKunjungan.toLocaleString('id-ID');
+            document.getElementById('kpiTmsCzi').textContent = `${countCzi} Unit`;
+            document.getElementById('pctTmsCzi').textContent = `${pctCzi}% dari Total Kunjungan`;
+            document.getElementById('kpiTmsSrr').textContent = `${countSrr} Unit`;
+            document.getElementById('pctTmsSrr').textContent = `${pctSrr}% dari Total Kunjungan`;
+            document.getElementById('tms-data-count').textContent = `${totalKunjungan} Records`;
+
+            renderTmsCity3DChart(filteredTmsRows);
+            renderTmsDistance3DChart(filteredTmsRows);
+            renderTmsVehicleTrendCharts(rawTmsData, nopolHeaderKey, dateHeaderKey);
+            
+            lucide.createIcons();
         }
 
-        function openBookingModal(type) { openBookingModalCustom(`Detail: ${type}`, `Daftar unit ${type}`, filteredBookingData, type); }
-        function openMraModal(mra, type) { openBookingModalCustom(`MRA: ${mra} (${type})`, `Rincian MRA`, filteredBookingData, type); }
-        function openBookingModalCustom(title, subtitle, list, type) {
+        function simplifyCityName(rawCity) {
+            if (!rawCity || rawCity === '-') return 'Lainnya';
+            let upper = String(rawCity).trim().toUpperCase();
+            
+            if (upper.includes('KARAWANG') || upper.includes('KRW') || upper.includes('TELUKJAMBE') || upper.includes('CIAMPEL') || upper.includes('KOTABARU')) return 'Karawang';
+            if (upper.includes('PURWAKARTA') || upper.includes('PWK')) return 'Purwakarta';
+            if (upper.includes('SUBANG')) return 'Subang';
+            if (upper.includes('CIKARANG') || upper.includes('BEKASI') || upper.includes('TAMBUN') || upper.includes('CIBITUNG')) return 'Bekasi / Cikarang';
+            if (upper.includes('BANDUNG') || upper.includes('CIMAHI')) return 'Bandung Raya';
+            if (upper.includes('JAKARTA') || upper.includes('DKI')) return 'Jakarta';
+
+            let cleaned = rawCity.split(/[\/,(-]/)[0].trim();
+            return cleaned.charAt(0).toUpperCase() + cleaned.slice(1).toLowerCase();
+        }
+
+        function renderTmsCity3DChart(rows) {
+            const cityHeaderKey = tmsHeaders[25] || tmsHeaders.find(h => {
+                const low = h.toLowerCase();
+                return low.includes('kota') || low.includes('wilayah') || low.includes('lokasi') || low.includes('area');
+            }) || tmsHeaders[2] || tmsHeaders[0];
+
+            const cityMap = {};
+            rows.forEach(row => {
+                const rawCity = String(row[cityHeaderKey] || '').trim();
+                const city = simplifyCityName(rawCity);
+                if (city) {
+                    cityMap[city] = (cityMap[city] || 0) + 1;
+                }
+            });
+
+            const dataPoints = Object.keys(cityMap).map(city => ({
+                label: city,
+                y: cityMap[city]
+            }));
+
+            if (dataPoints.length === 0) {
+                dataPoints.push({ label: 'Tidak Ada Data', y: 1 });
+            }
+
+            const chart = new CanvasJS.Chart("tmsCity3DChartContainer", {
+                animationEnabled: true,
+                theme: "light2",
+                backgroundColor: "transparent",
+                legend: {
+                    cursor: "pointer",
+                    fontSize: 11,
+                    horizontalAlign: "center",
+                    verticalAlign: "bottom"
+                },
+                data: [{
+                    type: "doughnut",
+                    showInLegend: true,
+                    indexLabelFontSize: 11,
+                    indexLabel: "{label}: #percent%",
+                    toolTipContent: "<b>{label}</b>: {y} Kunjungan (#percent%)",
+                    dataPoints: dataPoints
+                }]
+            });
+            chart.render();
+        }
+
+        function renderTmsDistance3DChart(rows) {
+            const distanceHeaderKey = tmsHeaders[16] || tmsHeaders.find(h => {
+                const low = h.toLowerCase();
+                return low.includes('jarak') || low.includes('km') || low.includes('kilometer') || low.includes('distance');
+            });
+
+            const distanceMap = { '< 25 KM': 0, '26 s/d 50 KM': 0, '51 s/d 75 KM': 0, '76 s/d 100 KM': 0, '> 100 KM': 0 };
+
+            rows.forEach(row => {
+                let kmVal = 0;
+                if (distanceHeaderKey && row[distanceHeaderKey]) {
+                    kmVal = parseNumericValue(row[distanceHeaderKey]);
+                } else {
+                    kmVal = parseNumericValue(Object.values(row)[16]) || 0;
+                }
+
+                if (kmVal <= 25) distanceMap['< 25 KM']++;
+                else if (kmVal <= 50) distanceMap['26 s/d 50 KM']++;
+                else if (kmVal <= 75) distanceMap['51 s/d 75 KM']++;
+                else if (kmVal <= 100) distanceMap['76 s/d 100 KM']++;
+                else distanceMap['> 100 KM']++;
+            });
+
+            const dataPoints = Object.keys(distanceMap).map(label => ({
+                label: label,
+                y: distanceMap[label]
+            })).filter(dp => dp.y > 0);
+
+            if (dataPoints.length === 0) {
+                dataPoints.push({ label: 'Tidak Ada Data', y: 1 });
+            }
+
+            const chart = new CanvasJS.Chart("tmsDistance3DChartContainer", {
+                animationEnabled: true,
+                theme: "light2",
+                backgroundColor: "transparent",
+                legend: {
+                    cursor: "pointer",
+                    fontSize: 11,
+                    horizontalAlign: "center",
+                    verticalAlign: "bottom"
+                },
+                data: [{
+                    type: "doughnut",
+                    showInLegend: true,
+                    indexLabelFontSize: 11,
+                    indexLabel: "{label}: #percent%",
+                    toolTipContent: "<b>{label}</b>: {y} Kunjungan (#percent%)",
+                    dataPoints: dataPoints
+                }]
+            });
+            chart.render();
+        }
+
+        function renderTmsVehicleTrendCharts(rows, nopolKey, dateKey) {
+            const monthsShort = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+            const normVal = (str) => String(str || '').replace(/[\s-]/g, '').toUpperCase();
+
+            const cziMap = {};
+            const srrMap = {};
+
+            rows.forEach(row => {
+                const nopol = normVal(row[nopolKey]);
+                if (nopol !== 'B1092CZI' && nopol !== 'B2953SRR') return;
+
+                const dateVal = dateKey ? row[dateKey] : null;
+                const pDate = parseUniversalDate(dateVal);
+                if (!pDate) return;
+
+                const monthKey = `${pDate.getFullYear()}-${String(pDate.getMonth() + 1).padStart(2, '0')}`;
+                const displayLabel = `${monthsShort[pDate.getMonth()]} ${pDate.getFullYear()}`;
+
+                if (nopol === 'B1092CZI') {
+                    if (!cziMap[monthKey]) cziMap[monthKey] = { label: displayLabel, count: 0 };
+                    cziMap[monthKey].count++;
+                } else if (nopol === 'B2953SRR') {
+                    if (!srrMap[monthKey]) srrMap[monthKey] = { label: displayLabel, count: 0 };
+                    srrMap[monthKey].count++;
+                }
+            });
+
+            const sortedCziKeys = Object.keys(cziMap).sort();
+            const cziLabels = sortedCziKeys.map(k => cziMap[k].label);
+            const cziDataVals = sortedCziKeys.map(k => cziMap[k].count);
+
+            const sortedSrrKeys = Object.keys(srrMap).sort();
+            const srrLabels = sortedSrrKeys.map(k => srrMap[k].label);
+            const srrDataVals = sortedSrrKeys.map(k => srrMap[k].count);
+
+            if (tmsTrendCziInstance) tmsTrendCziInstance.destroy();
+            const ctxCzi = document.getElementById('tmsTrendCziChart').getContext('2d');
+            tmsTrendCziInstance = new Chart(ctxCzi, {
+                type: 'line',
+                data: {
+                    labels: cziLabels.length > 0 ? cziLabels : ['-'],
+                    datasets: [{
+                        label: 'Kunjungan B-1092-CZI',
+                        data: cziDataVals.length > 0 ? cziDataVals : [0],
+                        borderColor: '#10b981',
+                        backgroundColor: '#10b98120',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } },
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            color: '#065f46',
+                            font: { weight: 'bold', size: 10 },
+                            formatter: (value) => value > 0 ? value : ''
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { beginAtZero: true, ticks: { precision: 0 } }
+                    }
+                }
+            });
+
+            if (tmsTrendSrrInstance) tmsTrendSrrInstance.destroy();
+            const ctxSrr = document.getElementById('tmsTrendSrrChart').getContext('2d');
+            tmsTrendSrrInstance = new Chart(ctxSrr, {
+                type: 'line',
+                data: {
+                    labels: srrLabels.length > 0 ? srrLabels : ['-'],
+                    datasets: [{
+                        label: 'Kunjungan B-2953-SRR',
+                        data: srrDataVals.length > 0 ? srrDataVals : [0],
+                        borderColor: '#a855f7',
+                        backgroundColor: '#a855f720',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } },
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            color: '#581c87',
+                            font: { weight: 'bold', size: 10 },
+                            formatter: (value) => value > 0 ? value : ''
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { beginAtZero: true, ticks: { precision: 0 } }
+                    }
+                }
+            });
+        }
+
+        function openMraModal(mraName, statusType) {
+            let list = filteredBookingData.filter(d => {
+                if(d.mra !== mraName) return false;
+                const bocStr = String(d.tglBoc || '').trim();
+                return bocStr !== '' && bocStr !== '-' && bocStr.toLowerCase() !== 'undefined' && bocStr.toLowerCase() !== 'null';
+            });
+
+            if (statusType === 'TOTAL DATANG') {
+                list = list.filter(d => {
+                    const st = d.status.toUpperCase();
+                    return st === 'DATANG' || st === 'SBE' || st === 'GRP' || (st.includes('DATANG') && !st.includes('TIDAK') && !st.includes('BELUM'));
+                });
+            } else if (statusType === 'TIDAK DATANG') {
+                list = list.filter(d => d.status.toUpperCase().includes('TIDAK') || d.status.toUpperCase().includes('CANCEL'));
+            } else if (statusType === 'BELUM DATANG') {
+                list = list.filter(d => d.status.toUpperCase().includes('BELUM'));
+            } else if (statusType === 'BATAL') {
+                list = list.filter(d => {
+                    const st = d.status.toUpperCase();
+                    const bVal = String(d.batal || '').trim();
+                    const isBatalColumnFilled = bVal !== '' && bVal !== '-' && bVal.toLowerCase() !== 'undefined';
+                    const isStatusBatal = st.includes('BATAL') || st.includes('CANCEL');
+                    return isBatalColumnFilled || isStatusBatal;
+                });
+            }
+            openBookingModalCustom(`Detail MRA: ${mraName} (${statusType})`, `Menampilkan rincian nopol unit untuk MRA ${mraName}`, list, statusType);
+        }
+
+        function openBookingModal(type) {
+            const startDateVal = document.getElementById('startDate').value;
+            const endDateVal = document.getElementById('endDate').value;
+            const selectedMra = document.getElementById('filterMra').value;
+            const startLimit = startDateVal ? new Date(startDateVal + 'T00:00:00') : null;
+            const endLimit = endDateVal ? new Date(endDateVal + 'T23:59:59') : null;
+
+            let list = rawBookingData.filter(item => {
+                if (selectedMra !== 'ALL' && item.mra !== selectedMra) return false;
+                const bocStr = String(item.tglBoc || '').trim();
+                const isValidBoc = bocStr !== '' && bocStr !== '-' && bocStr.toLowerCase() !== 'undefined' && bocStr.toLowerCase() !== 'null';
+                if (!isValidBoc) return false;
+
+                if (startLimit || endLimit) {
+                    const bocDate = parseUniversalDate(item.tglBoc);
+                    if (bocDate) {
+                        if (startLimit && bocDate < startLimit) return false;
+                        if (endLimit && bocDate > endLimit) return false;
+                    } else {
+                        return false;
+                    }
+                }
+                return true;
+            });
+
+            if (type === 'TOTAL DATANG') {
+                list = list.filter(d => {
+                    const st = d.status.toUpperCase();
+                    return st === 'DATANG' || st === 'SBE' || st === 'GRP' || (st.includes('DATANG') && !st.includes('TIDAK') && !st.includes('BELUM'));
+                });
+            } else if (type === 'TIDAK DATANG') {
+                list = list.filter(d => d.status.toUpperCase().includes('TIDAK') || d.status.toUpperCase().includes('CANCEL'));
+            } else if (type === 'BELUM DATANG') {
+                list = list.filter(d => d.status.toUpperCase().includes('BELUM'));
+            } else if (type === 'BATAL') {
+                list = list.filter(d => {
+                    const st = d.status.toUpperCase();
+                    const bVal = String(d.batal || '').trim();
+                    const isBatalColumnFilled = bVal !== '' && bVal !== '-' && bVal.toLowerCase() !== 'undefined';
+                    const isStatusBatal = st.includes('BATAL') || st.includes('CANCEL');
+                    return isBatalColumnFilled || isStatusBatal;
+                });
+            } else if (type === 'SHOW RATE') {
+                list = list.filter(d => {
+                    const st = d.status.toUpperCase();
+                    return st === 'DATANG' || st === 'SBE' || st === 'GRP' || (st.includes('DATANG') && !st.includes('TIDAK') && !st.includes('BELUM'));
+                });
+            }
+
+            openBookingModalCustom(`Detail KPI: ${type}`, `Menampilkan daftar rincian kendaraan (${type})`, list, type);
+        }
+
+        function openBookingModalCustom(title, subtitle, list, modalType) {
             document.getElementById('bookingModalTitle').textContent = title;
             document.getElementById('bookingModalSubtitle').textContent = subtitle;
-            document.getElementById('bookingModalTableHeader').innerHTML = `<tr><th class="py-3 px-2">Nopol</th><th class="py-3 px-2">MRA</th><th class="py-3 px-2">Status</th></tr>`;
-            document.getElementById('bookingModalTableBody').innerHTML = list.map(item => `<tr><td class="py-2 px-2 font-bold">${item.nopol}</td><td class="py-2 px-2">${item.mra}</td><td class="py-2 px-2">${item.status}</td></tr>`).join('');
-            document.getElementById('bookingModalRecordCount').textContent = `Total: ${list.length}`;
+            const thead = document.getElementById('bookingModalTableHeader');
+            const tbody = document.getElementById('bookingModalTableBody');
+            
+            const upperModalType = (modalType || '').toUpperCase();
+            const isModulTidakDatang = upperModalType === 'TIDAK DATANG' || upperModalType.includes('TIDAK DATANG');
+
+            let headerActionHtml = isModulTidakDatang ? `<th class="py-3 px-2 text-center">Aksi</th>` : '';
+
+            thead.innerHTML = `
+                <tr>
+                    <th class="py-3 px-2 text-left">Nomor Polisi</th>
+                    <th class="py-3 px-2 text-left">Nama MRA</th>
+                    <th class="py-3 px-2 text-left">Tgl BOC</th>
+                    <th class="py-3 px-2 text-left">Booking Untuk Tgl</th>
+                    <th class="py-3 px-2 text-left">Status</th>
+                    <th class="py-3 px-2 text-center">Reschedule 1</th>
+                    <th class="py-3 px-2 text-center">Reschedule 2</th>
+                    <th class="py-3 px-2 text-center">Reschedule 3</th>
+                    <th class="py-3 px-2 text-center">Batal</th>
+                    <th class="py-3 px-2 text-left">Remarks</th>
+                    ${headerActionHtml}
+                </tr>
+            `;
+
+            tbody.innerHTML = '';
+            if (!list || list.length === 0) {
+                const colSpanCount = isModulTidakDatang ? 11 : 10;
+                tbody.innerHTML = `<tr><td colspan="${colSpanCount}" class="py-6 text-center text-slate-400">Tidak ada data unit ditemukan.</td></tr>`;
+            } else {
+                list.forEach(item => {
+                    tbody.appendChild(createBookingRow(item, modalType));
+                });
+            }
+            document.getElementById('bookingModalRecordCount').textContent = `Total: ${list.length} Record`;
             document.getElementById('bookingModal').classList.remove('hidden');
+            lucide.createIcons();
         }
+
+        function createBookingRow(item, modalType) {
+            const stUpper = item.status.toUpperCase();
+            const isTidakDatang = stUpper.includes('TIDAK') || stUpper.includes('CANCEL') || stUpper.includes('BATAL');
+
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-slate-50 transition-colors";
+            
+            const upperModalType = (modalType || '').toUpperCase();
+            const isModulTidakDatang = upperModalType === 'TIDAK DATANG' || upperModalType.includes('TIDAK DATANG');
+
+            let r1Html, r2Html, r3Html, batalHtml, remarksHtml, actionHtml = '';
+            const isBatalChecked = String(item.batal || '').trim() !== '' && String(item.batal || '').trim() !== '-';
+
+            if (isModulTidakDatang) {
+                r1Html = `<input type="date" id="rd1_${item.id}" value="${item.resched1Date ? parseUniversalDate(item.resched1Date)?.toISOString().split('T')[0] || '' : ''}" onchange="handleReschedDate(${item.id}, 1, this.value)" class="bg-slate-50 border border-slate-200 rounded px-1.5 py-1 text-[11px] w-32 font-medium focus:outline-none focus:ring-1 focus:ring-red-500">`;
+                r2Html = `<input type="date" id="rd2_${item.id}" value="${item.resched2Date ? parseUniversalDate(item.resched2Date)?.toISOString().split('T')[0] || '' : ''}" onchange="handleReschedDate(${item.id}, 2, this.value)" class="bg-slate-50 border border-slate-200 rounded px-1.5 py-1 text-[11px] w-32 font-medium focus:outline-none focus:ring-1 focus:ring-red-500">`;
+                r3Html = `<input type="date" id="rd3_${item.id}" value="${item.resched3Date ? parseUniversalDate(item.resched3Date)?.toISOString().split('T')[0] || '' : ''}" onchange="handleReschedDate(${item.id}, 3, this.value)" class="bg-slate-50 border border-slate-200 rounded px-1.5 py-1 text-[11px] w-32 font-medium focus:outline-none focus:ring-1 focus:ring-red-500">`;
+                
+                batalHtml = `<div class="flex items-center justify-center"><input type="checkbox" id="batal_${item.id}" ${isBatalChecked ? 'checked' : ''} onchange="handleBatalCheckbox(${item.id}, this.checked)" class="rounded text-red-600 focus:ring-red-500 w-4 h-4 cursor-pointer"></div>`;
+                
+                remarksHtml = `<input type="text" value="${item.remarks || ''}" oninput="handleRemarksInput(${item.id}, this.value)" placeholder="Ketik remarks..." class="bg-slate-50 border border-slate-200 rounded px-2 py-1 text-[11px] w-full focus:outline-none focus:ring-1 focus:ring-red-500 font-medium">`;
+                
+                actionHtml = `<td class="py-2.5 px-2 text-center"><button onclick="saveSingleRowChanges(${item.id}, this)" class="px-2.5 py-1 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors inline-flex items-center gap-1 text-[10px] shadow-sm"><i data-lucide="save" class="w-3 h-3"></i> Simpan</button></td>`;
+            } else {
+                r1Html = item.resched1Date ? `<span class="px-2 py-1 bg-slate-100 border border-slate-200 rounded text-[11px] font-semibold text-slate-700 block text-center">${item.resched1Date}</span>` : `<span class="text-slate-300 text-[10px] italic">-</span>`;
+                r2Html = item.resched2Date ? `<span class="px-2 py-1 bg-slate-100 border border-slate-200 rounded text-[11px] font-semibold text-slate-700 block text-center">${item.resched2Date}</span>` : `<span class="text-slate-300 text-[10px] italic">-</span>`;
+                r3Html = item.resched3Date ? `<span class="px-2 py-1 bg-slate-100 border border-slate-200 rounded text-[11px] font-semibold text-slate-700 block text-center">${item.resched3Date}</span>` : `<span class="text-slate-300 text-[10px] italic">-</span>`;
+                
+                batalHtml = `<div class="flex items-center justify-center"><input type="checkbox" disabled ${isBatalChecked ? 'checked' : ''} class="rounded text-slate-400 w-4 h-4 opacity-70"></div>`;
+                
+                remarksHtml = `<input type="text" value="${item.remarks || ''}" oninput="handleRemarksInput(${item.id}, this.value)" placeholder="Ketik remarks..." class="bg-slate-50 border border-slate-200 rounded px-2 py-1 text-[11px] w-full focus:outline-none focus:ring-1 focus:ring-red-500 font-medium">`;
+            }
+
+            let badgeColor = 'bg-amber-50 text-amber-600 border-amber-200';
+            if (stUpper === 'DATANG' || stUpper === 'SBE' || stUpper === 'GRP' || (stUpper.includes('DATANG') && !stUpper.includes('TIDAK') && !stUpper.includes('BELUM'))) {
+                badgeColor = 'bg-emerald-50 text-emerald-600 border-emerald-200';
+            } else if (isTidakDatang) {
+                badgeColor = 'bg-rose-50 text-rose-600 border-rose-200';
+            }
+
+            tr.innerHTML = `
+                <td class="py-2.5 px-2 font-bold text-slate-900">${item.nopol}</td>
+                <td class="py-2.5 px-2 font-bold text-slate-700">${item.mra}</td>
+                <td class="py-2.5 px-2 font-semibold text-purple-600">${item.tglBoc || '-'}</td>
+                <td class="py-2.5 px-2 text-slate-600 font-medium">${item.tglService}</td>
+                <td class="py-2.5 px-2"><span class="px-2 py-0.5 rounded text-[10px] font-bold border ${badgeColor}">${item.status}</span></td>
+                <td class="py-2.5 px-2 text-center">${r1Html}</td>
+                <td class="py-2.5 px-2 text-center">${r2Html}</td>
+                <td class="py-2.5 px-2 text-center">${r3Html}</td>
+                <td class="py-2.5 px-2 text-center">${batalHtml}</td>
+                <td class="py-2.5 px-2">${remarksHtml}</td>
+                ${actionHtml}
+            `;
+            return tr;
+        }
+
+        function handleReschedDate(id, level, dateVal) {
+            const item = rawBookingData.find(d => d.id === id);
+            if (!item) return;
+            const formatted = dateVal ? formatDisplayDate(dateVal) : '';
+            if (level === 1) item.resched1Date = formatted;
+            if (level === 2) item.resched2Date = formatted;
+            if (level === 3) item.resched3Date = formatted;
+        }
+
+        function handleBatalCheckbox(id, isChecked) {
+            const item = rawBookingData.find(d => d.id === id);
+            if (item) item.batal = isChecked ? 'YA' : '';
+        }
+
+        function handleRemarksInput(id, val) {
+            const item = rawBookingData.find(d => d.id === id);
+            if (item) item.remarks = val;
+        }
+
+        function saveSingleRowChanges(id, btnElement) {
+            const item = rawBookingData.find(d => d.id === id);
+            if (!item) return;
+
+            btnElement.disabled = true;
+            btnElement.innerHTML = `<i data-lucide="check" class="w-3 h-3"></i> Tersimpan`;
+            btnElement.className = "px-2.5 py-1 bg-emerald-600 text-white font-semibold rounded-lg transition-colors inline-flex items-center gap-1 text-[10px] shadow-sm";
+            lucide.createIcons();
+
+            const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbx9Okt-9T8NqzonAhwAVrLHVr09Qa7fuWr_347tAKwz_c4Hhpq4e0WypLAUQ7_vX7fmCQ/exec'; 
+
+            const payloadObject = {
+                id: item.id,
+                "Nomor Polisi": item.nopol,
+                "Nama MRA": item.mra,
+                "Tanggal BOC": item.tglBoc,
+                "Service Tanggal": item.tglService,
+                "Status": item.status,
+                "Reschedule 1": item.resched1Date,
+                "Reschedule 2": item.resched2Date,
+                "Reschedule 3": item.resched3Date,
+                "Batal": item.batal,
+                "Remarks": item.remarks
+            };
+
+            const payload = new URLSearchParams();
+            payload.append('data', JSON.stringify([payloadObject]));
+
+            if (navigator.sendBeacon) {
+                navigator.sendBeacon(WEB_APP_URL, payload);
+            } else {
+                fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: payload
+                }).catch(() => {});
+            }
+        }
+
+        function refreshModalTableContent() {
+            const title = document.getElementById('bookingModalTitle').textContent;
+            if (title.includes('BOOKING ON CALL')) {
+                openBookingModal('BOOKING ON CALL');
+            } else if (title.includes('Detail MRA:')) {
+                const match = title.match(/Detail MRA: (.*?) \((.*?)\)/);
+                if (match) openMraModal(match[1], match[2]);
+            } else {
+                const typeMap = {
+                    'Detail KPI: TOTAL DATANG': 'TOTAL DATANG',
+                    'Detail KPI: TIDAK DATANG': 'TIDAK DATANG',
+                    'Detail KPI: BELUM DATANG': 'BELUM DATANG',
+                    'Detail KPI: BATAL': 'BATAL',
+                    'Detail KPI: SHOW RATE': 'SHOW RATE'
+                };
+                for (let key in typeMap) {
+                    if (title.includes(typeMap[key])) {
+                        openBookingModal(typeMap[key]);
+                        break;
+                    }
+                }
+            }
+        }
+
         function closeBookingModal() { document.getElementById('bookingModal').classList.add('hidden'); }
-        function openSopKPIModal(st, title) { openSopDetailModal(); }
-        function closeSopKPIModal() { closeSopDetailModal(); }
-        function showSopDetail(idx) { document.getElementById('sopDetailModal').classList.remove('hidden'); }
+
+        // ================= SPECIAL ORDER PART (SOP) LOGIC =================
+        function groupSopByCodeMatrix(masterRows, detailRows) {
+            const detailMap = {};
+            
+            if (detailRows && detailRows.length > 0) {
+                for (let i = 0; i < detailRows.length; i++) {
+                    const r = detailRows[i];
+                    if (!r || !r[0]) continue;
+                    
+                    const code = String(r[0]).trim().toUpperCase();
+                    if (!code || code === 'CODE') continue;
+                    
+                    if (!detailMap[code]) detailMap[code] = [];
+                    detailMap[code].push({
+                        'No Part': String(r[1] || '').trim(),
+                        'Qty': String(r[2] || '1').trim(),
+                        'Nama Part': String(r[3] || '').trim()
+                    });
+                }
+            }
+
+            const map = {};
+            if (masterRows && masterRows.length > 1) {
+                for (let i = 1; i < masterRows.length; i++) {
+                    const r = masterRows[i];
+                    if (!r || !r[0]) continue;
+                    
+                    const originalCode = String(r[0]).trim();
+                    const lookupCode = originalCode.toUpperCase();
+                    if (!lookupCode) continue;
+
+                    let items = detailMap[lookupCode];
+                    if (!items || items.length === 0) {
+                        items = [{
+                            'No Part': '-',
+                            'Qty': '1',
+                            'Nama Part': '-'
+                        }];
+                    }
+
+                    if (!map[lookupCode]) {
+                        map[lookupCode] = {
+                            Code: originalCode,
+                            'Nama SA': String(r[1] || '').trim(),
+                            'No Kendaraan': String(r[2] || '').trim(),
+                            'Tanggal Order': String(r[3] || '').trim(),
+                            'Tipe Order': String(r[4] || '').trim(),
+                            'ETA B/O': String(r[5] || '').trim(),
+                            'Aktual Kedatangan': String(r[6] || '').trim(),
+                            'Tanggal Pasang': String(r[7] || '').trim(),
+                            'Status Part': String(r[8] || '').trim(),
+                            items: items
+                        };
+                    }
+                }
+            }
+            return Object.values(map);
+        }
+
+        function populateSopSAFilter() {
+            const select = document.getElementById('sop-filter-sa');
+            if(!select) return;
+            const current = select.value;
+            const saList = [...new Set(groupedSopData.map(i => i['Nama SA']).filter(Boolean))].sort();
+            select.innerHTML = '<option value="">Semua SA</option>';
+            saList.forEach(sa => {
+                const opt = document.createElement('option');
+                opt.value = sa; opt.textContent = sa;
+                if(sa === current) opt.selected = true;
+                select.appendChild(opt);
+            });
+        }
+
+        function applySopFilters() {
+            const search = document.getElementById('sop-search')?.value.toLowerCase() || '';
+            const sa = document.getElementById('sop-filter-sa')?.value || '';
+            const status = document.getElementById('sop-filter-status')?.value || '';
+            const start = document.getElementById('sop-filter-start')?.value || '';
+            const end = document.getElementById('sop-filter-end')?.value || '';
+
+            filteredSopData = groupedSopData.filter(i => {
+                const codeMatch = String(i['Code'] || '').toLowerCase().includes(search);
+                const vehicleMatch = String(i['No Kendaraan'] || '').toLowerCase().includes(search);
+                const partMatch = i.items.some(it => 
+                    String(it['No Part']).toLowerCase().includes(search) || 
+                    String(it['Nama Part']).toLowerCase().includes(search)
+                );
+                const matchesSearch = !search || codeMatch || vehicleMatch || partMatch;
+
+                const matchesSA = !sa || i['Nama SA'] === sa;
+                
+                let matchesStatus = true;
+                if (status) {
+                    const itemStatus = i['Status Part'].toUpperCase().trim();
+                    const filterStatusUpper = status.toUpperCase().trim();
+                    if (filterStatusUpper === 'TUNGGU PASANG') {
+                        matchesStatus = itemStatus === 'TUNGGU PASANG';
+                    } else {
+                        matchesStatus = itemStatus.includes(filterStatusUpper);
+                    }
+                }
+                
+                let matchesDate = true;
+                if (start || end) {
+                    const d = parseUniversalDate(i['Tanggal Order']);
+                    if (d) {
+                        if (start && d < new Date(start)) matchesDate = false;
+                        if (end) { 
+                            const ed = new Date(end); 
+                            ed.setHours(23,59,59); 
+                            if (d > ed) matchesDate = false; 
+                        }
+                    } else {
+                        matchesDate = false;
+                    }
+                }
+                return matchesSearch && matchesSA && matchesStatus && matchesDate;
+            });
+
+            filteredSopData.sort((a,b) => (parseUniversalDate(b['Tanggal Order']) || 0) - (parseUniversalDate(a['Tanggal Order']) || 0));
+            updateSopUI();
+        }
+
+        function updateSopUI() {
+            renderSopKPIs(); 
+            renderSopTable(); 
+            renderSopCharts();
+            const countEl = document.getElementById('sop-data-count');
+            if(countEl) countEl.innerText = `${filteredSopData.length} Records (Grouped)`;
+        }
+
+        function renderSopKPIs() {
+            const getLen = (st) => {
+                const upperSt = st.toUpperCase().trim();
+                return groupedSopData.filter(i => {
+                    const itemStatus = i['Status Part'].toUpperCase().trim();
+                    if (upperSt === 'TUNGGU PASANG') {
+                        return itemStatus === 'TUNGGU PASANG';
+                    }
+                    return itemStatus.includes(upperSt);
+                }).length;
+            };
+
+            const counts = { 
+                total: groupedSopData.length, 
+                sedang: getLen('SEDANG ORDER'),
+                bo: getLen('B/O'), 
+                pasang: getLen('TUNGGU PASANG'), 
+                konf: getLen('Konfirmasi Jadwal'), 
+                terpasang: getLen('Terpasang') 
+            };
+            
+            if(document.getElementById('sop-kpi-total')) document.getElementById('sop-kpi-total').innerText = counts.total;
+            if(document.getElementById('sop-kpi-sedang')) document.getElementById('sop-kpi-sedang').innerText = counts.sedang;
+            if(document.getElementById('sop-kpi-bo')) document.getElementById('sop-kpi-bo').innerText = counts.bo;
+            if(document.getElementById('sop-kpi-pasang')) document.getElementById('sop-kpi-pasang').innerText = counts.pasang;
+            if(document.getElementById('sop-kpi-konfirmasi')) document.getElementById('sop-kpi-konfirmasi').innerText = counts.konf;
+            if(document.getElementById('sop-kpi-terpasang')) document.getElementById('sop-kpi-terpasang').innerText = counts.terpasang;
+        }
+
+        function getSopStatusColor(st) {
+            if(!st) return 'bg-slate-100 text-slate-500 border-slate-200';
+            const statusUpper = st.toUpperCase().trim();
+            if (statusUpper.includes('SEDANG ORDER')) return 'bg-purple-50 text-purple-600 border-purple-200';
+            if (statusUpper.includes('B/O')) return 'bg-red-50 text-red-600 border-red-200';
+            if (statusUpper.includes('KONFIRMASI JADWAL')) return 'bg-amber-50 text-amber-600 border-amber-200';
+            if (statusUpper === 'TUNGGU PASANG') return 'bg-blue-50 text-blue-600 border-blue-200';
+            if (statusUpper.includes('TERPASANG')) return 'bg-emerald-50 text-emerald-600 border-emerald-200';
+            return 'bg-slate-100 text-slate-500 border-slate-200';
+        }
+
+        function renderSopTable() {
+            const tbody = document.getElementById('sop-table-body');
+            if(!tbody) return;
+            
+            tbody.innerHTML = filteredSopData.map((i, idx) => {
+                return `
+                    <tr class="hover:bg-slate-50 transition-colors cursor-pointer" onclick="showSopDetail(${idx})">
+                        <td class="px-4 py-4 font-mono text-slate-700 text-[11px] font-bold">${i['Code'] || '-'}</td>
+                        <td class="px-4 py-4 font-bold text-slate-800">${i['Nama SA'] || '-'}</td>
+                        <td class="px-4 py-4 font-bold text-indigo-600">${i['No Kendaraan'] || '-'}</td>
+                        <td class="px-4 py-4 text-slate-500 font-medium">${i['Tanggal Order'] || '-'}</td>
+                        <td class="px-4 py-4"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold border ${getSopStatusColor(i['Status Part'])}">${i['Status Part'] || '-'}</span></td>
+                        <td class="px-4 py-4 text-center text-slate-400 hover:text-indigo-600"><i data-lucide="eye" class="w-4 h-4 mx-auto"></i></td>
+                    </tr>`;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function renderSopCharts() {
+            Object.values(sopCharts).forEach(c => c.destroy());
+            
+            const partMap = {};
+            filteredSopData.forEach(i => { 
+                i.items.forEach(it => {
+                    const p = (it['No Part'] || '').trim(); 
+                    const q = parseInt(it['Qty']) || 1;
+                    if(p && p !== '-') partMap[p] = (partMap[p] || 0) + q; 
+                });
+            });
+            const top = Object.entries(partMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
+
+            const ctxTop = document.getElementById('sopTopPartChart');
+            if(ctxTop) {
+                sopCharts.top = new Chart(ctxTop.getContext('2d'), {
+                    type: 'bar',
+                    data: { labels: top.map(x=>x[0]), datasets: [{ data: top.map(x=>x[1]), backgroundColor: '#6366f1', borderRadius: 6 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { display: false } } }
+                });
+            }
+
+            let tiba = 0, boTot = 0, boTiba = 0, boPend = 0;
+            filteredSopData.forEach(i => {
+                const etaVal = String(i['ETA B/O'] || '').trim();
+                const actVal = String(i['Aktual Kedatangan'] || '').trim();
+                const statusVal = String(i['Status Part'] || '').toUpperCase().trim();
+
+                const isTiba = actVal !== '' && actVal !== '-' || statusVal.includes('TERPASANG') || statusVal === 'TUNGGU PASANG';
+                const isBo = etaVal !== '' && etaVal !== '-' || statusVal.includes('B/O');
+
+                if (isTiba) tiba++;
+                if (isBo) {
+                    boTot++;
+                    if (isTiba) {
+                        boTiba++;
+                    } else {
+                        boPend++;
+                    }
+                }
+            });
+            
+            if(document.getElementById('sop-stat-total')) document.getElementById('sop-stat-total').innerText = filteredSopData.length;
+            if(document.getElementById('sop-stat-suplai')) document.getElementById('sop-stat-suplai').innerText = tiba;
+            if(document.getElementById('sop-stat-total-bo')) document.getElementById('sop-stat-total-bo').innerText = boTot;
+            if(document.getElementById('sop-stat-bo-suplai')) document.getElementById('sop-stat-bo-suplai').innerText = boTiba;
+
+            const ctxRatio = document.getElementById('sopSupplyRatioChart');
+            if(ctxRatio) {
+                sopCharts.ratio = new Chart(ctxRatio.getContext('2d'), {
+                    type: 'doughnut',
+                    data: { labels: ['BO Tiba', 'BO Pending', 'Direct'], datasets: [{ data: [boTiba, boPend, Math.max(0, tiba-boTiba)], backgroundColor: ['#6366f1', '#ef4444', '#10b981'], borderWeight: 0 }] },
+                    options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } }, datalabels: { display: false } } }
+                });
+            }
+
+            let ltTot=0, ltCnt=0, ltMax=0; const ltD=[], ltL=[];
+            filteredSopData.forEach(i => {
+                const o = parseUniversalDate(i['Tanggal Order']), a = parseUniversalDate(i['Aktual Kedatangan']);
+                if(o && a) {
+                    const diffTime = a - o;
+                    if (diffTime >= 0) {
+                        const d = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        ltTot += d; ltCnt++; 
+                        if(d > ltMax) ltMax = d;
+                        ltD.push(d); ltL.push(i['Code'] || 'N/A');
+                    }
+                }
+            });
+            
+            if(document.getElementById('sop-avg-lt')) document.getElementById('sop-avg-lt').innerText = ltCnt ? (ltTot/ltCnt).toFixed(1)+'d' : '0d';
+            if(document.getElementById('sop-max-lt')) document.getElementById('sop-max-lt').innerText = ltMax+'d';
+            
+            const ctxLt = document.getElementById('sopLeadTimeChart');
+            if(ctxLt) {
+                sopCharts.lt = new Chart(ctxLt.getContext('2d'), {
+                    type: 'bar',
+                    data: { labels: ltL.slice(0,15), datasets: [{ data: ltD.slice(0,15), backgroundColor: '#ef4444', borderRadius: 4 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { display: false } } }
+                });
+            }
+        }
+
+        function showSopDetail(idx) {
+            const i = filteredSopData[idx];
+            const partsListHtml = i.items.map(it => `
+                <div class="bg-white p-2.5 rounded-xl border border-slate-200 mb-2 shadow-sm">
+                    <p class="text-slate-800 font-semibold text-xs mt-0.5 truncate-part" title="${it['No Part'] || '-'} - ${it['Nama Part'] || '-'}"><strong class="font-mono text-indigo-600">${it['No Part'] || '-'}</strong> - ${it['Nama Part'] || '-'}</p>
+                    <p class="text-[10px] text-slate-500 mt-1 font-bold">Qty: <span class="text-indigo-600">${it['Qty'] || '1'}</span></p>
+                </div>
+            `).join('');
+
+            document.getElementById('sopModalContent').innerHTML = `
+                <div class="grid grid-cols-2 gap-4 text-xs">
+                    <div class="col-span-2 bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
+                        <p class="text-[9px] font-bold text-slate-400 uppercase mb-1">Code Order</p>
+                        <p class="font-mono text-indigo-600 font-bold text-sm">${i['Code'] || '-'}</p>
+                    </div>
+                    <div class="col-span-2 bg-slate-100/70 p-3 rounded-2xl max-h-52 overflow-y-auto">
+                        <p class="text-[9px] font-bold text-slate-400 uppercase mb-2">Daftar Suku Cadang (No Part - Nama Part - Qty)</p>
+                        <div class="space-y-1">${partsListHtml}</div>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-2xl">
+                        <p class="text-[9px] font-bold text-slate-400 uppercase mb-1">Service Advisor</p>
+                        <p class="font-bold text-slate-800">${i['Nama SA'] || '-'}</p>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-2xl">
+                        <p class="text-[9px] font-bold text-slate-400 uppercase mb-1">No Polisi</p>
+                        <p class="font-bold text-indigo-600 uppercase">${i['No Kendaraan'] || '-'}</p>
+                    </div>
+                    <div class="space-y-3">
+                        <div><p class="text-[9px] font-bold text-slate-400 uppercase">Tgl Order</p><p class="font-semibold text-slate-700">${i['Tanggal Order'] || '-'}</p></div>
+                        <div><p class="text-[9px] font-bold text-slate-400 uppercase">Tgl Pasang</p><p class="font-semibold text-slate-700">${i['Tanggal Pasang'] || '-'}</p></div>
+                    </div>
+                    <div class="space-y-3">
+                        <div><p class="text-[9px] font-bold text-slate-400 uppercase">ETA B/O</p><p class="font-bold text-red-500">${i['ETA B/O'] || '-'}</p></div>
+                        <div><p class="text-[9px] font-bold text-slate-400 uppercase">Status</p><span class="px-2 py-0.5 rounded text-[9px] font-bold border ${getSopStatusColor(i['Status Part'])}">${i['Status Part'] || '-'}</span></div>
+                    </div>
+                </div>`;
+            document.getElementById('sopDetailModal').classList.remove('hidden');
+        }
+
         function closeSopDetailModal() { document.getElementById('sopDetailModal').classList.add('hidden'); }
+
+        function openSopKPIModal(st, title) {
+            const upperSt = st.toUpperCase().trim();
+            const targetList = st ? groupedSopData.filter(i => {
+                const itemStatus = i['Status Part'].toUpperCase().trim();
+                if (upperSt === 'TUNGGU PASANG') {
+                    return itemStatus === 'TUNGGU PASANG';
+                }
+                return itemStatus.includes(upperSt);
+            }) : groupedSopData;
+
+            document.getElementById('sopKpiModalTitle').innerText = title;
+            document.getElementById('sopKpiModalTableBody').innerHTML = targetList.map(i => {
+                return `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-4 py-3 font-mono text-[10px] font-bold text-slate-700">${i['Code'] || '-'}</td>
+                        <td class="px-4 py-3 font-bold text-slate-700">${i['Nama SA'] || '-'}</td>
+                        <td class="px-4 py-3 font-bold text-indigo-600">${i['No Kendaraan'] || '-'}</td>
+                        <td class="px-4 py-3"><span class="px-2 py-0.5 rounded text-[9px] font-bold border ${getSopStatusColor(i['Status Part'])}">${i['Status Part'] || '-'}</span></td>
+                    </tr>`;
+            }).join('');
+            document.getElementById('sopKpiModal').classList.add('flex');
+            document.getElementById('sopKpiModal').classList.remove('hidden');
+        }
+
+        function closeSopKPIModal() { 
+            document.getElementById('sopKpiModal').classList.remove('flex');
+            document.getElementById('sopKpiModal').classList.add('hidden'); 
+        }
     </script>
 
     <!-- REACT SCRIPT UNTUK VIEW KPI -->
     <script type="text/babel">
         const { useState, useEffect, useCallback, useMemo } = React;
-        const { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } = Recharts;
+        const { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Legend } = Recharts;
 
         const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwG_6kdTltJTQg-dLycjRmRCWdw9XO-eym-7UIm8bXxK4XJylbvgw2WWgNftOll7fn9/exec";
         const uid = () => Math.random().toString(36).slice(2, 10);
@@ -2751,43 +3577,68 @@
         }
 
         function achievement(sub) {
-            const t = Number(sub.target), a = Number(sub.actual);
+            const t = Number(sub.target);
+            const a = Number(sub.actual);
             if (!t || Number.isNaN(t)) return 0;
-            if (sub.inverse) return Math.min(130, (t / (a || 1)) * 100);
-            return Math.min(130, (a / t) * 100);
+            if (sub.inverse) {
+                if (!a || Number.isNaN(a)) return 0;
+                return Math.min(130, (t / a) * 100); 
+            }
+            if (Number.isNaN(a)) return 0;
+            return Math.min(130, (a / t) * 100); 
         }
-        function subScore(sub, catWeight) { return ((Number(sub.subWeight) || 0) / 100) * ((Number(catWeight) || 0) / 100) * achievement(sub); }
-        function categoryScore(cat) { return cat.subItems.reduce((s, sub) => s + subScore(sub, cat.weight), 0); }
-        function overallScore(categories) { return categories.reduce((s, c) => s + categoryScore(c), 0); }
+        
+        function subScore(sub, categoryWeight) {
+            const ach = achievement(sub);
+            return ((Number(sub.subWeight) || 0) / 100) * ((Number(categoryWeight) || 0) / 100) * ach;
+        }
+        
+        function categoryScore(cat) {
+            return cat.subItems.reduce((s, sub) => s + subScore(sub, cat.weight), 0);
+        }
+        
+        function overallScore(categories) {
+            return categories.reduce((s, c) => s + categoryScore(c), 0);
+        }
 
         function statusStyle(pct) {
-            if (pct >= 100) return { hex: "#10B981", text: "text-emerald-700", bg: "bg-emerald-100", label: "Target Utama Tercapai (100%+)" };
-            if (pct >= 85) return { hex: "#3B82F6", text: "text-blue-700", bg: "bg-blue-100", label: "Tahap Aman Level 2 (≥ 85%)" };
-            if (pct >= 80) return { hex: "#F59E0B", text: "text-amber-700", bg: "bg-amber-100", label: "Tahap Aman Level 1 (≥ 80%)" };
-            return { hex: "#EF4444", text: "text-red-700", bg: "bg-red-100", label: "Perlu Perhatian (< 80%)" };
+            if (pct >= 100) return { hex: "#10B981", text: "text-emerald-700", bg: "bg-emerald-100", border: "border-emerald-200", label: "Target Utama Tercapai (100%+)" };
+            if (pct >= 85) return { hex: "#3B82F6", text: "text-blue-700", bg: "bg-blue-100", border: "border-blue-200", label: "Tahap Aman Level 2 (≥ 85%)" };
+            if (pct >= 80) return { hex: "#F59E0B", text: "text-amber-700", bg: "bg-amber-100", border: "border-amber-200", label: "Tahap Aman Level 1 (≥ 80%)" };
+            return { hex: "#EF4444", text: "text-red-700", bg: "bg-red-100", border: "border-red-200", label: "Perlu Perhatian (< 80%)" };
         }
 
         function formatValue(val, unit) {
             const num = Number(val);
             if (Number.isNaN(num) || num === 0) return "0";
-            if (unit?.toLowerCase() === 'rp') return `Rp ${num.toLocaleString("id-ID")}`;
-            if (unit === '%') return `${num.toLocaleString("id-ID")}%`;
+            if (unit?.toLowerCase() === 'rp') {
+                return `Rp ${num.toLocaleString("id-ID")}`;
+            }
+            if (unit === '%') {
+                return `${num.toLocaleString("id-ID")}%`;
+            }
             return num.toLocaleString("id-ID");
         }
 
         function parseFormattedNumber(val) {
             if (!val) return 0;
             if (typeof val === 'number') return val;
-            let s = String(val).replace(/[^0-9,-]/g, '').replace(/,/g, '.');
+            let s = String(val).replace(/[^0-9,-]/g, '');
+            s = s.replace(/,/g, '.');
             return parseFloat(s) || 0;
         }
 
-        function Gauge({ value, size = 200 }) {
+        function Gauge({ value, size = 220 }) {
             const clamped = Math.max(0, Math.min(130, value));
             const angle = -180 + (clamped / 130) * 180;
-            const r = (size / 2) - 30, cx = size / 2, cy = size / 2 + 10;
+            const r = (size / 2) - 30;
+            const cx = size / 2;
+            const cy = size / 2 + 10;
             const rad = (angle * Math.PI) / 180;
-            const nx = cx + (r - 10) * Math.cos(rad), ny = cy + (r - 10) * Math.sin(rad);
+            const needleLen = r - 10;
+            const nx = cx + needleLen * Math.cos(rad);
+            const ny = cy + needleLen * Math.sin(rad);
+
             const st = statusStyle(value);
 
             return (
@@ -2795,7 +3646,10 @@
                     <svg width={size} height={size / 2 + 35} viewBox={`0 0 ${size} ${size / 2 + 35}`} className="overflow-visible">
                         <defs>
                             <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" stopColor="#EF4444" /><stop offset="61%" stopColor="#F59E0B" /><stop offset="77%" stopColor="#3B82F6" /><stop offset="100%" stopColor="#10B981" />
+                                <stop offset="0%" stopColor="#EF4444" />
+                                <stop offset="61%" stopColor="#F59E0B" />
+                                <stop offset="77%" stopColor="#3B82F6" />
+                                <stop offset="100%" stopColor="#10B981" />
                             </linearGradient>
                         </defs>
                         <path d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`} stroke="#E2E8F0" strokeWidth={12} fill="none" strokeLinecap="round" />
@@ -2808,6 +3662,18 @@
             );
         }
 
+        function ChartTooltip({ active, payload, label }) {
+            if (!active || !payload || !payload.length) return null;
+            const val = payload[0].value;
+            const st = statusStyle(val);
+            return (
+                <div className="bg-white border border-slate-200 rounded-lg p-2.5 shadow-lg font-mono text-xs">
+                    <div className="text-slate-500 mb-0.5">{label}</div>
+                    <div className="font-bold" style={{ color: st.hex }}>Skor: {val.toFixed(2)}%</div>
+                </div>
+            );
+        }
+
         const SubItemRow = ({ sub, catWeight, onSave }) => {
             const [isLocked, setIsLocked] = useState(true);
             const [targetNum, setTargetNum] = useState(Number(sub.target) || 0);
@@ -2816,29 +3682,94 @@
             const [actualStr, setActualStr] = useState(sub.actual ? String(sub.actual) : '');
 
             useEffect(() => {
-                setTargetNum(Number(sub.target) || 0); setTargetStr(sub.target ? String(sub.target) : '');
-                setActualNum(Number(sub.actual) || 0); setActualStr(sub.actual ? String(sub.actual) : '');
+                setTargetNum(Number(sub.target) || 0);
+                setTargetStr(sub.target ? String(sub.target) : '');
+                setActualNum(Number(sub.actual) || 0);
+                setActualStr(sub.actual ? String(sub.actual) : '');
             }, [sub.target, sub.actual]);
 
-            const ach = achievement({ ...sub, target: targetNum, actual: actualNum });
-            const sc = subScore({ ...sub, target: targetNum, actual: actualNum }, catWeight);
+            const handleTargetChange = (e) => {
+                setTargetStr(e.target.value);
+                setTargetNum(parseFormattedNumber(e.target.value));
+            };
+
+            const handleActualChange = (e) => {
+                setActualStr(e.target.value);
+                setActualNum(parseFormattedNumber(e.target.value));
+            };
+
+            const handleToggleLock = () => {
+                if (!isLocked) {
+                    onSave(sub.id, targetNum, actualNum);
+                }
+                setIsLocked(!isLocked);
+            };
+
+            const currentSub = { ...sub, target: targetNum, actual: actualNum };
+            const ach = achievement(currentSub);
+            const sc = subScore(currentSub, catWeight);
             const st = statusStyle(ach);
 
             return (
                 <tr className="border-b border-slate-100 last:border-0 hover:bg-slate-50/70 transition-colors">
-                    <td className="py-2.5 px-4 font-semibold text-slate-800 text-xs">{sub.name}</td>
+                    <td className="py-2.5 px-4">
+                        <div className="font-semibold text-slate-800 text-xs leading-tight">{sub.name}</div>
+                        {sub.inverse && <span className="text-[9px] text-slate-400 uppercase tracking-wider">Inverse</span>}
+                    </td>
                     <td className="py-2.5 px-3 text-center text-xs font-mono text-slate-500">{sub.unit}</td>
                     <td className="py-4 px-3 text-center text-xs font-medium text-slate-600">{sub.subWeight}%</td>
+                    
                     <td className="py-2.5 px-3 text-right">
-                        {isLocked ? <span className="font-mono text-xs">{formatValue(targetNum, sub.unit)}</span> : <input type="text" value={targetStr} onChange={(e) => { setTargetStr(e.target.value); setTargetNum(parseFormattedNumber(e.target.value)); }} className="w-full max-w-[120px] text-right font-mono text-xs border border-amber-400 bg-amber-50 rounded px-2 py-1 outline-none" />}
+                        {isLocked ? (
+                            <span className="font-mono text-xs font-medium text-slate-700">
+                                {targetNum === 0 ? '-' : formatValue(targetNum, sub.unit)}
+                            </span>
+                        ) : (
+                            <input 
+                                type="text" 
+                                value={targetStr}
+                                onChange={handleTargetChange}
+                                placeholder="0"
+                                className="w-full max-w-[120px] text-right font-mono text-xs border border-amber-400 bg-amber-50 rounded px-2 py-1 outline-none" 
+                            />
+                        )}
                     </td>
+
                     <td className="py-2.5 px-3 text-right">
-                        {isLocked ? <span className="font-mono text-xs">{formatValue(actualNum, sub.unit)}</span> : <input type="text" value={actualStr} onChange={(e) => { setActualStr(e.target.value); setActualNum(parseFormattedNumber(e.target.value)); }} className="w-full max-w-[120px] text-right font-mono text-xs border border-emerald-400 bg-emerald-50 rounded px-2 py-1 outline-none" />}
+                        {isLocked ? (
+                            <span className="font-mono text-xs font-medium text-slate-700">
+                                {actualNum === 0 ? '-' : formatValue(actualNum, sub.unit)}
+                            </span>
+                        ) : (
+                            <input 
+                                type="text" 
+                                value={actualStr}
+                                onChange={handleActualChange}
+                                placeholder="0"
+                                className="w-full max-w-[120px] text-right font-mono text-xs border border-emerald-400 bg-emerald-50 rounded px-2 py-1 outline-none" 
+                            />
+                        )}
                     </td>
-                    <td className="py-2.5 px-3 text-center"><span className={`px-2 py-0.5 rounded text-[11px] font-bold ${st.bg} ${st.text}`}>{ach.toFixed(1)}%</span></td>
-                    <td className="py-2.5 px-3 text-center font-mono font-bold text-slate-800 text-xs">{sc.toFixed(2)}</td>
+
                     <td className="py-2.5 px-3 text-center">
-                        <button onClick={() => { if (!isLocked) onSave(sub.id, targetNum, actualNum); setIsLocked(!isLocked); }} className={`px-2.5 py-1 rounded text-[11px] font-bold ${isLocked ? 'bg-white border text-slate-600' : 'bg-emerald-500 text-white'}`}>{isLocked ? '🔓 Edit' : '🔒 Simpan'}</button>
+                        <span className={`px-2 py-0.5 rounded text-[11px] font-bold ${st.bg} ${st.text}`}>
+                            {ach.toFixed(1)}%
+                        </span>
+                    </td>
+                    <td className="py-2.5 px-3 text-center font-mono font-bold text-slate-800 text-xs">
+                        {sc.toFixed(2)}
+                    </td>
+                    <td className="py-2.5 px-3 text-center">
+                        <button 
+                            onClick={handleToggleLock} 
+                            className={`px-2.5 py-1 rounded text-[11px] font-bold transition-all cursor-pointer
+                                ${isLocked 
+                                    ? 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100' 
+                                    : 'bg-emerald-500 text-white hover:bg-emerald-600'
+                                }`}
+                        >
+                            {isLocked ? '🔓 Edit' : '🔒 Simpan'}
+                        </button>
                     </td>
                 </tr>
             );
@@ -2849,61 +3780,304 @@
             const [active, setActive] = useState("Juli 2026");
             const [currentData, setCurrentData] = useState(getFallbackData());
             const [historyData, setHistoryData] = useState([]);
-            const [syncStatus, setSyncStatus] = useState("Terhubung Google Sheets");
+            const [syncStatus, setSyncStatus] = useState("Menghubungkan Google Sheets...");
 
-            const fetchData = useCallback((p) => {
-                fetch(`${APPS_SCRIPT_URL}?period=${encodeURIComponent(p)}`)
-                    .then(res => res.json())
-                    .then(data => { if (data && data.categories) setCurrentData(data); })
-                    .catch(() => {});
+            const fetchAllPeriodsScore = useCallback(async (periodList) => {
+                try {
+                    const results = await Promise.all(
+                        periodList.map(async (p) => {
+                            const res = await fetch(`${APPS_SCRIPT_URL}?period=${encodeURIComponent(p)}`);
+                            const json = await res.json();
+                            const score = json && json.categories ? overallScore(json.categories) : 0;
+                            return { name: p, score: score };
+                        })
+                    );
+                    setHistoryData(results);
+                } catch (err) {
+                    console.error("Gagal mengambil riwayat grafik", err);
+                }
             }, []);
 
-            useEffect(() => { fetchData(active); }, [active, fetchData]);
+            const fetchData = useCallback((selectedPeriod) => {
+                setSyncStatus("⏳ Memuat Data...");
+                const targetPeriod = selectedPeriod || active;
+                fetch(`${APPS_SCRIPT_URL}?period=${encodeURIComponent(targetPeriod)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && data.categories) {
+                            setCurrentData(data);
+                            if (data.meta && data.meta.periods) {
+                                setPeriods(data.meta.periods);
+                                fetchAllPeriodsScore(data.meta.periods);
+                            }
+                            setSyncStatus("✅ Terhubung Google Sheets");
+                        } else {
+                            setSyncStatus("⚠️ Data Kosong");
+                        }
+                    })
+                    .catch(err => {
+                        console.error("Gagal fetch", err);
+                        setSyncStatus("⚠️ Gagal Akses Apps Script");
+                    });
+            }, [active, fetchAllPeriodsScore]);
 
+            useEffect(() => {
+                fetchData(active);
+            }, [active, fetchData]);
+
+            const handleAddPeriod = () => {
+                const newPeriodName = prompt("Masukkan Nama Periode Baru (Contoh: September 2026):");
+                if (!newPeriodName || newPeriodName.trim() === "") return;
+                
+                const trimmedName = newPeriodName.trim();
+                if (periods.includes(trimmedName)) {
+                    alert("Periode tersebut sudah ada!");
+                    return;
+                }
+
+                setSyncStatus("⏳ Menambahkan Periode...");
+                fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: "add_period", activePeriod: trimmedName })
+                })
+                .then(() => {
+                    setSyncStatus("✅ Periode Ditambahkan");
+                    setPeriods(prev => [...prev, trimmedName]);
+                    setActive(trimmedName);
+                    fetchData(trimmedName);
+                })
+                .catch(err => {
+                    console.error("Error add period", err);
+                    setSyncStatus("⚠️ Gagal Tambah Periode");
+                });
+            };
+
+            const saveSubItem = (catId, subId, newTarget, newActual) => {
+                const updatedCategories = currentData.categories.map(c => {
+                    if (c.id !== catId) return c;
+                    return {
+                        ...c,
+                        subItems: c.subItems.map(s => s.id === subId ? { ...s, target: newTarget, actual: newActual } : s)
+                    };
+                });
+                
+                const newData = { ...currentData, categories: updatedCategories };
+                setCurrentData(newData);
+                setSyncStatus("⏳ Menyimpan ke Sheets...");
+
+                fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: "save", ...newData, activePeriod: active })
+                })
+                .then(() => {
+                    setSyncStatus("✅ Tersimpan di Google Sheets");
+                    fetchAllPeriodsScore(periods);
+                })
+                .catch(err => {
+                    console.error("Error post", err);
+                    setSyncStatus("⚠️ Gagal Menyimpan");
+                });
+            };
+
+            const totalCatWeight = useMemo(() => currentData.categories.reduce((s, c) => s + (Number(c.weight) || 0), 0), [currentData]);
             const total = useMemo(() => overallScore(currentData.categories), [currentData]);
             const overallStatus = statusStyle(total);
+
+            const focusList = useMemo(() => {
+                const rows = [];
+                currentData.categories.forEach((cat) => {
+                    cat.subItems.forEach((sub) => {
+                        const ach = achievement(sub);
+                        const potential = (Number(sub.subWeight) || 0) / 100 * (Number(cat.weight) || 0) / 100 * Math.max(0, 100 - ach);
+                        if (potential > 0.05 && (Number(cat.weight) || 0) > 0 && (Number(sub.subWeight) || 0) > 0) {
+                            rows.push({ cat: cat.name, name: sub.name, ach, potential, target: sub.target, actual: sub.actual, unit: sub.unit });
+                        }
+                    });
+                });
+                return rows.sort((a, b) => b.potential - a.potential).slice(0, 4);
+            }, [currentData]);
 
             return (
                 <div className="min-h-screen text-slate-800 font-sans pb-12">
                     <div className="max-w-6xl mx-auto px-4 pt-2">
-                        <div className="flex justify-between items-center mb-4">
-                            <div><h1 className="text-2xl font-extrabold text-slate-900">KPI Service Advisor</h1><p className="text-xs text-slate-500">{currentData.meta.sa}</p></div>
-                            <span className="text-xs bg-slate-100 px-3 py-1 rounded-full font-medium">{syncStatus}</span>
+                        
+                        {/* Header Area */}
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4">
+                            <div>
+                                <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">KPI Service Advisor</h1>
+                                <div className="text-xs text-slate-500 font-medium">{currentData.meta.sa}</div>
+                            </div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <button 
+                                    onClick={() => fetchData(active)}
+                                    title="Segarkan data dari Google Sheets"
+                                    className="p-1.5 bg-white border border-slate-200 hover:bg-slate-100 rounded-full transition-colors shadow-sm text-sm cursor-pointer"
+                                >
+                                    🔄
+                                </button>
+                                <span className="text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full font-medium">{syncStatus}</span>
+                            </div>
                         </div>
+
+                        {/* Periode Tabs & Add Button */}
                         <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2">
-                            {periods.map(p => <button key={p} onClick={() => setActive(p)} className={`px-4 py-2 rounded-xl text-xs font-bold ${active === p ? 'bg-slate-900 text-white' : 'bg-white border text-slate-600'}`}>{p}</button>)}
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
-                            <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center">
-                                <Gauge value={total} size={200} />
-                                <div className={`text-xs font-bold mt-2 ${overallStatus.text}`}>{overallStatus.label}</div>
-                            </div>
-                            <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-center">
-                                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Ringkasan Kinerja Keseluruhan</h3>
-                                <p className="text-xs text-slate-600">Evaluasi menyeluruh performa Service Advisor berdasarkan bobot Business Process, Financial, dan Customer Satisfaction.</p>
-                            </div>
-                        </div>
-                        <div className="space-y-6">
-                            {currentData.categories.map(cat => (
-                                <div key={cat.id} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                                    <div className="bg-slate-50 px-5 py-3.5 border-b flex justify-between items-center">
-                                        <h3 className="font-extrabold text-slate-900 text-sm">{cat.name} (Bobot: {cat.weight}%)</h3>
-                                        <span className="text-xs font-mono font-bold text-slate-700">Skor: {categoryScore(cat).toFixed(2)}</span>
-                                    </div>
-                                    <table className="w-full text-left text-xs">
-                                        <thead className="bg-slate-100/70 text-slate-600 uppercase text-[9px] border-b">
-                                            <tr><th className="py-2.5 px-4">Indikator</th><th className="py-2.5 px-3 text-center">Satuan</th><th className="py-2.5 px-3 text-center">Bobot</th><th className="py-2.5 px-3 text-right">Target</th><th className="py-2.5 px-3 text-right">Aktual</th><th className="py-2.5 px-3 text-center">Pencapaian</th><th className="py-2.5 px-3 text-center">Kontribusi</th><th className="py-2.5 px-3 text-center">Aksi</th></tr>
-                                        </thead>
-                                        <tbody>
-                                            {cat.subItems.map(sub => <SubItemRow key={sub.id} sub={sub} catWeight={cat.weight} onSave={(subId, t, a) => {
-                                                const updatedCategories = currentData.categories.map(c => c.id !== cat.id ? c : { ...c, subItems: c.subItems.map(s => s.id === subId ? { ...s, target: t, actual: a } : s) });
-                                                setCurrentData({ ...currentData, categories: updatedCategories });
-                                            }} />)}
-                                        </tbody>
-                                    </table>
-                                </div>
+                            {periods.map(p => (
+                                <button
+                                    key={p}
+                                    onClick={() => setActive(p)}
+                                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shadow-sm cursor-pointer ${
+                                        active === p 
+                                            ? 'bg-slate-900 text-white shadow-slate-900/20' 
+                                            : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                                    }`}
+                                >
+                                    {p}
+                                </button>
                             ))}
+                            <button
+                                onClick={handleAddPeriod}
+                                className="px-3 py-2 rounded-xl text-xs font-bold bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200 transition-all whitespace-nowrap cursor-pointer flex items-center gap-1"
+                            >
+                                <span>➕</span> Tambah Periode
+                            </button>
                         </div>
+
+                        {/* Top Overview Cards */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+                            
+                            {/* Gauge Card */}
+                            <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center justify-between">
+                                <div className="w-full flex justify-between items-center mb-1">
+                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Pencapaian KPI</span>
+                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${overallStatus.bg} ${overallStatus.text}`}>
+                                        {active}
+                                    </span>
+                                </div>
+                                <div className="my-1">
+                                    <Gauge value={total} size={200} />
+                                </div>
+                                <div className="w-full text-center mt-2">
+                                    <div className={`text-xs font-bold ${overallStatus.text}`}>
+                                        {overallStatus.label}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Summary & History Trend Chart */}
+                            <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
+                                <div className="flex justify-between items-center mb-3">
+                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Trend Riwayat Skor</span>
+                                    <span className="text-xs font-mono font-bold text-slate-700">Total Periode: {periods.length}</span>
+                                </div>
+                                <div className="w-full h-[180px]">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <ComposedChart data={historyData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
+                                            <XAxis dataKey="name" tick={{ fontSize: 10 }} stroke="#94A3B8" />
+                                            <YAxis domain={[0, 130]} tick={{ fontSize: 10 }} stroke="#94A3B8" />
+                                            <Tooltip content={<ChartTooltip />} />
+                                            <ReferenceLine y={100} stroke="#10B981" strokeDasharray="3 3" label={{ value: 'Target 100%', fill: '#10B981', fontSize: 10, position: 'insideTopRight' }} />
+                                            <Line type="monotone" dataKey="score" stroke="#6366F1" strokeWidth={3} dot={{ fill: '#6366F1', r: 4 }} activeDot={{ r: 6 }} />
+                                        </ComposedChart>
+                                    </ResponsiveContainer>
+                                </div>
+                                <div className="text-[11px] text-slate-400 text-center mt-2">
+                                    Perbandingan pencapaian antar periode aktif
+                                </div>
+                            </div>
+
+                            {/* Focus Improvement Recommendations */}
+                            <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
+                                <div className="flex justify-between items-center mb-2">
+                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Rekomendasi Fokus</span>
+                                    <span className="text-[10px] bg-red-50 text-red-600 font-bold px-2 py-0.5 rounded-full">Prioritas</span>
+                                </div>
+                                <div className="space-y-2.5 flex-1 flex flex-col justify-center">
+                                    {focusList.length === 0 ? (
+                                        <div className="text-xs text-slate-400 text-center py-4">Semua target terselesaikan dengan sangat baik! 🎉</div>
+                                    ) : (
+                                        focusList.map((item, idx) => (
+                                            <div key={idx} className="bg-slate-50 border border-slate-100 p-2.5 rounded-xl">
+                                                <div className="flex justify-between items-start">
+                                                    <span className="text-xs font-bold text-slate-800 line-clamp-1">{item.name}</span>
+                                                    <span className="text-[10px] font-bold text-red-600 font-mono">{item.ach.toFixed(1)}%</span>
+                                                </div>
+                                                <div className="text-[10px] text-slate-400 mt-0.5">
+                                                    Kategori: {item.cat} | Aktual: {formatValue(item.actual, item.unit)} / Target: {formatValue(item.target, item.unit)}
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                                <div className="text-[10px] text-slate-400 text-center mt-2">
+                                    Diurutkan berdasarkan potensi perolehan skor terbesar
+                                </div>
+                            </div>
+
+                        </div>
+
+                        {/* Category Tables */}
+                        <div className="space-y-6">
+                            {currentData.categories.map((cat) => {
+                                const catSc = categoryScore(cat);
+                                const maxCatSc = Number(cat.weight) || 0;
+                                const catPct = maxCatSc > 0 ? (catSc / maxCatSc) * 100 : 0;
+                                const catSt = statusStyle(catPct);
+
+                                return (
+                                    <div key={cat.id} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                                        <div className="bg-slate-50 px-5 py-3.5 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                                            <div className="flex items-center gap-3">
+                                                <h3 className="font-extrabold text-slate-900 text-sm tracking-tight">{cat.name}</h3>
+                                                <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-200 text-slate-700 rounded-md">
+                                                    Bobot Kategori: {cat.weight}%
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <div className="text-xs font-medium text-slate-500">
+                                                    Kontribusi: <strong className="font-mono text-slate-800">{catSc.toFixed(2)}</strong> / {maxCatSc} Poin
+                                                </div>
+                                                <span className={`px-2.5 py-0.5 rounded text-xs font-bold ${catSt.bg} ${catSt.text}`}>
+                                                    {catPct.toFixed(1)}%
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full text-left text-xs">
+                                                <thead className="bg-slate-100/70 text-slate-600 font-bold uppercase text-[9px] tracking-wider border-b border-slate-200">
+                                                    <tr>
+                                                        <th className="py-2.5 px-4">Indikator KPI</th>
+                                                        <th className="py-2.5 px-3 text-center">Satuan</th>
+                                                        <th className="py-2.5 px-3 text-center">Bobot Sub</th>
+                                                        <th className="py-2.5 px-3 text-right">Target</th>
+                                                        <th className="py-2.5 px-3 text-right">Aktual</th>
+                                                        <th className="py-2.5 px-3 text-center">Pencapaian</th>
+                                                        <th className="py-2.5 px-3 text-center">Skor Kontribusi</th>
+                                                        <th className="py-2.5 px-3 text-center">Aksi</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {cat.subItems.map((sub) => (
+                                                        <SubItemRow 
+                                                            key={sub.id} 
+                                                            sub={sub} 
+                                                            catWeight={cat.weight} 
+                                                            onSave={(subId, t, a) => saveSubItem(cat.id, subId, t, a)} 
+                                                        />
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
                     </div>
                 </div>
             );
