@@ -798,11 +798,11 @@
             <section class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
                 <div class="flex items-center gap-2 text-slate-700 font-semibold text-sm">
                     <i data-lucide="filter" class="w-4 h-4 text-blue-600"></i>
-                    <span>Filter Kendaraan Servis:</span>
+                    <span>Filter Kendaraan Servis (Tanggal Berdasarkan Kolom B):</span>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:flex gap-3 items-center flex-1 md:justify-end">
                     <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
-                        <label class="text-xs text-slate-500 whitespace-nowrap">Rentang Tgl SPP:</label>
+                        <label class="text-xs text-slate-500 whitespace-nowrap">Rentang Tgl (Kolom B):</label>
                         <input type="date" id="ksStartDate" onchange="applyKendaraanServisFilters()" class="bg-transparent text-xs text-slate-800 font-medium focus:outline-none">
                         <span class="text-xs text-slate-400">-</span>
                         <input type="date" id="ksEndDate" onchange="applyKendaraanServisFilters()" class="bg-transparent text-xs text-slate-800 font-medium focus:outline-none">
@@ -922,8 +922,8 @@
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
                     <div class="flex items-center justify-between mb-4">
                         <div>
-                            <h3 class="font-bold text-slate-800 text-sm">Distribusi Kode (Kolom Z)</h3>
-                            <p class="text-xs text-slate-400">Analisa kode unik transaksi servis</p>
+                            <h3 class="font-bold text-slate-800 text-sm">Distribusi Kolom Z</h3>
+                            <p class="text-xs text-slate-400">Analisa nilai pada Kolom Z</p>
                         </div>
                         <div class="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg"><i data-lucide="hash" class="w-4 h-4"></i></div>
                     </div>
@@ -1167,7 +1167,7 @@
                 kendaraanServisView.classList.remove('hidden');
                 navKendaraanServis.className = "w-full flex items-center gap-3 px-4 py-3 bg-red-50 text-red-600 font-semibold rounded-xl transition-all";
                 pageTitle.textContent = "Kendaraan Servis";
-                pageSubtitle.textContent = "Analisa Model, Kelompok & Kode Kendaraan Servis Masuk";
+                pageSubtitle.textContent = "Analisa Model, Kelompok & Kolom Z Kendaraan Servis Masuk";
                 applyKendaraanServisFilters();
             } else if (viewName === 'saran-servis') {
                 saranServisView.classList.remove('hidden');
@@ -1761,11 +1761,11 @@
             const startLimit = startDateVal ? new Date(startDateVal + 'T00:00:00') : null;
             const endLimit = endDateVal ? new Date(endDateVal + 'T23:59:59') : null;
 
-            // Cari Kolom Tanggal SPP
-            const sppDateKey = kendaraanServisHeaders.find(h => {
+            // Tanggal Berdasarkan Kolom B (index 1)
+            const dateHeaderKey = kendaraanServisHeaders[1] || kendaraanServisHeaders.find(h => {
                 const low = h.toLowerCase();
-                return low.includes('spp') || low.includes('tgl spp') || low.includes('tanggal spp');
-            }) || kendaraanServisHeaders[0];
+                return low.includes('tanggal') || low.includes('date') || low.includes('tgl');
+            }) || kendaraanServisHeaders[1];
 
             // Cari Kolom SA (Kolom I / index 8)
             const saHeader = kendaraanServisHeaders[8] || kendaraanServisHeaders.find(h => {
@@ -1780,10 +1780,10 @@
                     if (rowSa !== selectedSa) return false;
                 }
 
-                // Filter Tanggal SPP
+                // Filter Tanggal Kolom B
                 if (startLimit || endLimit) {
-                    if (sppDateKey) {
-                        const rowDate = parseUniversalDate(row[sppDateKey]);
+                    if (dateHeaderKey) {
+                        const rowDate = parseUniversalDate(row[dateHeaderKey]);
                         if (!rowDate) return false;
                         if (startLimit && rowDate < startLimit) return false;
                         if (endLimit && rowDate > endLimit) return false;
@@ -1794,10 +1794,10 @@
 
             const totalKs = filteredRows.length;
 
-            // Kolom E (index 4) adalah Model, Kolom H (index 7) adalah Kelompok, Kolom Z (index 25) adalah Kode
+            // Kolom E (index 4) adalah Model, Kolom H (index 7) adalah Kelompok, Kolom Z (index 25) adalah Kolom Z
             const modelHeader = kendaraanServisHeaders[4] || kendaraanServisHeaders.find(h => h.toLowerCase().includes('model')) || 'Model';
             const kelompokHeader = kendaraanServisHeaders[7] || kendaraanServisHeaders.find(h => h.toLowerCase().includes('kelompok')) || 'Kelompok';
-            const kodeHeader = kendaraanServisHeaders[25] || kendaraanServisHeaders.find(h => h.toLowerCase().includes('kode')) || 'Kode';
+            const kodeHeader = kendaraanServisHeaders[25] || kendaraanServisHeaders.find(h => h.toLowerCase().includes('kolom z') || h.toLowerCase().includes('z')) || kendaraanServisHeaders[25];
 
             const modelCounts = {};
             const kelompokCounts = {};
@@ -1818,16 +1818,20 @@
                 const kelompokUpper = kelompokVal.toUpperCase();
                 if (kelompokVal && kelompokVal !== '-') kelompokCounts[kelompokVal] = (kelompokCounts[kelompokVal] || 0) + 1;
 
-                // Hitung kategori spesifik
-                if (kelompokUpper.includes('T-CARE') || kelompokUpper.includes('TCARE')) countTcare++;
-                if (kelompokUpper.includes('SBE NON TCARE') || (kelompokUpper.includes('SBE') && !kelompokUpper.includes('TCARE'))) countSbeNonTcare++;
-                if (kelompokUpper === 'GRP') countGrp++;
-                if (kelompokUpper === 'GO') countGo++;
-                if (kelompokUpper === 'SBI') countSbi++;
-                if (kelompokUpper === 'TWC') countTwc++;
+                // KPI Card diambil dari Kolom Z (index 25)
+                const zVal = kodeHeader ? String(row[kodeHeader] || '').trim() : '';
+                const zUpper = zVal.toUpperCase();
 
-                const kodeVal = String(row[kodeHeader] || 'Lainnya').trim();
-                if (kodeVal && kodeVal !== '-') kodeCounts[kodeVal] = (kodeCounts[kodeVal] || 0) + 1;
+                if (zVal && zVal !== '-') {
+                    kodeCounts[zVal] = (kodeCounts[zVal] || 0) + 1;
+                }
+
+                if (zUpper.includes('T-CARE') || zUpper.includes('TCARE')) countTcare++;
+                if (zUpper.includes('SBE NON TCARE') || (zUpper.includes('SBE') && !zUpper.includes('TCARE'))) countSbeNonTcare++;
+                if (zUpper === 'GRP') countGrp++;
+                if (zUpper === 'GO') countGo++;
+                if (zUpper === 'SBI') countSbi++;
+                if (zUpper === 'TWC') countTwc++;
             });
 
             // TOTAL CPUS = TCARE + SBE NON TCARE + GRP + GO
@@ -1905,7 +1909,7 @@
                 }
             });
 
-            // 3. Kode Chart (Bar horizontal)
+            // 3. Kolom Z Chart (Bar horizontal)
             const sortedKode = Object.entries(kodeCounts).sort((a,b) => b[1] - a[1]).slice(0, 8);
             if (ksKodeChartInstance) ksKodeChartInstance.destroy();
             const ctxKode = document.getElementById('ksKodeChart').getContext('2d');
