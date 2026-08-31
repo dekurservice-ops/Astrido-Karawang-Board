@@ -798,7 +798,7 @@
             <section class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
                 <div class="flex items-center gap-2 text-slate-700 font-semibold text-sm">
                     <i data-lucide="filter" class="w-4 h-4 text-blue-600"></i>
-                    <span>Filter Kendaraan Servis (Berdasarkan Tgl SPP):</span>
+                    <span>Filter Kendaraan Servis:</span>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:flex gap-3 items-center flex-1 md:justify-end">
                     <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
@@ -807,34 +807,87 @@
                         <span class="text-xs text-slate-400">-</span>
                         <input type="date" id="ksEndDate" onchange="applyKendaraanServisFilters()" class="bg-transparent text-xs text-slate-800 font-medium focus:outline-none">
                     </div>
+                    <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
+                        <label class="text-xs text-slate-500 whitespace-nowrap">Nama SA (Kolom I):</label>
+                        <select id="ksFilterSa" onchange="applyKendaraanServisFilters()" class="bg-transparent text-xs text-slate-800 font-medium focus:outline-none w-full">
+                            <option value="ALL">Semua SA</option>
+                        </select>
+                    </div>
                 </div>
             </section>
 
             <!-- KPI CARDS KENDARAAN SERVIS -->
-            <section class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+            <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-9 gap-3">
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm col-span-2 sm:col-span-1">
                     <div class="flex items-center justify-between text-blue-600">
-                        <span class="text-[10px] font-bold uppercase tracking-wider">Total Kendaraan (Filtered)</span>
-                        <div class="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><i data-lucide="car-front" class="w-4 h-4"></i></div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider">Total Kendaraan</span>
+                        <div class="p-1 bg-blue-50 text-blue-600 rounded-lg"><i data-lucide="car-front" class="w-3.5 h-3.5"></i></div>
                     </div>
-                    <h3 id="kpiKsTotal" class="text-2xl font-bold mt-2 text-blue-600">0</h3>
-                    <p class="text-[10px] text-slate-400 mt-1 font-medium">Berdasarkan Tgl SPP</p>
+                    <h3 id="kpiKsTotal" class="text-xl font-bold mt-1.5 text-blue-600">0</h3>
+                    <p class="text-[9px] text-slate-400 mt-0.5 font-medium">100.0%</p>
                 </div>
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between text-indigo-600">
+                        <span class="text-[10px] font-bold uppercase tracking-wider">Total CPUS</span>
+                        <div class="p-1 bg-indigo-50 text-indigo-600 rounded-lg"><i data-lucide="layers" class="w-3.5 h-3.5"></i></div>
+                    </div>
+                    <h3 id="kpiKsCpus" class="text-xl font-bold mt-1.5 text-indigo-600">0</h3>
+                    <p id="pctKsCpus" class="text-[9px] text-slate-400 mt-0.5 font-medium">0.0%</p>
+                </div>
+
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
                     <div class="flex items-center justify-between text-emerald-600">
-                        <span class="text-[10px] font-bold uppercase tracking-wider">Model Terbanyak (Kolom E)</span>
-                        <div class="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg"><i data-lucide="award" class="w-4 h-4"></i></div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider">T-Care</span>
+                        <div class="p-1 bg-emerald-50 text-emerald-600 rounded-lg"><i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i></div>
                     </div>
-                    <h3 id="kpiKsTopModel" class="text-xl font-bold mt-2 text-emerald-600">-</h3>
-                    <p id="kpiKsTopModelCount" class="text-[10px] text-slate-400 mt-1 font-medium">- unit</p>
+                    <h3 id="kpiKsTcare" class="text-xl font-bold mt-1.5 text-emerald-600">0</h3>
+                    <p id="pctKsTcare" class="text-[9px] text-slate-400 mt-0.5 font-medium">0.0%</p>
                 </div>
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
                     <div class="flex items-center justify-between text-purple-600">
-                        <span class="text-[10px] font-bold uppercase tracking-wider">Kelompok Teraktif (Kolom H)</span>
-                        <div class="p-1.5 bg-purple-50 text-purple-600 rounded-lg"><i data-lucide="layers" class="w-4 h-4"></i></div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider">SBE Non TCare</span>
+                        <div class="p-1 bg-purple-50 text-purple-600 rounded-lg"><i data-lucide="wrench" class="w-3.5 h-3.5"></i></div>
                     </div>
-                    <h3 id="kpiKsTopKelompok" class="text-xl font-bold mt-2 text-purple-600">-</h3>
-                    <p id="kpiKsTopKelompokCount" class="text-[10px] text-slate-400 mt-1 font-medium">- unit</p>
+                    <h3 id="kpiKsSbeNonTcare" class="text-xl font-bold mt-1.5 text-purple-600">0</h3>
+                    <p id="pctKsSbeNonTcare" class="text-[9px] text-slate-400 mt-0.5 font-medium">0.0%</p>
+                </div>
+
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between text-amber-600">
+                        <span class="text-[10px] font-bold uppercase tracking-wider">GRP</span>
+                        <div class="p-1 bg-amber-50 text-amber-600 rounded-lg"><i data-lucide="shield" class="w-3.5 h-3.5"></i></div>
+                    </div>
+                    <h3 id="kpiKsGrp" class="text-xl font-bold mt-1.5 text-amber-600">0</h3>
+                    <p id="pctKsGrp" class="text-[9px] text-slate-400 mt-0.5 font-medium">0.0%</p>
+                </div>
+
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between text-pink-600">
+                        <span class="text-[10px] font-bold uppercase tracking-wider">GO</span>
+                        <div class="p-1 bg-pink-50 text-pink-600 rounded-lg"><i data-lucide="zap" class="w-3.5 h-3.5"></i></div>
+                    </div>
+                    <h3 id="kpiKsGo" class="text-xl font-bold mt-1.5 text-pink-600">0</h3>
+                    <p id="pctKsGo" class="text-[9px] text-slate-400 mt-0.5 font-medium">0.0%</p>
+                </div>
+
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between text-teal-600">
+                        <span class="text-[10px] font-bold uppercase tracking-wider">SBI</span>
+                        <div class="p-1 bg-teal-50 text-teal-600 rounded-lg"><i data-lucide="activity" class="w-3.5 h-3.5"></i></div>
+                    </div>
+                    <h3 id="kpiKsSbi" class="text-xl font-bold mt-1.5 text-teal-600">0</h3>
+                    <p id="pctKsSbi" class="text-[9px] text-slate-400 mt-0.5 font-medium">0.0%</p>
+                </div>
+
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between text-rose-600">
+                        <span class="text-[10px] font-bold uppercase tracking-wider">TWC</span>
+                        <div class="p-1 bg-rose-50 text-rose-600 rounded-lg"><i data-lucide="award" class="w-3.5 h-3.5"></i></div>
+                    </div>
+                    <h3 id="kpiKsTwc" class="text-xl font-bold mt-1.5 text-rose-600">0</h3>
+                    <p id="pctKsTwc" class="text-[9px] text-slate-400 mt-0.5 font-medium">0.0%</p>
                 </div>
             </section>
 
@@ -1202,6 +1255,7 @@
                             const parsedKs = processKendaraanServisData(results.data);
                             kendaraanServisHeaders = parsedKs.headers;
                             rawKendaraanServisData = parsedKs.rows;
+                            populateKendaraanServisSaOptions();
                             applyKendaraanServisFilters();
                             resolve();
                         }
@@ -1677,9 +1731,33 @@
             return { headers, rows: resultRows };
         }
 
+        function populateKendaraanServisSaOptions() {
+            const select = document.getElementById('ksFilterSa');
+            if (!select) return;
+            const current = select.value;
+
+            // Kolom I adalah index ke-8 (atau cari header yang mengandung "sa" atau "advisor")
+            const saHeader = kendaraanServisHeaders[8] || kendaraanServisHeaders.find(h => {
+                const low = h.toLowerCase();
+                return low.includes('sa') || low.includes('advisor') || low.includes('nama sa');
+            }) || kendaraanServisHeaders[8];
+
+            const saList = [...new Set(rawKendaraanServisData.map(row => String(row[saHeader] || '').trim()))].filter(s => s && s !== '-' && s.toLowerCase() !== 'undefined').sort();
+            
+            select.innerHTML = '<option value="ALL">Semua SA</option>';
+            saList.forEach(sa => {
+                const opt = document.createElement('option');
+                opt.value = sa; opt.textContent = sa;
+                select.appendChild(opt);
+            });
+            if (saList.includes(current)) select.value = current;
+        }
+
         function applyKendaraanServisFilters() {
             const startDateVal = document.getElementById('ksStartDate')?.value || '';
             const endDateVal = document.getElementById('ksEndDate')?.value || '';
+            const selectedSa = document.getElementById('ksFilterSa')?.value || 'ALL';
+
             const startLimit = startDateVal ? new Date(startDateVal + 'T00:00:00') : null;
             const endLimit = endDateVal ? new Date(endDateVal + 'T23:59:59') : null;
 
@@ -1689,18 +1767,32 @@
                 return low.includes('spp') || low.includes('tgl spp') || low.includes('tanggal spp');
             }) || kendaraanServisHeaders[0];
 
+            // Cari Kolom SA (Kolom I / index 8)
+            const saHeader = kendaraanServisHeaders[8] || kendaraanServisHeaders.find(h => {
+                const low = h.toLowerCase();
+                return low.includes('sa') || low.includes('advisor');
+            }) || kendaraanServisHeaders[8];
+
             const filteredRows = rawKendaraanServisData.filter(row => {
-                if (!startLimit && !endLimit) return true;
-                if (!sppDateKey) return true;
-                const rowDate = parseUniversalDate(row[sppDateKey]);
-                if (!rowDate) return true;
-                if (startLimit && rowDate < startLimit) return false;
-                if (endLimit && rowDate > endLimit) return false;
+                // Filter SA
+                if (selectedSa !== 'ALL') {
+                    const rowSa = String(row[saHeader] || '').trim();
+                    if (rowSa !== selectedSa) return false;
+                }
+
+                // Filter Tanggal SPP
+                if (startLimit || endLimit) {
+                    if (sppDateKey) {
+                        const rowDate = parseUniversalDate(row[sppDateKey]);
+                        if (!rowDate) return false;
+                        if (startLimit && rowDate < startLimit) return false;
+                        if (endLimit && rowDate > endLimit) return false;
+                    }
+                }
                 return true;
             });
 
             const totalKs = filteredRows.length;
-            document.getElementById('kpiKsTotal').textContent = totalKs.toLocaleString('id-ID');
 
             // Kolom E (index 4) adalah Model, Kolom H (index 7) adalah Kelompok, Kolom Z (index 25) adalah Kode
             const modelHeader = kendaraanServisHeaders[4] || kendaraanServisHeaders.find(h => h.toLowerCase().includes('model')) || 'Model';
@@ -1711,25 +1803,59 @@
             const kelompokCounts = {};
             const kodeCounts = {};
 
+            let countTcare = 0;
+            let countSbeNonTcare = 0;
+            let countGrp = 0;
+            let countGo = 0;
+            let countSbi = 0;
+            let countTwc = 0;
+
             filteredRows.forEach(row => {
                 const modelVal = String(row[modelHeader] || 'Lainnya').trim();
                 if (modelVal && modelVal !== '-') modelCounts[modelVal] = (modelCounts[modelVal] || 0) + 1;
 
-                const kelompokVal = String(row[kelompokHeader] || 'Lainnya').trim();
+                const kelompokVal = String(row[kelompokHeader] || '').trim();
+                const kelompokUpper = kelompokVal.toUpperCase();
                 if (kelompokVal && kelompokVal !== '-') kelompokCounts[kelompokVal] = (kelompokCounts[kelompokVal] || 0) + 1;
+
+                // Hitung kategori spesifik
+                if (kelompokUpper.includes('T-CARE') || kelompokUpper.includes('TCARE')) countTcare++;
+                if (kelompokUpper.includes('SBE NON TCARE') || (kelompokUpper.includes('SBE') && !kelompokUpper.includes('TCARE'))) countSbeNonTcare++;
+                if (kelompokUpper === 'GRP') countGrp++;
+                if (kelompokUpper === 'GO') countGo++;
+                if (kelompokUpper === 'SBI') countSbi++;
+                if (kelompokUpper === 'TWC') countTwc++;
 
                 const kodeVal = String(row[kodeHeader] || 'Lainnya').trim();
                 if (kodeVal && kodeVal !== '-') kodeCounts[kodeVal] = (kodeCounts[kodeVal] || 0) + 1;
             });
 
-            const topModel = Object.entries(modelCounts).sort((a,b) => b[1] - a[1])[0];
-            const topKelompok = Object.entries(kelompokCounts).sort((a,b) => b[1] - a[1])[0];
+            // TOTAL CPUS = TCARE + SBE NON TCARE + GRP + GO
+            const totalCpus = countTcare + countSbeNonTcare + countGrp + countGo;
 
-            document.getElementById('kpiKsTopModel').textContent = topModel ? topModel[0] : '-';
-            document.getElementById('kpiKsTopModelCount').textContent = topModel ? `${topModel[1]} unit` : '- unit';
+            const calcPct = (val) => totalKs > 0 ? ((val / totalKs) * 100).toFixed(1) + '%' : '0.0%';
 
-            document.getElementById('kpiKsTopKelompok').textContent = topKelompok ? topKelompok[0] : '-';
-            document.getElementById('kpiKsTopKelompokCount').textContent = topKelompok ? `${topKelompok[1]} unit` : '- unit';
+            document.getElementById('kpiKsTotal').textContent = totalKs.toLocaleString('id-ID');
+            document.getElementById('kpiKsCpus').textContent = totalCpus.toLocaleString('id-ID');
+            document.getElementById('pctKsCpus').textContent = calcPct(totalCpus);
+
+            document.getElementById('kpiKsTcare').textContent = countTcare.toLocaleString('id-ID');
+            document.getElementById('pctKsTcare').textContent = calcPct(countTcare);
+
+            document.getElementById('kpiKsSbeNonTcare').textContent = countSbeNonTcare.toLocaleString('id-ID');
+            document.getElementById('pctKsSbeNonTcare').textContent = calcPct(countSbeNonTcare);
+
+            document.getElementById('kpiKsGrp').textContent = countGrp.toLocaleString('id-ID');
+            document.getElementById('pctKsGrp').textContent = calcPct(countGrp);
+
+            document.getElementById('kpiKsGo').textContent = countGo.toLocaleString('id-ID');
+            document.getElementById('pctKsGo').textContent = calcPct(countGo);
+
+            document.getElementById('kpiKsSbi').textContent = countSbi.toLocaleString('id-ID');
+            document.getElementById('pctKsSbi').textContent = calcPct(countSbi);
+
+            document.getElementById('kpiKsTwc').textContent = countTwc.toLocaleString('id-ID');
+            document.getElementById('pctKsTwc').textContent = calcPct(countTwc);
 
             renderKendaraanServisCharts(modelCounts, kelompokCounts, kodeCounts);
         }
