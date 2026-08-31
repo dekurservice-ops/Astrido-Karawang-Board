@@ -99,7 +99,7 @@
         <nav class="p-4 space-y-1.5 flex-1 overflow-y-auto">
             <button id="nav-kpi" onclick="switchView('kpi')" class="w-full flex items-center gap-3 px-4 py-3 bg-red-50 text-red-600 font-semibold rounded-xl transition-all">
                 <i data-lucide="award" class="w-5 h-5"></i>
-                <span>Key Performance Index </span>
+                <span>Key Performance Index ( Utama )</span>
             </button>
             <button id="nav-kendaraan-servis" onclick="switchView('kendaraan-servis')" class="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 font-semibold rounded-xl transition-all">
                 <i data-lucide="car-front" class="w-5 h-5"></i>
@@ -1709,10 +1709,22 @@
         }
 
         // ================= KENDARAAN SERVIS LOGIC =================
+        function formatModelName(modelStr) {
+            if (!modelStr || modelStr === '-') return 'Lainnya';
+            let cleaned = String(modelStr).trim();
+            // Jika mengandung kata "veloz" (case-insensitive), ubah/singkat menjadi "VELOZ"
+            if (/veloz/i.test(cleaned)) {
+                return 'VELOZ';
+            }
+            return cleaned;
+        }
+
         function processKendaraanServisData(rows) {
             if (!rows || rows.length === 0) return { headers: [], rows: [] };
             const headers = rows[0].map(h => String(h || '').trim());
             const resultRows = [];
+
+            const modelHeaderIndex = 4; // Kolom E (index 4)
 
             for (let i = 1; i < rows.length; i++) {
                 const r = rows[i];
@@ -1721,8 +1733,14 @@
                 const rowObj = {};
                 let hasValue = false;
                 for (let j = 0; j < headers.length; j++) {
-                    const colName = headers[j] || `Col_${j}`;
-                    const val = String(r[j] || '').trim();
+                    let colName = headers[j] || `Col_${j}`;
+                    let val = String(r[j] || '').trim();
+                    
+                    // Normalisasi khusus kolom Model (Kolom E)
+                    if (j === modelHeaderIndex) {
+                        val = formatModelName(val);
+                    }
+
                     rowObj[colName] = val;
                     if (val && val !== '-') hasValue = true;
                 }
@@ -1811,11 +1829,11 @@
             let countTwc = 0;
 
             filteredRows.forEach(row => {
-                const modelVal = String(row[modelHeader] || 'Lainnya').trim();
+                let modelVal = String(row[modelHeader] || 'Lainnya').trim();
+                modelVal = formatModelName(modelVal);
                 if (modelVal && modelVal !== '-') modelCounts[modelVal] = (modelCounts[modelVal] || 0) + 1;
 
                 const kelompokVal = String(row[kelompokHeader] || '').trim();
-                const kelompokUpper = kelompokVal.toUpperCase();
                 if (kelompokVal && kelompokVal !== '-') kelompokCounts[kelompokVal] = (kelompokCounts[kelompokVal] || 0) + 1;
 
                 // KPI Card diambil dari Kolom Z (index 25)
@@ -1826,12 +1844,20 @@
                     kodeCounts[zVal] = (kodeCounts[zVal] || 0) + 1;
                 }
 
-                if (zUpper.includes('T-CARE') || zUpper.includes('TCARE')) countTcare++;
-                if (zUpper.includes('SBE NON TCARE') || (zUpper.includes('SBE') && !zUpper.includes('TCARE'))) countSbeNonTcare++;
-                if (zUpper === 'GRP') countGrp++;
-                if (zUpper === 'GO') countGo++;
-                if (zUpper === 'SBI') countSbi++;
-                if (zUpper === 'TWC') countTwc++;
+                // Perbaikan pembacaan KPI Card: TCARE hanya "TCARE" (atau mengandung T-CARE / TCARE persis) dan SBE NON TCARE hanya "SBE NON TCARE" persis
+                if (zUpper === 'T-CARE' || zUpper === 'TCARE') {
+                    countTcare++;
+                } else if (zUpper === 'SBE NON TCARE' || zUpper === 'SBE NON-TCARE') {
+                    countSbeNonTcare++;
+                } else if (zUpper === 'GRP') {
+                    countGrp++;
+                } else if (zUpper === 'GO') {
+                    countGo++;
+                } else if (zUpper === 'SBI') {
+                    countSbi++;
+                } else if (zUpper === 'TWC') {
+                    countTwc++;
+                }
             });
 
             // TOTAL CPUS = TCARE + SBE NON TCARE + GRP + GO
