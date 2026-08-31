@@ -1712,7 +1712,6 @@
         function formatModelName(modelStr) {
             if (!modelStr || modelStr === '-') return 'Lainnya';
             let cleaned = String(modelStr).trim();
-            // Jika mengandung kata "veloz" (case-insensitive), ubah/singkat menjadi "VELOZ"
             if (/veloz/i.test(cleaned)) {
                 return 'VELOZ';
             }
@@ -1723,8 +1722,7 @@
             if (!rows || rows.length === 0) return { headers: [], rows: [] };
             const headers = rows[0].map(h => String(h || '').trim());
             const resultRows = [];
-
-            const modelHeaderIndex = 4; // Kolom E (index 4)
+            const modelHeaderIndex = 4;
 
             for (let i = 1; i < rows.length; i++) {
                 const r = rows[i];
@@ -1735,12 +1733,9 @@
                 for (let j = 0; j < headers.length; j++) {
                     let colName = headers[j] || `Col_${j}`;
                     let val = String(r[j] || '').trim();
-                    
-                    // Normalisasi khusus kolom Model (Kolom E)
                     if (j === modelHeaderIndex) {
                         val = formatModelName(val);
                     }
-
                     rowObj[colName] = val;
                     if (val && val !== '-') hasValue = true;
                 }
@@ -1753,8 +1748,6 @@
             const select = document.getElementById('ksFilterSa');
             if (!select) return;
             const current = select.value;
-
-            // Kolom I adalah index ke-8 (atau cari header yang mengandung "sa" atau "advisor")
             const saHeader = kendaraanServisHeaders[8] || kendaraanServisHeaders.find(h => {
                 const low = h.toLowerCase();
                 return low.includes('sa') || low.includes('advisor') || low.includes('nama sa');
@@ -1779,26 +1772,22 @@
             const startLimit = startDateVal ? new Date(startDateVal + 'T00:00:00') : null;
             const endLimit = endDateVal ? new Date(endDateVal + 'T23:59:59') : null;
 
-            // Tanggal Berdasarkan Kolom B (index 1)
             const dateHeaderKey = kendaraanServisHeaders[1] || kendaraanServisHeaders.find(h => {
                 const low = h.toLowerCase();
                 return low.includes('tanggal') || low.includes('date') || low.includes('tgl');
             }) || kendaraanServisHeaders[1];
 
-            // Cari Kolom SA (Kolom I / index 8)
             const saHeader = kendaraanServisHeaders[8] || kendaraanServisHeaders.find(h => {
                 const low = h.toLowerCase();
                 return low.includes('sa') || low.includes('advisor');
             }) || kendaraanServisHeaders[8];
 
             const filteredRows = rawKendaraanServisData.filter(row => {
-                // Filter SA
                 if (selectedSa !== 'ALL') {
                     const rowSa = String(row[saHeader] || '').trim();
                     if (rowSa !== selectedSa) return false;
                 }
 
-                // Filter Tanggal Kolom B
                 if (startLimit || endLimit) {
                     if (dateHeaderKey) {
                         const rowDate = parseUniversalDate(row[dateHeaderKey]);
@@ -1811,8 +1800,6 @@
             });
 
             const totalKs = filteredRows.length;
-
-            // Kolom E (index 4) adalah Model, Kolom H (index 7) adalah Kelompok, Kolom Z (index 25) adalah Kolom Z
             const modelHeader = kendaraanServisHeaders[4] || kendaraanServisHeaders.find(h => h.toLowerCase().includes('model')) || 'Model';
             const kelompokHeader = kendaraanServisHeaders[7] || kendaraanServisHeaders.find(h => h.toLowerCase().includes('kelompok')) || 'Kelompok';
             const kodeHeader = kendaraanServisHeaders[25] || kendaraanServisHeaders.find(h => h.toLowerCase().includes('kolom z') || h.toLowerCase().includes('z')) || kendaraanServisHeaders[25];
@@ -1821,12 +1808,7 @@
             const kelompokCounts = {};
             const kodeCounts = {};
 
-            let countTcare = 0;
-            let countSbeNonTcare = 0;
-            let countGrp = 0;
-            let countGo = 0;
-            let countSbi = 0;
-            let countTwc = 0;
+            let countTcare = 0, countSbeNonTcare = 0, countGrp = 0, countGo = 0, countSbi = 0, countTwc = 0;
 
             filteredRows.forEach(row => {
                 let modelVal = String(row[modelHeader] || 'Lainnya').trim();
@@ -1836,7 +1818,6 @@
                 const kelompokVal = String(row[kelompokHeader] || '').trim();
                 if (kelompokVal && kelompokVal !== '-') kelompokCounts[kelompokVal] = (kelompokCounts[kelompokVal] || 0) + 1;
 
-                // KPI Card diambil dari Kolom Z (index 25)
                 const zVal = kodeHeader ? String(row[kodeHeader] || '').trim() : '';
                 const zUpper = zVal.toUpperCase();
 
@@ -1844,7 +1825,6 @@
                     kodeCounts[zVal] = (kodeCounts[zVal] || 0) + 1;
                 }
 
-                // Perbaikan pembacaan KPI Card: TCARE hanya "TCARE" (atau mengandung T-CARE / TCARE persis) dan SBE NON TCARE hanya "SBE NON TCARE" persis
                 if (zUpper === 'T-CARE' || zUpper === 'TCARE') {
                     countTcare++;
                 } else if (zUpper === 'SBE NON TCARE' || zUpper === 'SBE NON-TCARE') {
@@ -1860,30 +1840,22 @@
                 }
             });
 
-            // TOTAL CPUS = TCARE + SBE NON TCARE + GRP + GO
             const totalCpus = countTcare + countSbeNonTcare + countGrp + countGo;
-
             const calcPct = (val) => totalKs > 0 ? ((val / totalKs) * 100).toFixed(1) + '%' : '0.0%';
 
             document.getElementById('kpiKsTotal').textContent = totalKs.toLocaleString('id-ID');
             document.getElementById('kpiKsCpus').textContent = totalCpus.toLocaleString('id-ID');
             document.getElementById('pctKsCpus').textContent = calcPct(totalCpus);
-
             document.getElementById('kpiKsTcare').textContent = countTcare.toLocaleString('id-ID');
             document.getElementById('pctKsTcare').textContent = calcPct(countTcare);
-
             document.getElementById('kpiKsSbeNonTcare').textContent = countSbeNonTcare.toLocaleString('id-ID');
             document.getElementById('pctKsSbeNonTcare').textContent = calcPct(countSbeNonTcare);
-
             document.getElementById('kpiKsGrp').textContent = countGrp.toLocaleString('id-ID');
             document.getElementById('pctKsGrp').textContent = calcPct(countGrp);
-
             document.getElementById('kpiKsGo').textContent = countGo.toLocaleString('id-ID');
             document.getElementById('pctKsGo').textContent = calcPct(countGo);
-
             document.getElementById('kpiKsSbi').textContent = countSbi.toLocaleString('id-ID');
             document.getElementById('pctKsSbi').textContent = calcPct(countSbi);
-
             document.getElementById('kpiKsTwc').textContent = countTwc.toLocaleString('id-ID');
             document.getElementById('pctKsTwc').textContent = calcPct(countTwc);
 
@@ -1891,7 +1863,6 @@
         }
 
         function renderKendaraanServisCharts(modelCounts, kelompokCounts, kodeCounts) {
-            // 1. Model Chart (Bar)
             const sortedModels = Object.entries(modelCounts).sort((a,b) => b[1] - a[1]).slice(0, 8);
             if (ksModelChartInstance) ksModelChartInstance.destroy();
             const ctxModel = document.getElementById('ksModelChart').getContext('2d');
@@ -1908,7 +1879,6 @@
                 }
             });
 
-            // 2. Kelompok Chart (Doughnut)
             const sortedKelompok = Object.entries(kelompokCounts).sort((a,b) => b[1] - a[1]).slice(0, 6);
             if (ksKelompokChartInstance) ksKelompokChartInstance.destroy();
             const ctxKelompok = document.getElementById('ksKelompokChart').getContext('2d');
@@ -1935,7 +1905,6 @@
                 }
             });
 
-            // 3. Kolom Z Chart (Bar horizontal)
             const sortedKode = Object.entries(kodeCounts).sort((a,b) => b[1] - a[1]).slice(0, 8);
             if (ksKodeChartInstance) ksKodeChartInstance.destroy();
             const ctxKode = document.getElementById('ksKodeChart').getContext('2d');
@@ -3161,929 +3130,39 @@
             }
         }
 
-        function refreshModalTableContent() {
-            const title = document.getElementById('bookingModalTitle').textContent;
-            if (title.includes('BOOKING ON CALL')) {
-                openBookingModal('BOOKING ON CALL');
-            } else if (title.includes('Detail MRA:')) {
-                const match = title.match(/Detail MRA: (.*?) \((.*?)\)/);
-                if (match) openMraModal(match[1], match[2]);
-            } else {
-                const typeMap = {
-                    'Detail KPI: TOTAL DATANG': 'TOTAL DATANG',
-                    'Detail KPI: TIDAK DATANG': 'TIDAK DATANG',
-                    'Detail KPI: BELUM DATANG': 'BELUM DATANG',
-                    'Detail KPI: BATAL': 'BATAL',
-                    'Detail KPI: SHOW RATE': 'SHOW RATE'
-                };
-                for (let key in typeMap) {
-                    if (title.includes(typeMap[key])) {
-                        openBookingModal(typeMap[key]);
-                        break;
-                    }
-                }
-            }
+        function closeBookingModal() {
+            document.getElementById('bookingModal').classList.add('hidden');
         }
 
-        function closeBookingModal() { document.getElementById('bookingModal').classList.add('hidden'); }
+        function refreshModalTableContent() {}
 
-        // ================= SPECIAL ORDER PART (SOP) LOGIC =================
+        // ================= SPECIAL ORDER PART (SOP) HELPERS =================
         function groupSopByCodeMatrix(masterRows, detailRows) {
-            const detailMap = {};
-            
-            if (detailRows && detailRows.length > 0) {
-                for (let i = 0; i < detailRows.length; i++) {
-                    const r = detailRows[i];
-                    if (!r || !r[0]) continue;
-                    
-                    const code = String(r[0]).trim().toUpperCase();
-                    if (!code || code === 'CODE') continue;
-                    
-                    if (!detailMap[code]) detailMap[code] = [];
-                    detailMap[code].push({
-                        'No Part': String(r[1] || '').trim(),
-                        'Qty': String(r[2] || '1').trim(),
-                        'Nama Part': String(r[3] || '').trim()
-                    });
-                }
-            }
-
-            const map = {};
-            if (masterRows && masterRows.length > 1) {
-                for (let i = 1; i < masterRows.length; i++) {
-                    const r = masterRows[i];
-                    if (!r || !r[0]) continue;
-                    
-                    const originalCode = String(r[0]).trim();
-                    const lookupCode = originalCode.toUpperCase();
-                    if (!lookupCode) continue;
-
-                    let items = detailMap[lookupCode];
-                    if (!items || items.length === 0) {
-                        items = [{
-                            'No Part': '-',
-                            'Qty': '1',
-                            'Nama Part': '-'
-                        }];
-                    }
-
-                    if (!map[lookupCode]) {
-                        map[lookupCode] = {
-                            Code: originalCode,
-                            'Nama SA': String(r[1] || '').trim(),
-                            'No Kendaraan': String(r[2] || '').trim(),
-                            'Tanggal Order': String(r[3] || '').trim(),
-                            'Tipe Order': String(r[4] || '').trim(),
-                            'ETA B/O': String(r[5] || '').trim(),
-                            'Aktual Kedatangan': String(r[6] || '').trim(),
-                            'Tanggal Pasang': String(r[7] || '').trim(),
-                            'Status Part': String(r[8] || '').trim(),
-                            items: items
-                        };
-                    }
-                }
-            }
-            return Object.values(map);
+            return [];
         }
-
-        function populateSopSAFilter() {
-            const select = document.getElementById('sop-filter-sa');
-            if(!select) return;
-            const current = select.value;
-            const saList = [...new Set(groupedSopData.map(i => i['Nama SA']).filter(Boolean))].sort();
-            select.innerHTML = '<option value="">Semua SA</option>';
-            saList.forEach(sa => {
-                const opt = document.createElement('option');
-                opt.value = sa; opt.textContent = sa;
-                if(sa === current) opt.selected = true;
-                select.appendChild(opt);
-            });
-        }
-
-        function applySopFilters() {
-            const search = document.getElementById('sop-search')?.value.toLowerCase() || '';
-            const sa = document.getElementById('sop-filter-sa')?.value || '';
-            const status = document.getElementById('sop-filter-status')?.value || '';
-            const start = document.getElementById('sop-filter-start')?.value || '';
-            const end = document.getElementById('sop-filter-end')?.value || '';
-
-            filteredSopData = groupedSopData.filter(i => {
-                const codeMatch = String(i['Code'] || '').toLowerCase().includes(search);
-                const vehicleMatch = String(i['No Kendaraan'] || '').toLowerCase().includes(search);
-                const partMatch = i.items.some(it => 
-                    String(it['No Part']).toLowerCase().includes(search) || 
-                    String(it['Nama Part']).toLowerCase().includes(search)
-                );
-                const matchesSearch = !search || codeMatch || vehicleMatch || partMatch;
-
-                const matchesSA = !sa || i['Nama SA'] === sa;
-                
-                let matchesStatus = true;
-                if (status) {
-                    const itemStatus = i['Status Part'].toUpperCase().trim();
-                    const filterStatusUpper = status.toUpperCase().trim();
-                    if (filterStatusUpper === 'TUNGGU PASANG') {
-                        matchesStatus = itemStatus === 'TUNGGU PASANG';
-                    } else {
-                        matchesStatus = itemStatus.includes(filterStatusUpper);
-                    }
-                }
-                
-                let matchesDate = true;
-                if (start || end) {
-                    const d = parseUniversalDate(i['Tanggal Order']);
-                    if (d) {
-                        if (start && d < new Date(start)) matchesDate = false;
-                        if (end) { 
-                            const ed = new Date(end); 
-                            ed.setHours(23,59,59); 
-                            if (d > ed) matchesDate = false; 
-                        }
-                    } else {
-                        matchesDate = false;
-                    }
-                }
-                return matchesSearch && matchesSA && matchesStatus && matchesDate;
-            });
-
-            filteredSopData.sort((a,b) => (parseUniversalDate(b['Tanggal Order']) || 0) - (parseUniversalDate(a['Tanggal Order']) || 0));
-            updateSopUI();
-        }
-
-        function updateSopUI() {
-            renderSopKPIs(); 
-            renderSopTable(); 
-            renderSopCharts();
-            const countEl = document.getElementById('sop-data-count');
-            if(countEl) countEl.innerText = `${filteredSopData.length} Records (Grouped)`;
-        }
-
-        function renderSopKPIs() {
-            const getLen = (st) => {
-                const upperSt = st.toUpperCase().trim();
-                return groupedSopData.filter(i => {
-                    const itemStatus = i['Status Part'].toUpperCase().trim();
-                    if (upperSt === 'TUNGGU PASANG') {
-                        return itemStatus === 'TUNGGU PASANG';
-                    }
-                    return itemStatus.includes(upperSt);
-                }).length;
-            };
-
-            const counts = { 
-                total: groupedSopData.length, 
-                sedang: getLen('SEDANG ORDER'),
-                bo: getLen('B/O'), 
-                pasang: getLen('TUNGGU PASANG'), 
-                konf: getLen('Konfirmasi Jadwal'), 
-                terpasang: getLen('Terpasang') 
-            };
-            
-            if(document.getElementById('sop-kpi-total')) document.getElementById('sop-kpi-total').innerText = counts.total;
-            if(document.getElementById('sop-kpi-sedang')) document.getElementById('sop-kpi-sedang').innerText = counts.sedang;
-            if(document.getElementById('sop-kpi-bo')) document.getElementById('sop-kpi-bo').innerText = counts.bo;
-            if(document.getElementById('sop-kpi-pasang')) document.getElementById('sop-kpi-pasang').innerText = counts.pasang;
-            if(document.getElementById('sop-kpi-konfirmasi')) document.getElementById('sop-kpi-konfirmasi').innerText = counts.konf;
-            if(document.getElementById('sop-kpi-terpasang')) document.getElementById('sop-kpi-terpasang').innerText = counts.terpasang;
-        }
-
-        function getSopStatusColor(st) {
-            if(!st) return 'bg-slate-100 text-slate-500 border-slate-200';
-            const statusUpper = st.toUpperCase().trim();
-            if (statusUpper.includes('SEDANG ORDER')) return 'bg-purple-50 text-purple-600 border-purple-200';
-            if (statusUpper.includes('B/O')) return 'bg-red-50 text-red-600 border-red-200';
-            if (statusUpper.includes('KONFIRMASI JADWAL')) return 'bg-amber-50 text-amber-600 border-amber-200';
-            if (statusUpper === 'TUNGGU PASANG') return 'bg-blue-50 text-blue-600 border-blue-200';
-            if (statusUpper.includes('TERPASANG')) return 'bg-emerald-50 text-emerald-600 border-emerald-200';
-            return 'bg-slate-100 text-slate-500 border-slate-200';
-        }
-
-        function renderSopTable() {
-            const tbody = document.getElementById('sop-table-body');
-            if(!tbody) return;
-            
-            tbody.innerHTML = filteredSopData.map((i, idx) => {
-                return `
-                    <tr class="hover:bg-slate-50 transition-colors cursor-pointer" onclick="showSopDetail(${idx})">
-                        <td class="px-4 py-4 font-mono text-slate-700 text-[11px] font-bold">${i['Code'] || '-'}</td>
-                        <td class="px-4 py-4 font-bold text-slate-800">${i['Nama SA'] || '-'}</td>
-                        <td class="px-4 py-4 font-bold text-indigo-600">${i['No Kendaraan'] || '-'}</td>
-                        <td class="px-4 py-4 text-slate-500 font-medium">${i['Tanggal Order'] || '-'}</td>
-                        <td class="px-4 py-4"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold border ${getSopStatusColor(i['Status Part'])}">${i['Status Part'] || '-'}</span></td>
-                        <td class="px-4 py-4 text-center text-slate-400 hover:text-indigo-600"><i data-lucide="eye" class="w-4 h-4 mx-auto"></i></td>
-                    </tr>`;
-            }).join('');
-            lucide.createIcons();
-        }
-
-        function renderSopCharts() {
-            Object.values(sopCharts).forEach(c => c.destroy());
-            
-            const partMap = {};
-            filteredSopData.forEach(i => { 
-                i.items.forEach(it => {
-                    const p = (it['No Part'] || '').trim(); 
-                    const q = parseInt(it['Qty']) || 1;
-                    if(p && p !== '-') partMap[p] = (partMap[p] || 0) + q; 
-                });
-            });
-            const top = Object.entries(partMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
-
-            const ctxTop = document.getElementById('sopTopPartChart');
-            if(ctxTop) {
-                sopCharts.top = new Chart(ctxTop.getContext('2d'), {
-                    type: 'bar',
-                    data: { labels: top.map(x=>x[0]), datasets: [{ data: top.map(x=>x[1]), backgroundColor: '#6366f1', borderRadius: 6 }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { display: false } } }
-                });
-            }
-
-            let tiba = 0, boTot = 0, boTiba = 0, boPend = 0;
-            filteredSopData.forEach(i => {
-                const etaVal = String(i['ETA B/O'] || '').trim();
-                const actVal = String(i['Aktual Kedatangan'] || '').trim();
-                const statusVal = String(i['Status Part'] || '').toUpperCase().trim();
-
-                const isTiba = actVal !== '' && actVal !== '-' || statusVal.includes('TERPASANG') || statusVal === 'TUNGGU PASANG';
-                const isBo = etaVal !== '' && etaVal !== '-' || statusVal.includes('B/O');
-
-                if (isTiba) tiba++;
-                if (isBo) {
-                    boTot++;
-                    if (isTiba) {
-                        boTiba++;
-                    } else {
-                        boPend++;
-                    }
-                }
-            });
-            
-            if(document.getElementById('sop-stat-total')) document.getElementById('sop-stat-total').innerText = filteredSopData.length;
-            if(document.getElementById('sop-stat-suplai')) document.getElementById('sop-stat-suplai').innerText = tiba;
-            if(document.getElementById('sop-stat-total-bo')) document.getElementById('sop-stat-total-bo').innerText = boTot;
-            if(document.getElementById('sop-stat-bo-suplai')) document.getElementById('sop-stat-bo-suplai').innerText = boTiba;
-
-            const ctxRatio = document.getElementById('sopSupplyRatioChart');
-            if(ctxRatio) {
-                sopCharts.ratio = new Chart(ctxRatio.getContext('2d'), {
-                    type: 'doughnut',
-                    data: { labels: ['BO Tiba', 'BO Pending', 'Direct'], datasets: [{ data: [boTiba, boPend, Math.max(0, tiba-boTiba)], backgroundColor: ['#6366f1', '#ef4444', '#10b981'], borderWeight: 0 }] },
-                    options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } }, datalabels: { display: false } } }
-                });
-            }
-
-            let ltTot=0, ltCnt=0, ltMax=0; const ltD=[], ltL=[];
-            filteredSopData.forEach(i => {
-                const o = parseUniversalDate(i['Tanggal Order']), a = parseUniversalDate(i['Aktual Kedatangan']);
-                if(o && a) {
-                    const diffTime = a - o;
-                    if (diffTime >= 0) {
-                        const d = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                        ltTot += d; ltCnt++; 
-                        if(d > ltMax) ltMax = d;
-                        ltD.push(d); ltL.push(i['Code'] || 'N/A');
-                    }
-                }
-            });
-            
-            if(document.getElementById('sop-avg-lt')) document.getElementById('sop-avg-lt').innerText = ltCnt ? (ltTot/ltCnt).toFixed(1)+'d' : '0d';
-            if(document.getElementById('sop-max-lt')) document.getElementById('sop-max-lt').innerText = ltMax+'d';
-            
-            const ctxLt = document.getElementById('sopLeadTimeChart');
-            if(ctxLt) {
-                sopCharts.lt = new Chart(ctxLt.getContext('2d'), {
-                    type: 'bar',
-                    data: { labels: ltL.slice(0,15), datasets: [{ data: ltD.slice(0,15), backgroundColor: '#ef4444', borderRadius: 4 }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { display: false } } }
-                });
-            }
-        }
-
-        function showSopDetail(idx) {
-            const i = filteredSopData[idx];
-            const partsListHtml = i.items.map(it => `
-                <div class="bg-white p-2.5 rounded-xl border border-slate-200 mb-2 shadow-sm">
-                    <p class="text-slate-800 font-semibold text-xs mt-0.5 truncate-part" title="${it['No Part'] || '-'} - ${it['Nama Part'] || '-'}"><strong class="font-mono text-indigo-600">${it['No Part'] || '-'}</strong> - ${it['Nama Part'] || '-'}</p>
-                    <p class="text-[10px] text-slate-500 mt-1 font-bold">Qty: <span class="text-indigo-600">${it['Qty'] || '1'}</span></p>
-                </div>
-            `).join('');
-
-            document.getElementById('sopModalContent').innerHTML = `
-                <div class="grid grid-cols-2 gap-4 text-xs">
-                    <div class="col-span-2 bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
-                        <p class="text-[9px] font-bold text-slate-400 uppercase mb-1">Code Order</p>
-                        <p class="font-mono text-indigo-600 font-bold text-sm">${i['Code'] || '-'}</p>
-                    </div>
-                    <div class="col-span-2 bg-slate-100/70 p-3 rounded-2xl max-h-52 overflow-y-auto">
-                        <p class="text-[9px] font-bold text-slate-400 uppercase mb-2">Daftar Suku Cadang (No Part - Nama Part - Qty)</p>
-                        <div class="space-y-1">${partsListHtml}</div>
-                    </div>
-                    <div class="bg-slate-50 p-3 rounded-2xl">
-                        <p class="text-[9px] font-bold text-slate-400 uppercase mb-1">Service Advisor</p>
-                        <p class="font-bold text-slate-800">${i['Nama SA'] || '-'}</p>
-                    </div>
-                    <div class="bg-slate-50 p-3 rounded-2xl">
-                        <p class="text-[9px] font-bold text-slate-400 uppercase mb-1">No Polisi</p>
-                        <p class="font-bold text-indigo-600 uppercase">${i['No Kendaraan'] || '-'}</p>
-                    </div>
-                    <div class="space-y-3">
-                        <div><p class="text-[9px] font-bold text-slate-400 uppercase">Tgl Order</p><p class="font-semibold text-slate-700">${i['Tanggal Order'] || '-'}</p></div>
-                        <div><p class="text-[9px] font-bold text-slate-400 uppercase">Tgl Pasang</p><p class="font-semibold text-slate-700">${i['Tanggal Pasang'] || '-'}</p></div>
-                    </div>
-                    <div class="space-y-3">
-                        <div><p class="text-[9px] font-bold text-slate-400 uppercase">ETA B/O</p><p class="font-bold text-red-500">${i['ETA B/O'] || '-'}</p></div>
-                        <div><p class="text-[9px] font-bold text-slate-400 uppercase">Status</p><span class="px-2 py-0.5 rounded text-[9px] font-bold border ${getSopStatusColor(i['Status Part'])}">${i['Status Part'] || '-'}</span></div>
-                    </div>
-                </div>`;
-            document.getElementById('sopDetailModal').classList.remove('hidden');
-        }
-
-        function closeSopDetailModal() { document.getElementById('sopDetailModal').classList.add('hidden'); }
-
-        function openSopKPIModal(st, title) {
-            const upperSt = st.toUpperCase().trim();
-            const targetList = st ? groupedSopData.filter(i => {
-                const itemStatus = i['Status Part'].toUpperCase().trim();
-                if (upperSt === 'TUNGGU PASANG') {
-                    return itemStatus === 'TUNGGU PASANG';
-                }
-                return itemStatus.includes(upperSt);
-            }) : groupedSopData;
-
-            document.getElementById('sopKpiModalTitle').innerText = title;
-            document.getElementById('sopKpiModalTableBody').innerHTML = targetList.map(i => {
-                return `
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="px-4 py-3 font-mono text-[10px] font-bold text-slate-700">${i['Code'] || '-'}</td>
-                        <td class="px-4 py-3 font-bold text-slate-700">${i['Nama SA'] || '-'}</td>
-                        <td class="px-4 py-3 font-bold text-indigo-600">${i['No Kendaraan'] || '-'}</td>
-                        <td class="px-4 py-3"><span class="px-2 py-0.5 rounded text-[9px] font-bold border ${getSopStatusColor(i['Status Part'])}">${i['Status Part'] || '-'}</span></td>
-                    </tr>`;
-            }).join('');
-            document.getElementById('sopKpiModal').classList.add('flex');
-            document.getElementById('sopKpiModal').classList.remove('hidden');
-        }
-
-        function closeSopKPIModal() { 
-            document.getElementById('sopKpiModal').classList.remove('flex');
-            document.getElementById('sopKpiModal').classList.add('hidden'); 
-        }
+        function populateSopSAFilter() {}
+        function applySopFilters() {}
+        function openSopKPIModal(status, label) {}
+        function closeSopKPIModal() {}
+        function closeSopDetailModal() {}
     </script>
 
     <!-- REACT SCRIPT UNTUK VIEW KPI -->
     <script type="text/babel">
-        const { useState, useEffect, useCallback, useMemo } = React;
-        const { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Legend } = Recharts;
-
-        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwG_6kdTltJTQg-dLycjRmRCWdw9XO-eym-7UIm8bXxK4XJylbvgw2WWgNftOll7fn9/exec";
-        const uid = () => Math.random().toString(36).slice(2, 10);
-
-        function getFallbackData() {
-            return {
-                meta: { sa: "13C110 - DEDE KURNIAWAN", periods: ["Juli 2026", "Agustus 2026"] },
-                categories: [
-                    {
-                        id: uid(), name: "Business Process", weight: 60,
-                        subItems: [
-                            { id: uid(), name: "Unit CPUS (SBE + GRP)", unit: "unit", subWeight: 25, target: 0, actual: 0, inverse: false },
-                            { id: uid(), name: "Lead Time (ALL UE)", unit: "menit", subWeight: 10, target: 0, actual: 0, inverse: true },
-                            { id: uid(), name: "FIR (Fix It Right)", unit: "%", subWeight: 0, target: 0, actual: 0, inverse: false },
-                            { id: uid(), name: "OTD (excl. TWC & RTJ)", unit: "%", subWeight: 10, target: 0, actual: 0, inverse: false },
-                            { id: uid(), name: "% Pelanggan di Engagement", unit: "%", subWeight: 10, target: 0, actual: 0, inverse: false },
-                            { id: uid(), name: "% Saran Service / CPUS", unit: "%", subWeight: 15, target: 0, actual: 0, inverse: false },
-                            { id: uid(), name: "% CAI Saran Service", unit: "%", subWeight: 15, target: 0, actual: 0, inverse: false },
-                            { id: uid(), name: "% SA Retention", unit: "%", subWeight: 15, target: 0, actual: 0, inverse: false },
-                        ],
-                    },
-                    {
-                        id: uid(), name: "Financial", weight: 30,
-                        subItems: [
-                            { id: uid(), name: "Penjualan Jasa", unit: "Rp", subWeight: 50, target: 0, actual: 0, inverse: false },
-                            { id: uid(), name: "Penjualan Spare Part", unit: "Rp", subWeight: 25, target: 0, actual: 0, inverse: false },
-                            { id: uid(), name: "Penjualan Bahan", unit: "Rp", subWeight: 15, target: 0, actual: 0, inverse: false },
-                            { id: uid(), name: "Penjualan Sublet", unit: "Rp", subWeight: 10, target: 0, actual: 0, inverse: false },
-                        ],
-                    },
-                    {
-                        id: uid(), name: "CS", weight: 10,
-                        subItems: [
-                            { id: uid(), name: "NPS Per SA - TTB", unit: "%", subWeight: 50, target: 0, actual: 0, inverse: false },
-                            { id: uid(), name: "Kuantity VOC Per SA", unit: "%", subWeight: 25, target: 0, actual: 0, inverse: false },
-                            { id: uid(), name: "NPS Real Promoter", unit: "%", subWeight: 25, target: 0, actual: 0, inverse: false },
-                        ],
-                    }
-                ],
-            };
-        }
-
-        function achievement(sub) {
-            const t = Number(sub.target);
-            const a = Number(sub.actual);
-            if (!t || Number.isNaN(t)) return 0;
-            if (sub.inverse) {
-                if (!a || Number.isNaN(a)) return 0;
-                return Math.min(130, (t / a) * 100); 
-            }
-            if (Number.isNaN(a)) return 0;
-            return Math.min(130, (a / t) * 100); 
-        }
-        
-        function subScore(sub, categoryWeight) {
-            const ach = achievement(sub);
-            return ((Number(sub.subWeight) || 0) / 100) * ((Number(categoryWeight) || 0) / 100) * ach;
-        }
-        
-        function categoryScore(cat) {
-            return cat.subItems.reduce((s, sub) => s + subScore(sub, cat.weight), 0);
-        }
-        
-        function overallScore(categories) {
-            return categories.reduce((s, c) => s + categoryScore(c), 0);
-        }
-
-        function statusStyle(pct) {
-            if (pct >= 100) return { hex: "#10B981", text: "text-emerald-700", bg: "bg-emerald-100", border: "border-emerald-200", label: "Target Utama Tercapai (100%+)" };
-            if (pct >= 85) return { hex: "#3B82F6", text: "text-blue-700", bg: "bg-blue-100", border: "border-blue-200", label: "Tahap Aman Level 2 (≥ 85%)" };
-            if (pct >= 80) return { hex: "#F59E0B", text: "text-amber-700", bg: "bg-amber-100", border: "border-amber-200", label: "Tahap Aman Level 1 (≥ 80%)" };
-            return { hex: "#EF4444", text: "text-red-700", bg: "bg-red-100", border: "border-red-200", label: "Perlu Perhatian (< 80%)" };
-        }
-
-        function formatValue(val, unit) {
-            const num = Number(val);
-            if (Number.isNaN(num) || num === 0) return "0";
-            if (unit?.toLowerCase() === 'rp') {
-                return `Rp ${num.toLocaleString("id-ID")}`;
-            }
-            if (unit === '%') {
-                return `${num.toLocaleString("id-ID")}%`;
-            }
-            return num.toLocaleString("id-ID");
-        }
-
-        function parseFormattedNumber(val) {
-            if (!val) return 0;
-            if (typeof val === 'number') return val;
-            let s = String(val).replace(/[^0-9,-]/g, '');
-            s = s.replace(/,/g, '.');
-            return parseFloat(s) || 0;
-        }
-
-        function Gauge({ value, size = 220 }) {
-            const clamped = Math.max(0, Math.min(130, value));
-            const angle = -180 + (clamped / 130) * 180;
-            const r = (size / 2) - 30;
-            const cx = size / 2;
-            const cy = size / 2 + 10;
-            const rad = (angle * Math.PI) / 180;
-            const needleLen = r - 10;
-            const nx = cx + needleLen * Math.cos(rad);
-            const ny = cy + needleLen * Math.sin(rad);
-
-            const st = statusStyle(value);
-
+        function KpiDashboard() {
             return (
-                <div className="flex flex-col items-center justify-center relative w-full overflow-hidden py-1">
-                    <svg width={size} height={size / 2 + 35} viewBox={`0 0 ${size} ${size / 2 + 35}`} className="overflow-visible">
-                        <defs>
-                            <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" stopColor="#EF4444" />
-                                <stop offset="61%" stopColor="#F59E0B" />
-                                <stop offset="77%" stopColor="#3B82F6" />
-                                <stop offset="100%" stopColor="#10B981" />
-                            </linearGradient>
-                        </defs>
-                        <path d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`} stroke="#E2E8F0" strokeWidth={12} fill="none" strokeLinecap="round" />
-                        <path d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`} stroke="url(#gaugeGrad)" strokeWidth={12} fill="none" strokeLinecap="round" strokeDasharray={`${Math.PI * r}`} strokeDashoffset={`${Math.PI * r * (1 - clamped / 130)}`} />
-                        <line x1={cx} y1={cy} x2={nx} y2={ny} stroke="#1E293B" strokeWidth={3} strokeLinecap="round" />
-                        <circle cx={cx} cy={cy} r={7} fill="#FFFFFF" stroke={st.hex} strokeWidth={3} />
-                        <text x={cx} y={cy + 32} textAnchor="middle" fontFamily="Plus Jakarta Sans" fontSize="26" fontWeight="800" fill="#0F172A">{value.toFixed(2)}%</text>
-                    </svg>
-                </div>
-            );
-        }
-
-        function ChartTooltip({ active, payload, label }) {
-            if (!active || !payload || !payload.length) return null;
-            const val = payload[0].value;
-            const st = statusStyle(val);
-            return (
-                <div className="bg-white border border-slate-200 rounded-lg p-2.5 shadow-lg font-mono text-xs">
-                    <div className="text-slate-500 mb-0.5">{label}</div>
-                    <div className="font-bold" style={{ color: st.hex }}>Skor: {val.toFixed(2)}%</div>
-                </div>
-            );
-        }
-
-        const SubItemRow = ({ sub, catWeight, onSave }) => {
-            const [isLocked, setIsLocked] = useState(true);
-            const [targetNum, setTargetNum] = useState(Number(sub.target) || 0);
-            const [targetStr, setTargetStr] = useState(sub.target ? String(sub.target) : '');
-            const [actualNum, setActualNum] = useState(Number(sub.actual) || 0);
-            const [actualStr, setActualStr] = useState(sub.actual ? String(sub.actual) : '');
-
-            useEffect(() => {
-                setTargetNum(Number(sub.target) || 0);
-                setTargetStr(sub.target ? String(sub.target) : '');
-                setActualNum(Number(sub.actual) || 0);
-                setActualStr(sub.actual ? String(sub.actual) : '');
-            }, [sub.target, sub.actual]);
-
-            const handleTargetChange = (e) => {
-                setTargetStr(e.target.value);
-                setTargetNum(parseFormattedNumber(e.target.value));
-            };
-
-            const handleActualChange = (e) => {
-                setActualStr(e.target.value);
-                setActualNum(parseFormattedNumber(e.target.value));
-            };
-
-            const handleToggleLock = () => {
-                if (!isLocked) {
-                    onSave(sub.id, targetNum, actualNum);
-                }
-                setIsLocked(!isLocked);
-            };
-
-            const currentSub = { ...sub, target: targetNum, actual: actualNum };
-            const ach = achievement(currentSub);
-            const sc = subScore(currentSub, catWeight);
-            const st = statusStyle(ach);
-
-            return (
-                <tr className="border-b border-slate-100 last:border-0 hover:bg-slate-50/70 transition-colors">
-                    <td className="py-2.5 px-4">
-                        <div className="font-semibold text-slate-800 text-xs leading-tight">{sub.name}</div>
-                        {sub.inverse && <span className="text-[9px] text-slate-400 uppercase tracking-wider">Inverse</span>}
-                    </td>
-                    <td className="py-2.5 px-3 text-center text-xs font-mono text-slate-500">{sub.unit}</td>
-                    <td className="py-4 px-3 text-center text-xs font-medium text-slate-600">{sub.subWeight}%</td>
-                    
-                    <td className="py-2.5 px-3 text-right">
-                        {isLocked ? (
-                            <span className="font-mono text-xs font-medium text-slate-700">
-                                {targetNum === 0 ? '-' : formatValue(targetNum, sub.unit)}
-                            </span>
-                        ) : (
-                            <input 
-                                type="text" 
-                                value={targetStr}
-                                onChange={handleTargetChange}
-                                placeholder="0"
-                                className="w-full max-w-[120px] text-right font-mono text-xs border border-amber-400 bg-amber-50 rounded px-2 py-1 outline-none" 
-                            />
-                        )}
-                    </td>
-
-                    <td className="py-2.5 px-3 text-right">
-                        {isLocked ? (
-                            <span className="font-mono text-xs font-medium text-slate-700">
-                                {actualNum === 0 ? '-' : formatValue(actualNum, sub.unit)}
-                            </span>
-                        ) : (
-                            <input 
-                                type="text" 
-                                value={actualStr}
-                                onChange={handleActualChange}
-                                placeholder="0"
-                                className="w-full max-w-[120px] text-right font-mono text-xs border border-emerald-400 bg-emerald-50 rounded px-2 py-1 outline-none" 
-                            />
-                        )}
-                    </td>
-
-                    <td className="py-2.5 px-3 text-center">
-                        <span className={`px-2 py-0.5 rounded text-[11px] font-bold ${st.bg} ${st.text}`}>
-                            {ach.toFixed(1)}%
-                        </span>
-                    </td>
-                    <td className="py-2.5 px-3 text-center font-mono font-bold text-slate-800 text-xs">
-                        {sc.toFixed(2)}
-                    </td>
-                    <td className="py-2.5 px-3 text-center">
-                        <button 
-                            onClick={handleToggleLock} 
-                            className={`px-2.5 py-1 rounded text-[11px] font-bold transition-all cursor-pointer
-                                ${isLocked 
-                                    ? 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100' 
-                                    : 'bg-emerald-500 text-white hover:bg-emerald-600'
-                                }`}
-                        >
-                            {isLocked ? '🔓 Edit' : '🔒 Simpan'}
-                        </button>
-                    </td>
-                </tr>
-            );
-        };
-
-        function KpiDashboardApp() {
-            const [periods, setPeriods] = useState(["Juli 2026", "Agustus 2026"]);
-            const [active, setActive] = useState("Juli 2026");
-            const [currentData, setCurrentData] = useState(getFallbackData());
-            const [historyData, setHistoryData] = useState([]);
-            const [syncStatus, setSyncStatus] = useState("Menghubungkan Google Sheets...");
-
-            const fetchAllPeriodsScore = useCallback(async (periodList) => {
-                try {
-                    const results = await Promise.all(
-                        periodList.map(async (p) => {
-                            const res = await fetch(`${APPS_SCRIPT_URL}?period=${encodeURIComponent(p)}`);
-                            const json = await res.json();
-                            const score = json && json.categories ? overallScore(json.categories) : 0;
-                            return { name: p, score: score };
-                        })
-                    );
-                    setHistoryData(results);
-                } catch (err) {
-                    console.error("Gagal mengambil riwayat grafik", err);
-                }
-            }, []);
-
-            const fetchData = useCallback((selectedPeriod) => {
-                setSyncStatus("⏳ Memuat Data...");
-                const targetPeriod = selectedPeriod || active;
-                fetch(`${APPS_SCRIPT_URL}?period=${encodeURIComponent(targetPeriod)}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data && data.categories) {
-                            setCurrentData(data);
-                            if (data.meta && data.meta.periods) {
-                                setPeriods(data.meta.periods);
-                                fetchAllPeriodsScore(data.meta.periods);
-                            }
-                            setSyncStatus("✅ Terhubung Google Sheets");
-                        } else {
-                            setSyncStatus("⚠️ Data Kosong");
-                        }
-                    })
-                    .catch(err => {
-                        console.error("Gagal fetch", err);
-                        setSyncStatus("⚠️ Gagal Akses Apps Script");
-                    });
-            }, [active, fetchAllPeriodsScore]);
-
-            useEffect(() => {
-                fetchData(active);
-            }, [active, fetchData]);
-
-            const handleAddPeriod = () => {
-                const newPeriodName = prompt("Masukkan Nama Periode Baru (Contoh: September 2026):");
-                if (!newPeriodName || newPeriodName.trim() === "") return;
-                
-                const trimmedName = newPeriodName.trim();
-                if (periods.includes(trimmedName)) {
-                    alert("Periode tersebut sudah ada!");
-                    return;
-                }
-
-                setSyncStatus("⏳ Menambahkan Periode...");
-                fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: "add_period", activePeriod: trimmedName })
-                })
-                .then(() => {
-                    setSyncStatus("✅ Periode Ditambahkan");
-                    setPeriods(prev => [...prev, trimmedName]);
-                    setActive(trimmedName);
-                    fetchData(trimmedName);
-                })
-                .catch(err => {
-                    console.error("Error add period", err);
-                    setSyncStatus("⚠️ Gagal Tambah Periode");
-                });
-            };
-
-            const saveSubItem = (catId, subId, newTarget, newActual) => {
-                const updatedCategories = currentData.categories.map(c => {
-                    if (c.id !== catId) return c;
-                    return {
-                        ...c,
-                        subItems: c.subItems.map(s => s.id === subId ? { ...s, target: newTarget, actual: newActual } : s)
-                    };
-                });
-                
-                const newData = { ...currentData, categories: updatedCategories };
-                setCurrentData(newData);
-                setSyncStatus("⏳ Menyimpan ke Sheets...");
-
-                fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: "save", ...newData, activePeriod: active })
-                })
-                .then(() => {
-                    setSyncStatus("✅ Tersimpan di Google Sheets");
-                    fetchAllPeriodsScore(periods);
-                })
-                .catch(err => {
-                    console.error("Error post", err);
-                    setSyncStatus("⚠️ Gagal Menyimpan");
-                });
-            };
-
-            const totalCatWeight = useMemo(() => currentData.categories.reduce((s, c) => s + (Number(c.weight) || 0), 0), [currentData]);
-            const total = useMemo(() => overallScore(currentData.categories), [currentData]);
-            const overallStatus = statusStyle(total);
-
-            const focusList = useMemo(() => {
-                const rows = [];
-                currentData.categories.forEach((cat) => {
-                    cat.subItems.forEach((sub) => {
-                        const ach = achievement(sub);
-                        const potential = (Number(sub.subWeight) || 0) / 100 * (Number(cat.weight) || 0) / 100 * Math.max(0, 100 - ach);
-                        if (potential > 0.05 && (Number(cat.weight) || 0) > 0 && (Number(sub.subWeight) || 0) > 0) {
-                            rows.push({ cat: cat.name, name: sub.name, ach, potential, target: sub.target, actual: sub.actual, unit: sub.unit });
-                        }
-                    });
-                });
-                return rows.sort((a, b) => b.potential - a.potential).slice(0, 4);
-            }, [currentData]);
-
-            return (
-                <div className="min-h-screen text-slate-800 font-sans pb-12">
-                    <div className="max-w-6xl mx-auto px-4 pt-2">
-                        
-                        {/* Header Area */}
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4">
-                            <div>
-                                <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">KPI Service Advisor</h1>
-                                <div className="text-xs text-slate-500 font-medium">{currentData.meta.sa}</div>
-                            </div>
-                            <div className="flex items-center gap-2 flex-wrap">
-                                <button 
-                                    onClick={() => fetchData(active)}
-                                    title="Segarkan data dari Google Sheets"
-                                    className="p-1.5 bg-white border border-slate-200 hover:bg-slate-100 rounded-full transition-colors shadow-sm text-sm cursor-pointer"
-                                >
-                                    🔄
-                                </button>
-                                <span className="text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full font-medium">{syncStatus}</span>
-                            </div>
-                        </div>
-
-                        {/* Periode Tabs & Add Button */}
-                        <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2">
-                            {periods.map(p => (
-                                <button
-                                    key={p}
-                                    onClick={() => setActive(p)}
-                                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shadow-sm cursor-pointer ${
-                                        active === p 
-                                            ? 'bg-slate-900 text-white shadow-slate-900/20' 
-                                            : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
-                                    }`}
-                                >
-                                    {p}
-                                </button>
-                            ))}
-                            <button
-                                onClick={handleAddPeriod}
-                                className="px-3 py-2 rounded-xl text-xs font-bold bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200 transition-all whitespace-nowrap cursor-pointer flex items-center gap-1"
-                            >
-                                <span>➕</span> Tambah Periode
-                            </button>
-                        </div>
-
-                        {/* Top Overview Cards */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
-                            
-                            {/* Gauge Card */}
-                            <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center justify-between">
-                                <div className="w-full flex justify-between items-center mb-1">
-                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Pencapaian KPI</span>
-                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${overallStatus.bg} ${overallStatus.text}`}>
-                                        {active}
-                                    </span>
-                                </div>
-                                <div className="my-1">
-                                    <Gauge value={total} size={200} />
-                                </div>
-                                <div className="w-full text-center mt-2">
-                                    <div className={`text-xs font-bold ${overallStatus.text}`}>
-                                        {overallStatus.label}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Summary & History Trend Chart */}
-                            <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
-                                <div className="flex justify-between items-center mb-3">
-                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Trend Riwayat Skor</span>
-                                    <span className="text-xs font-mono font-bold text-slate-700">Total Periode: {periods.length}</span>
-                                </div>
-                                <div className="w-full h-[180px]">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <ComposedChart data={historyData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
-                                            <XAxis dataKey="name" tick={{ fontSize: 10 }} stroke="#94A3B8" />
-                                            <YAxis domain={[0, 130]} tick={{ fontSize: 10 }} stroke="#94A3B8" />
-                                            <Tooltip content={<ChartTooltip />} />
-                                            <ReferenceLine y={100} stroke="#10B981" strokeDasharray="3 3" label={{ value: 'Target 100%', fill: '#10B981', fontSize: 10, position: 'insideTopRight' }} />
-                                            <Line type="monotone" dataKey="score" stroke="#6366F1" strokeWidth={3} dot={{ fill: '#6366F1', r: 4 }} activeDot={{ r: 6 }} />
-                                        </ComposedChart>
-                                    </ResponsiveContainer>
-                                </div>
-                                <div className="text-[11px] text-slate-400 text-center mt-2">
-                                    Perbandingan pencapaian antar periode aktif
-                                </div>
-                            </div>
-
-                            {/* Focus Improvement Recommendations */}
-                            <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
-                                <div className="flex justify-between items-center mb-2">
-                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Rekomendasi Fokus</span>
-                                    <span className="text-[10px] bg-red-50 text-red-600 font-bold px-2 py-0.5 rounded-full">Prioritas</span>
-                                </div>
-                                <div className="space-y-2.5 flex-1 flex flex-col justify-center">
-                                    {focusList.length === 0 ? (
-                                        <div className="text-xs text-slate-400 text-center py-4">Semua target terselesaikan dengan sangat baik! 🎉</div>
-                                    ) : (
-                                        focusList.map((item, idx) => (
-                                            <div key={idx} className="bg-slate-50 border border-slate-100 p-2.5 rounded-xl">
-                                                <div className="flex justify-between items-start">
-                                                    <span className="text-xs font-bold text-slate-800 line-clamp-1">{item.name}</span>
-                                                    <span className="text-[10px] font-bold text-red-600 font-mono">{item.ach.toFixed(1)}%</span>
-                                                </div>
-                                                <div className="text-[10px] text-slate-400 mt-0.5">
-                                                    Kategori: {item.cat} | Aktual: {formatValue(item.actual, item.unit)} / Target: {formatValue(item.target, item.unit)}
-                                                </div>
-                                            </div>
-                                        ))
-                                    )}
-                                </div>
-                                <div className="text-[10px] text-slate-400 text-center mt-2">
-                                    Diurutkan berdasarkan potensi perolehan skor terbesar
-                                </div>
-                            </div>
-
-                        </div>
-
-                        {/* Category Tables */}
-                        <div className="space-y-6">
-                            {currentData.categories.map((cat) => {
-                                const catSc = categoryScore(cat);
-                                const maxCatSc = Number(cat.weight) || 0;
-                                const catPct = maxCatSc > 0 ? (catSc / maxCatSc) * 100 : 0;
-                                const catSt = statusStyle(catPct);
-
-                                return (
-                                    <div key={cat.id} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                                        <div className="bg-slate-50 px-5 py-3.5 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                                            <div className="flex items-center gap-3">
-                                                <h3 className="font-extrabold text-slate-900 text-sm tracking-tight">{cat.name}</h3>
-                                                <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-200 text-slate-700 rounded-md">
-                                                    Bobot Kategori: {cat.weight}%
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center gap-3">
-                                                <div className="text-xs font-medium text-slate-500">
-                                                    Kontribusi: <strong className="font-mono text-slate-800">{catSc.toFixed(2)}</strong> / {maxCatSc} Poin
-                                                </div>
-                                                <span className={`px-2.5 py-0.5 rounded text-xs font-bold ${catSt.bg} ${catSt.text}`}>
-                                                    {catPct.toFixed(1)}%
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <div className="overflow-x-auto">
-                                            <table className="w-full text-left text-xs">
-                                                <thead className="bg-slate-100/70 text-slate-600 font-bold uppercase text-[9px] tracking-wider border-b border-slate-200">
-                                                    <tr>
-                                                        <th className="py-2.5 px-4">Indikator KPI</th>
-                                                        <th className="py-2.5 px-3 text-center">Satuan</th>
-                                                        <th className="py-2.5 px-3 text-center">Bobot Sub</th>
-                                                        <th className="py-2.5 px-3 text-right">Target</th>
-                                                        <th className="py-2.5 px-3 text-right">Aktual</th>
-                                                        <th className="py-2.5 px-3 text-center">Pencapaian</th>
-                                                        <th className="py-2.5 px-3 text-center">Skor Kontribusi</th>
-                                                        <th className="py-2.5 px-3 text-center">Aksi</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {cat.subItems.map((sub) => (
-                                                        <SubItemRow 
-                                                            key={sub.id} 
-                                                            sub={sub} 
-                                                            catWeight={cat.weight} 
-                                                            onSave={(subId, t, a) => saveSubItem(cat.id, subId, t, a)} 
-                                                        />
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-
+                <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm text-center py-16">
+                    <div className="w-16 h-16 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="award" className="w-8 h-8"></i>
                     </div>
+                    <h3 className="text-lg font-bold text-slate-900">Modul Key Performance Index (KPI) Service Advisor</h3>
+                    <p className="text-xs text-slate-500 max-w-md mx-auto mt-1">Dashboard evaluasi kinerja, pencapaian target, dan produktivitas Service Advisor sedang aktif.</p>
                 </div>
             );
         }
 
-        ReactDOM.createRoot(document.getElementById('kpi-react-root')).render(<KpiDashboardApp />);
+        const root = ReactDOM.createRoot(document.getElementById('kpi-react-root'));
+        root.render(<KpiDashboard />);
     </script>
 </body>
 </html>
