@@ -452,16 +452,16 @@
                     <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-4">
                         <div>
                             <h3 class="text-sm font-bold flex items-center gap-2 text-slate-800 uppercase">
-                                <i data-lucide="timer" class="w-4 h-4 text-indigo-600"></i> Lead Time Suplai (> 3 Hari)
+                                <i data-lucide="timer" class="w-4 h-4 text-indigo-600"></i> Lead Time Suplai (> 3 Hari / $\ge$ 4 Hari)
                             </h3>
-                            <p class="text-[11px] text-slate-400 font-medium italic">Menampilkan Nomor Order (Code) dengan durasi suplai di atas 3 hari.</p>
+                            <p class="text-[11px] text-slate-400 font-medium italic">Menampilkan distribusi lead time order yang memerlukan durasi 4 hari atau lebih.</p>
                         </div>
                         <div class="flex gap-3 text-center">
-                            <div class="bg-slate-50 border px-3 py-1 rounded-xl"><span class="text-[9px] font-bold text-slate-400 uppercase block">Rata-rata</span><span id="sop-avg-lt" class="text-sm font-bold text-indigo-600">0d</span></div>
+                            <div class="bg-slate-50 border px-3 py-1 rounded-xl"><span class="text-[9px] font-bold text-slate-400 uppercase block">Rata-rata (>3d)</span><span id="sop-avg-lt" class="text-sm font-bold text-indigo-600">0d</span></div>
                             <div class="bg-red-50 border border-red-100 px-3 py-1 rounded-xl"><span class="text-[9px] font-bold text-red-400 uppercase block">Terlama</span><span id="sop-max-lt" class="text-sm font-bold text-red-600">0d</span></div>
                         </div>
                     </div>
-                    <div class="chart-container flex-1" style="max-height: 240px;"><canvas id="sopLeadTimeChart"></canvas></div>
+                    <div class="chart-container flex-1" style="max-height: 260px;"><canvas id="sopLeadTimeChart"></canvas></div>
                 </div>
             </section>
 
@@ -2538,7 +2538,7 @@
                     if (isTiba) {
                         boTibaCount++;
                     } else {
-                        boPendingCount++; // BO yang masih pending (belum tiba)
+                        boPendingCount++; 
                     }
                 }
                 if (isOnOrder) onOrderCount++;
@@ -2594,9 +2594,14 @@
                     const diffTime = a - o;
                     if (diffTime >= 0) {
                         const d = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                        ltTot += d; ltCnt++; 
-                        if(d > ltMax) ltMax = d;
-                        ltD.push(d); ltL.push(i['Code'] || 'N/A');
+                        // FILTER: HANYA TAMPILKAN LEAD TIME > 3 HARI (MULAI DARI 4 HARI KE ATAS)
+                        if (d >= 4) {
+                            ltTot += d; 
+                            ltCnt++; 
+                            if(d > ltMax) ltMax = d;
+                            ltD.push(d); 
+                            ltL.push(i['Code'] || 'N/A');
+                        }
                     }
                 }
             });
@@ -2608,8 +2613,37 @@
             if(ctxLt) {
                 sopCharts.lt = new Chart(ctxLt.getContext('2d'), {
                     type: 'bar',
-                    data: { labels: ltL.slice(0,15), datasets: [{ data: ltD.slice(0,15), backgroundColor: '#ef4444', borderRadius: 4 }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { display: false } } }
+                    data: { 
+                        labels: ltL.slice(0, 15), 
+                        datasets: [{ 
+                            label: 'Durasi Lead Time (Hari)', 
+                            data: ltD.slice(0, 15), 
+                            backgroundColor: '#ef4444', 
+                            borderRadius: 6 
+                        }] 
+                    },
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false, 
+                        plugins: { 
+                            legend: { display: false }, 
+                            datalabels: {
+                                anchor: 'end',
+                                align: 'top',
+                                color: '#b91c1c',
+                                font: { weight: 'bold', size: 10 },
+                                formatter: (value) => `${value} Hari`
+                            }
+                        },
+                        scales: {
+                            x: { grid: { display: false } },
+                            y: { 
+                                beginAtZero: true, 
+                                ticks: { precision: 0 },
+                                title: { display: true, text: 'Jumlah Hari' }
+                            }
+                        }
+                    }
                 });
             }
         }
