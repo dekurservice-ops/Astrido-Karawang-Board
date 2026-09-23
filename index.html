@@ -433,7 +433,7 @@
                         <div><span class="text-slate-400 font-bold block uppercase">Total BO:</span> <span id="sop-stat-total-bo" class="font-bold text-red-600 text-sm">0</span></div>
                         <div><span class="text-slate-400 font-bold block uppercase">On Order:</span> <span id="sop-stat-on-order" class="font-bold text-purple-600 text-sm">0</span></div>
                     </div>
-                    <div class="chart-container flex-1" style="max-height: 160px;"><canvas id="sopSupplyRatioChart"></canvas></div>
+                    <div class="chart-container flex-1" style="max-height: 220px;"><canvas id="sopSupplyRatioChart"></canvas></div>
                 </div>
 
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 lg:col-span-3 flex flex-col">
@@ -2511,31 +2511,25 @@
                 });
             }
 
-            let tiba = 0, boTot = 0, boTiba = 0, boPend = 0, onOrderCount = 0;
+            let partTiba = 0, boCount = 0, boTibaCount = 0, onOrderCount = 0;
             filteredSopData.forEach(i => {
                 const etaVal = String(i['ETA B/O'] || '').trim();
                 const actVal = String(i['Aktual Kedatangan'] || '').trim();
                 const statusVal = String(i['Status Part'] || '').trim().toUpperCase();
 
-                const isTiba = actVal !== '' && actVal !== '-' || statusVal.includes('TERPASANG') || statusVal.includes('TUNGGU') || statusVal.includes('PASANG');
-                const isBo = etaVal !== '' && etaVal !== '-' || statusVal.includes('B/O');
+                const isTiba = (actVal !== '' && actVal !== '-') || statusVal.includes('TERPASANG') || statusVal.includes('TUNGGU') || statusVal.includes('PASANG');
+                const isBo = (etaVal !== '' && etaVal !== '-') || statusVal.includes('B/O');
                 const isOnOrder = statusVal === 'SEDANG ORDER';
 
-                if (isTiba) tiba++;
-                if (isBo) {
-                    boTot++;
-                    if (isTiba) {
-                        boTiba++;
-                    } else {
-                        boPend++;
-                    }
-                }
+                if (isTiba) partTiba++;
+                if (isBo) boCount++;
+                if (isBo && isTiba) boTibaCount++;
                 if (isOnOrder) onOrderCount++;
             });
             
             if(document.getElementById('sop-stat-total')) document.getElementById('sop-stat-total').innerText = filteredSopData.length;
-            if(document.getElementById('sop-stat-suplai')) document.getElementById('sop-stat-suplai').innerText = tiba;
-            if(document.getElementById('sop-stat-total-bo')) document.getElementById('sop-stat-total-bo').innerText = boTot;
+            if(document.getElementById('sop-stat-suplai')) document.getElementById('sop-stat-suplai').innerText = partTiba;
+            if(document.getElementById('sop-stat-total-bo')) document.getElementById('sop-stat-total-bo').innerText = boCount;
             if(document.getElementById('sop-stat-on-order')) document.getElementById('sop-stat-on-order').innerText = onOrderCount;
 
             const ctxRatio = document.getElementById('sopSupplyRatioChart');
@@ -2543,14 +2537,40 @@
                 sopCharts.ratio = new Chart(ctxRatio.getContext('2d'), {
                     type: 'doughnut',
                     data: { 
-                        labels: ['BO Tiba', 'BO Pending', 'Direct', 'On Order'], 
+                        labels: ['On Order', 'Part Tiba', 'BO', 'BO Tiba'], 
                         datasets: [{ 
-                            data: [boTiba, boPend, Math.max(0, tiba-boTiba), onOrderCount], 
-                            backgroundColor: ['#6366f1', '#ef4444', '#10b981', '#a855f7'], 
-                            borderWeight: 0 
+                            data: [onOrderCount, partTiba, boCount, boTibaCount], 
+                            backgroundColor: ['#a855f7', '#10b981', '#ef4444', '#6366f1'], 
+                            borderWidth: 0 
                         }] 
                     },
-                    options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } }, datalabels: { display: false } } }
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false, 
+                        cutout: '70%', 
+                        plugins: { 
+                            legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } },
+                            datalabels: {
+                                color: '#ffffff',
+                                font: { weight: 'bold', size: 10 },
+                                formatter: (value, ctx) => {
+                                    let sum = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                    let percentage = sum > 0 ? ((value * 100) / sum).toFixed(1) + "%" : "";
+                                    return value > 0 ? `${value} (${percentage})` : '';
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let sum = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        let value = context.parsed;
+                                        let percentage = sum > 0 ? ((value * 100) / sum).toFixed(1) : 0;
+                                        return ` ${context.label}: ${value} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        } 
+                    }
                 });
             }
 
