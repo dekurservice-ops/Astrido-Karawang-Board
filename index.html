@@ -22,7 +22,6 @@
         .chart-container { position: relative; height: 260px; width: 100%; }
         .truncate-part { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
         
-        /* 3D Effect for Supply Ratio Chart Wrapper */
         .chart-container-3d {
             transform: perspective(800px) rotateX(12deg);
             transform-style: preserve-3d;
@@ -117,7 +116,6 @@
                 </div>
             </section>
 
-            <!-- BANNER INFORMASI & PANDUAN PENGELOMPOKAN DATA BOOKING ANALYTICS -->
             <section class="bg-amber-50/80 border border-amber-200 rounded-2xl p-5 text-xs text-amber-950 shadow-sm space-y-3">
                 <div class="flex items-center gap-2 font-bold text-amber-900 text-sm">
                     <i data-lucide="alert-circle" class="w-4 h-4 text-amber-600"></i>
@@ -133,50 +131,8 @@
                         sama dengan <code class="bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded font-bold font-mono">Nopol + Kelompok Pekerjaan + Booking Untuk Tgl (AWAS)</code>.
                     </p>
                 </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-                    <div class="bg-blue-50 border border-blue-200 p-2.5 rounded-xl text-blue-900">
-                        <span class="font-bold block text-blue-950 mb-0.5">💡 Catatan Booking TMS:</span>
-                        <span>Input teks <strong class="bg-blue-100 px-1 py-0.5 rounded text-blue-900">"TMS"</strong> pada kolom <em>Order Pekerjaan</em> di BOC HO.</span>
-                    </div>
-                    <div class="bg-rose-50 border border-rose-200 p-2.5 rounded-xl text-rose-900">
-                        <span class="font-bold block text-rose-950 mb-0.5">⚠️ Status MRA "Unassigned":</span>
-                        <span>Menandakan data tersebut belum di-input ke dalam sistem BOC HO.</span>
-                    </div>
-                </div>
-
-                <div class="pt-2 border-t border-amber-200/60">
-                    <p class="font-bold text-amber-900 mb-2">📋 Referensi Pengelompokan Pekerjaan (BOC HO ➜ AWAS):</p>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-[11px]">
-                        <div class="bg-white/90 border border-amber-200 px-3 py-2 rounded-xl">
-                            <span class="font-bold text-slate-500 block text-[9px] uppercase">Kelompok SBE</span>
-                            <span class="text-slate-800 font-medium">Free Jasa (10rb - 60rb), Service Berkala, SBE All Free</span>
-                        </div>
-                        <div class="bg-white/90 border border-amber-200 px-3 py-2 rounded-xl">
-                            <span class="font-bold text-slate-500 block text-[9px] uppercase">Kelompok SBI</span>
-                            <span class="text-slate-800 font-medium">SBI 1000 KM</span>
-                        </div>
-                        <div class="bg-white/90 border border-amber-200 px-3 py-2 rounded-xl">
-                            <span class="font-bold text-slate-500 block text-[9px] uppercase">Kelompok TWC</span>
-                            <span class="text-slate-800 font-medium">Waranty Claim</span>
-                        </div>
-                        <div class="bg-white/90 border border-amber-200 px-3 py-2 rounded-xl">
-                            <span class="font-bold text-slate-500 block text-[9px] uppercase">Kelompok GRP</span>
-                            <span class="text-slate-800 font-medium">Light General Repair, Ganti Oli</span>
-                        </div>
-                        <div class="bg-white/90 border border-amber-200 px-3 py-2 rounded-xl">
-                            <span class="font-bold text-slate-500 block text-[9px] uppercase">Kelompok RTJ</span>
-                            <span class="text-slate-800 font-medium">Return Job</span>
-                        </div>
-                        <div class="bg-white/90 border border-amber-200 px-3 py-2 rounded-xl">
-                            <span class="font-bold text-slate-500 block text-[9px] uppercase">Kelompok TMS</span>
-                            <span class="text-slate-800 font-medium">Input "TMS" pada Order Pekerjaan</span>
-                        </div>
-                    </div>
-                </div>
             </section>
 
-            <!-- KPI CARDS -->
             <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
                 <div onclick="openBookingModal('BOOKING ON CALL')" class="kpi-card bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                     <div class="flex items-center justify-between text-purple-600">
@@ -266,7 +222,6 @@
                 </div>
             </section>
 
-            <!-- ANALISA BOC -->
             <section class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
                     <div>
@@ -274,7 +229,6 @@
                         <p class="text-xs text-slate-400">Distribusi jumlah Booking On Call per MRA beserta rincian status kehadirannya</p>
                     </div>
                     <div class="flex flex-wrap items-center gap-3 text-xs">
-                        <!-- Multi-Select Dropdown Kelompok Pekerjaan -->
                         <div class="relative">
                             <button type="button" onclick="toggleMultiSelectDropdown(event)" class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 font-medium hover:bg-slate-100 transition-colors focus:outline-none">
                                 <span id="multiSelectLabel">Kelompok: Semua</span>
@@ -317,7 +271,6 @@
                 </div>
             </section>
 
-            <!-- LEADERBOARD MRA -->
             <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                 <div class="p-5 border-b border-slate-100 flex items-center justify-between">
                     <div>
@@ -381,11 +334,11 @@
                 </div>
 
                 <div onclick="openSopKPIModal('Konfirmasi Jadwal', 'Order Tunggu Konfirmasi')" class="kpi-card bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
-                    <div class="flex items-center justify-between text-orange-600">
+                    <div class="flex items-center justify-between text-amber-700">
                         <span class="text-[10px] font-bold uppercase tracking-wider">Konfirmasi</span>
-                        <div class="p-1.5 bg-orange-50 text-orange-600 rounded-lg"><i data-lucide="help-circle" class="w-4 h-4"></i></div>
+                        <div class="p-1.5 bg-amber-100 text-amber-700 rounded-lg"><i data-lucide="help-circle" class="w-4 h-4"></i></div>
                     </div>
-                    <h3 id="sop-kpi-konfirmasi" class="text-2xl font-bold mt-2 text-orange-600">0</h3>
+                    <h3 id="sop-kpi-konfirmasi" class="text-2xl font-bold mt-2 text-amber-700">0</h3>
                 </div>
 
                 <div onclick="openSopKPIModal('Terpasang', 'Order Part Terpasang')" class="kpi-card bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
@@ -466,7 +419,6 @@
                 </div>
             </section>
 
-            <!-- MAIN BOARD DATA SOP -->
             <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                     <div>
@@ -528,12 +480,8 @@
                 </div>
             </section>
 
-            <!-- MAIN CONTAINER: KPI CARDS DI KIRI (VERTIKAL) & CHART/TABEL DI KANAN -->
             <section class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                
-                <!-- KOLOM KIRI: KPI CARDS TERSUSUN VERTIKAL -->
                 <div class="lg:col-span-1 flex flex-col gap-4">
-                    <!-- Highlight Utama (DPP) -->
                     <div onclick="openRevenueSaDetailModal('dpp', 'Highlight DPP')" class="kpi-card bg-gradient-to-br from-slate-900 to-slate-800 text-white p-5 rounded-2xl shadow-lg border border-slate-700 flex flex-col justify-between">
                         <div>
                             <div class="flex items-center justify-between text-emerald-400 mb-2">
@@ -551,7 +499,6 @@
                         </div>
                     </div>
 
-                    <!-- Jasa Umum Card -->
                     <div onclick="openRevenueSaDetailModal('jasaUmum', 'Jasa Umum')" class="kpi-card bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
                         <div>
                             <div class="flex items-center justify-between text-purple-600 mb-1">
@@ -569,7 +516,6 @@
                         </div>
                     </div>
 
-                    <!-- Part Card -->
                     <div onclick="openRevenueSaDetailModal('part', 'Part')" class="kpi-card bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
                         <div>
                             <div class="flex items-center justify-between text-indigo-600 mb-1">
@@ -587,7 +533,6 @@
                         </div>
                     </div>
 
-                    <!-- Oli Card -->
                     <div onclick="openRevenueSaDetailModal('oli', 'Oli')" class="kpi-card bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
                         <div>
                             <div class="flex items-center justify-between text-emerald-600 mb-1">
@@ -605,7 +550,6 @@
                         </div>
                     </div>
 
-                    <!-- Bahan Card -->
                     <div onclick="openRevenueSaDetailModal('bahan', 'Bahan')" class="kpi-card bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
                         <div>
                             <div class="flex items-center justify-between text-blue-600 mb-1">
@@ -623,7 +567,6 @@
                         </div>
                     </div>
 
-                    <!-- Sublet Card -->
                     <div onclick="openRevenueSaDetailModal('sublet', 'Sublet')" class="kpi-card bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
                         <div>
                             <div class="flex items-center justify-between text-amber-600 mb-1">
@@ -642,7 +585,6 @@
                     </div>
                 </div>
 
-                <!-- KOLOM KANAN: GRAFIK & CHARTS -->
                 <div class="lg:col-span-3 space-y-6">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
@@ -688,7 +630,6 @@
                         </div>
                     </div>
 
-                    <!-- CHART KOMBINASI (SIDE-BY-SIDE BAR + LINE) -->
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
                         <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                             <div>
@@ -733,7 +674,6 @@
         </div>
     </div>
 
-    <!-- MODAL DETAIL SA PENDAPATAN BENGKEL -->
     <div id="revenueSaDetailModal" class="fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-5xl shadow-2xl overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
             <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
@@ -767,7 +707,6 @@
         </div>
     </div>
 
-    <!-- MODAL KLIK GRAFIK TOP PART (POTENSI PHASE-IN) -->
     <div id="sopTopPartClickModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden border border-slate-200 flex flex-col max-h-[85vh]">
             <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
@@ -798,7 +737,6 @@
         </div>
     </div>
 
-    <!-- MODAL KHUSUS KLIK GRAFIK LEAD TIME SOP -->
     <div id="sopLtClickModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden border border-slate-200 flex flex-col max-h-[85vh]">
             <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
@@ -891,7 +829,7 @@
         let rawRevenueData = [], filteredRevenueData = [], filteredCompRevenueData = [];
         let revenueTrendChartInstance = null, revenueCompositionChartInstance = null, revenueSaChartInstance = null, revenueMonthlyComparisonChartInstance = null, revenueSaHorizontalChartInstance = null;
         let sopLtChartDataStore = []; 
-        let sopTopPartDetailsMap = {}; // Menyimpan mapping part -> data order untuk grafik Top Part
+        let sopTopPartDetailsMap = {}; 
 
         Chart.register(ChartDataLabels);
 
@@ -1805,7 +1743,7 @@
             } else {
                 saList.forEach(row => {
                     const growthStr = (row.growth >= 0 ? "+" : "") + row.growth.toFixed(1) + "%";
-                    const badgeClass = row.growth >= 0 ? "bg-emerald-50 text-emerald-600 border-emerald-200" : "bg-rose-50 text-rose-600 border-rose-200";
+                    const badgeClass = row.growth >= 0 ? "bg-emerald-50 text-emerald-600 border-emerald-200" : "bg-rose-50 text-rose-600 border-emerald-200";
 
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-50 transition-colors";
@@ -2528,21 +2466,40 @@
         }
 
         function renderSopKPIs() {
-            const getLen = (st) => {
+            const start = document.getElementById('sop-filter-start')?.value || '';
+            const end = document.getElementById('sop-filter-end')?.value || '';
+
+            const dateFilteredData = groupedSopData.filter(i => {
+                if (!start && !end) return true;
+                const d = parseUniversalDate(i['Tanggal Order']);
+                if (d) {
+                    if (start && d < new Date(start)) return false;
+                    if (end) {
+                        const ed = new Date(end);
+                        ed.setHours(23,59,59);
+                        if (d > ed) return false;
+                    }
+                } else {
+                    return false;
+                }
+                return true;
+            });
+
+            const getLenByStatus = (st) => {
                 const upperSt = st.trim().toUpperCase();
-                return groupedSopData.filter(i => {
+                return dateFilteredData.filter(i => {
                     const itemStatus = i['Status Part'].trim().toUpperCase();
                     return itemStatus === upperSt;
                 }).length;
             };
 
             const counts = { 
-                total: groupedSopData.length, 
-                sedang: getLen('SEDANG ORDER'),
-                bo: getLen('B/O'), 
-                pasang: getLen('TUNGGU PASANG'), 
-                konf: getLen('Konfirmasi Jadwal'), 
-                terpasang: getLen('Terpasang') 
+                total: dateFilteredData.length, 
+                sedang: getLenByStatus('SEDANG ORDER'),
+                bo: getLenByStatus('B/O'), 
+                pasang: getLenByStatus('TUNGGU PASANG'), 
+                konf: getLenByStatus('Konfirmasi Jadwal'), 
+                terpasang: getLenByStatus('Terpasang') 
             };
             
             if(document.getElementById('sop-kpi-total')) document.getElementById('sop-kpi-total').innerText = counts.total;
@@ -2706,7 +2663,6 @@
                     const diffTime = a - o;
                     if (diffTime >= 0) {
                         const d = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                        // FILTER: HANYA TAMPILKAN LEAD TIME > 3 HARI (MULAI DARI 4 HARI KE ATAS)
                         if (d >= 4) {
                             ltTot += d; 
                             ltCnt++; 
@@ -2880,11 +2836,30 @@
         function closeSopDetailModal() { document.getElementById('sopDetailModal').classList.add('hidden'); }
 
         function openSopKPIModal(st, title) {
+            const start = document.getElementById('sop-filter-start')?.value || '';
+            const end = document.getElementById('sop-filter-end')?.value || '';
+
+            const dateFilteredData = groupedSopData.filter(i => {
+                if (!start && !end) return true;
+                const d = parseUniversalDate(i['Tanggal Order']);
+                if (d) {
+                    if (start && d < new Date(start)) return false;
+                    if (end) {
+                        const ed = new Date(end);
+                        ed.setHours(23,59,59);
+                        if (d > ed) return false;
+                    }
+                } else {
+                    return false;
+                }
+                return true;
+            });
+
             const upperSt = st.trim().toUpperCase();
-            const targetList = st ? groupedSopData.filter(i => {
+            const targetList = st ? dateFilteredData.filter(i => {
                 const itemStatus = i['Status Part'].trim().toUpperCase();
                 return itemStatus === upperSt;
-            }) : groupedSopData;
+            }) : dateFilteredData;
 
             document.getElementById('sopKpiModalTitle').innerText = title;
             document.getElementById('sopKpiModalTableBody').innerHTML = targetList.map(i => {
