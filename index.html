@@ -2511,17 +2511,25 @@
                 });
             }
 
-            let tiba = 0, boTot = 0, onOrderCount = 0;
+            let tiba = 0, boTot = 0, boTiba = 0, boPend = 0, onOrderCount = 0;
             filteredSopData.forEach(i => {
+                const etaVal = String(i['ETA B/O'] || '').trim();
                 const actVal = String(i['Aktual Kedatangan'] || '').trim();
                 const statusVal = String(i['Status Part'] || '').trim().toUpperCase();
 
                 const isTiba = actVal !== '' && actVal !== '-' || statusVal.includes('TERPASANG') || statusVal.includes('TUNGGU') || statusVal.includes('PASANG');
-                const isBo = statusVal.includes('B/O');
+                const isBo = etaVal !== '' && etaVal !== '-' || statusVal.includes('B/O');
                 const isOnOrder = statusVal === 'SEDANG ORDER';
 
                 if (isTiba) tiba++;
-                if (isBo) boTot++;
+                if (isBo) {
+                    boTot++;
+                    if (isTiba) {
+                        boTiba++;
+                    } else {
+                        boPend++;
+                    }
+                }
                 if (isOnOrder) onOrderCount++;
             });
             
@@ -2535,10 +2543,10 @@
                 sopCharts.ratio = new Chart(ctxRatio.getContext('2d'), {
                     type: 'doughnut',
                     data: { 
-                        labels: ['Part Tiba', 'Total BO', 'On Order'], 
+                        labels: ['BO Tiba', 'BO Pending', 'Direct', 'On Order'], 
                         datasets: [{ 
-                            data: [tiba, boTot, onOrderCount], 
-                            backgroundColor: ['#10b981', '#ef4444', '#a855f7'], 
+                            data: [boTiba, boPend, Math.max(0, tiba-boTiba), onOrderCount], 
+                            backgroundColor: ['#6366f1', '#ef4444', '#10b981', '#a855f7'], 
                             borderWeight: 0 
                         }] 
                     },
