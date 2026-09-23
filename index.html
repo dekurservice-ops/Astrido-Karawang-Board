@@ -431,7 +431,7 @@
                         <div><span class="text-slate-400 font-bold block uppercase">Total Order:</span> <span id="sop-stat-total" class="font-bold text-slate-900 text-sm">0</span></div>
                         <div><span class="text-slate-400 font-bold block uppercase">Part Tiba:</span> <span id="sop-stat-suplai" class="font-bold text-emerald-600 text-sm">0</span></div>
                         <div><span class="text-slate-400 font-bold block uppercase">Total BO:</span> <span id="sop-stat-total-bo" class="font-bold text-red-600 text-sm">0</span></div>
-                        <div><span class="text-slate-400 font-bold block uppercase">BO Tiba:</span> <span id="sop-stat-bo-suplai" class="font-bold text-indigo-600 text-sm">0</span></div>
+                        <div><span class="text-slate-400 font-bold block uppercase">On Order:</span> <span id="sop-stat-on-order" class="font-bold text-purple-600 text-sm">0</span></div>
                     </div>
                     <div class="chart-container flex-1" style="max-height: 160px;"><canvas id="sopSupplyRatioChart"></canvas></div>
                 </div>
@@ -2393,7 +2393,6 @@
 
                 const matchesSA = !sa || i['Nama SA'] === sa;
                 
-                // PERBAIKAN FILTER STATUS: Exact Match (Pencocokan Persis)
                 let matchesStatus = true;
                 if (status) {
                     const itemStatus = i['Status Part'].trim().toUpperCase();
@@ -2512,36 +2511,37 @@
                 });
             }
 
-            let tiba = 0, boTot = 0, boTiba = 0, boPend = 0;
+            let tiba = 0, boTot = 0, onOrderCount = 0;
             filteredSopData.forEach(i => {
-                const etaVal = String(i['ETA B/O'] || '').trim();
                 const actVal = String(i['Aktual Kedatangan'] || '').trim();
-                const statusVal = String(i['Status Part'] || '').toUpperCase();
+                const statusVal = String(i['Status Part'] || '').trim().toUpperCase();
 
                 const isTiba = actVal !== '' && actVal !== '-' || statusVal.includes('TERPASANG') || statusVal.includes('TUNGGU') || statusVal.includes('PASANG');
-                const isBo = etaVal !== '' && etaVal !== '-' || statusVal.includes('B/O');
+                const isBo = statusVal.includes('B/O');
+                const isOnOrder = statusVal === 'SEDANG ORDER';
 
                 if (isTiba) tiba++;
-                if (isBo) {
-                    boTot++;
-                    if (isTiba) {
-                        boTiba++;
-                    } else {
-                        boPend++;
-                    }
-                }
+                if (isBo) boTot++;
+                if (isOnOrder) onOrderCount++;
             });
             
             if(document.getElementById('sop-stat-total')) document.getElementById('sop-stat-total').innerText = filteredSopData.length;
             if(document.getElementById('sop-stat-suplai')) document.getElementById('sop-stat-suplai').innerText = tiba;
             if(document.getElementById('sop-stat-total-bo')) document.getElementById('sop-stat-total-bo').innerText = boTot;
-            if(document.getElementById('sop-stat-bo-suplai')) document.getElementById('sop-stat-bo-suplai').innerText = boTiba;
+            if(document.getElementById('sop-stat-on-order')) document.getElementById('sop-stat-on-order').innerText = onOrderCount;
 
             const ctxRatio = document.getElementById('sopSupplyRatioChart');
             if(ctxRatio) {
                 sopCharts.ratio = new Chart(ctxRatio.getContext('2d'), {
                     type: 'doughnut',
-                    data: { labels: ['BO Tiba', 'BO Pending', 'Direct'], datasets: [{ data: [boTiba, boPend, Math.max(0, tiba-boTiba)], backgroundColor: ['#6366f1', '#ef4444', '#10b981'], borderWeight: 0 }] },
+                    data: { 
+                        labels: ['Part Tiba', 'Total BO', 'On Order'], 
+                        datasets: [{ 
+                            data: [tiba, boTot, onOrderCount], 
+                            backgroundColor: ['#10b981', '#ef4444', '#a855f7'], 
+                            borderWeight: 0 
+                        }] 
+                    },
                     options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } }, datalabels: { display: false } } }
                 });
             }
