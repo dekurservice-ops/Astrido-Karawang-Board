@@ -418,7 +418,7 @@
             <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 lg:col-span-2 flex flex-col">
                     <h3 class="text-sm font-bold flex items-center gap-2 text-slate-800 mb-4 uppercase">
-                        <i data-lucide="bar-chart-2" class="w-4 h-4 text-indigo-600"></i> Top 10 Nomor Part Terorder
+                        <i data-lucide="bar-chart-2" class="w-4 h-4 text-indigo-600"></i> Special Order Parts dengan Frekuensi Tinggi ( Potensi Phase-In )
                     </h3>
                     <div class="chart-container flex-1"><canvas id="sopTopPartChart"></canvas></div>
                 </div>
@@ -1247,7 +1247,6 @@
             const endDateVal = document.getElementById('endDate').value;
             const selectedMra = document.getElementById('filterMra').value;
             
-            // Ambil semua kelompok pekerjaan yang dicentang
             const selectedKelompokList = Array.from(document.querySelectorAll('.kelompok-cb:checked')).map(cb => cb.value.toUpperCase());
 
             const startLimit = startDateVal ? new Date(startDateVal + 'T00:00:00') : null;
@@ -1259,7 +1258,6 @@
             rawBookingData.forEach(item => {
                 if (selectedMra !== 'ALL' && item.mra !== selectedMra) return;
                 
-                // Jika ada kelompok yang dipilih, pastikan orderPekerjaan mengandung salah satu dari kelompok terpilih
                 if (selectedKelompokList.length > 0) {
                     const op = (item.orderPekerjaan || '').toUpperCase();
                     const matchAny = selectedKelompokList.some(kel => op.includes(kel));
@@ -2495,12 +2493,18 @@
         function renderSopCharts() {
             Object.values(sopCharts).forEach(c => c.destroy());
             
+            // Perhitungan menggunakan frekuensi order (jumlah kemunculan unik part per order/Code)
             const partMap = {};
             filteredSopData.forEach(i => { 
+                const uniquePartsInOrder = new Set();
                 i.items.forEach(it => {
                     const p = (it['No Part'] || '').trim(); 
-                    const q = parseInt(it['Qty']) || 1;
-                    if(p && p !== '-') partMap[p] = (partMap[p] || 0) + q; 
+                    if(p && p !== '-') {
+                        uniquePartsInOrder.add(p);
+                    }
+                });
+                uniquePartsInOrder.forEach(p => {
+                    partMap[p] = (partMap[p] || 0) + 1;
                 });
             });
             const top = Object.entries(partMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
