@@ -804,6 +804,7 @@
             ['sop-search', 'sop-filter-sa', 'sop-filter-status', 'sop-filter-start', 'sop-filter-end'].forEach(id => {
                 const el = document.getElementById(id);
                 if(el) el.addEventListener('input', applySopFilters);
+                if(el && el.tagName === 'SELECT') el.addEventListener('change', applySopFilters);
             });
         });
 
@@ -2392,15 +2393,12 @@
 
                 const matchesSA = !sa || i['Nama SA'] === sa;
                 
+                // PERBAIKAN FILTER STATUS: Exact Match (Pencocokan Persis)
                 let matchesStatus = true;
                 if (status) {
-                    const itemStatus = i['Status Part'].toUpperCase();
-                    const filterStatusUpper = status.toUpperCase();
-                    if (filterStatusUpper.includes('TUNGGU PASANG')) {
-                        matchesStatus = itemStatus.includes('TUNGGU') || itemStatus.includes('PASANG');
-                    } else {
-                        matchesStatus = itemStatus.includes(filterStatusUpper);
-                    }
+                    const itemStatus = i['Status Part'].trim().toUpperCase();
+                    const filterStatusUpper = status.trim().toUpperCase();
+                    matchesStatus = (itemStatus === filterStatusUpper);
                 }
                 
                 let matchesDate = true;
@@ -2434,18 +2432,15 @@
 
         function renderSopKPIs() {
             const getLen = (st) => {
-                const upperSt = st.toUpperCase();
-                return filteredSopData.filter(i => {
+                const upperSt = st.trim().toUpperCase();
+                return groupedSopData.filter(i => {
                     const itemStatus = i['Status Part'].trim().toUpperCase();
-                    if (upperSt === 'TUNGGU PASANG') {
-                        return itemStatus === 'TUNGGU PASANG';
-                    }
-                    return itemStatus.includes(upperSt);
+                    return itemStatus === upperSt;
                 }).length;
             };
 
             const counts = { 
-                total: filteredSopData.length, 
+                total: groupedSopData.length, 
                 sedang: getLen('SEDANG ORDER'),
                 bo: getLen('B/O'), 
                 pasang: getLen('TUNGGU PASANG'), 
@@ -2493,7 +2488,6 @@
         function renderSopCharts() {
             Object.values(sopCharts).forEach(c => c.destroy());
             
-            // Perhitungan menggunakan frekuensi order (jumlah kemunculan unik part per order/Code)
             const partMap = {};
             filteredSopData.forEach(i => { 
                 const uniquePartsInOrder = new Set();
@@ -2621,14 +2615,11 @@
         function closeSopDetailModal() { document.getElementById('sopDetailModal').classList.add('hidden'); }
 
         function openSopKPIModal(st, title) {
-            const upperSt = st.toUpperCase();
-            const targetList = st ? filteredSopData.filter(i => {
+            const upperSt = st.trim().toUpperCase();
+            const targetList = st ? groupedSopData.filter(i => {
                 const itemStatus = i['Status Part'].trim().toUpperCase();
-                if (upperSt === 'TUNGGU PASANG') {
-                    return itemStatus === 'TUNGGU PASANG';
-                }
-                return itemStatus.includes(upperSt);
-            }) : filteredSopData;
+                return itemStatus === upperSt;
+            }) : groupedSopData;
 
             document.getElementById('sopKpiModalTitle').innerText = title;
             document.getElementById('sopKpiModalTableBody').innerHTML = targetList.map(i => {
