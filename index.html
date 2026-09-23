@@ -429,9 +429,10 @@
 
             <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 lg:col-span-2 flex flex-col">
-                    <h3 class="text-sm font-bold flex items-center gap-2 text-slate-800 mb-4 uppercase">
+                    <h3 class="text-sm font-bold flex items-center gap-2 text-slate-800 mb-1 uppercase">
                         <i data-lucide="bar-chart-2" class="w-4 h-4 text-indigo-600"></i> Special Order Parts dengan Frekuensi Tinggi ( Potensi Phase-In )
                     </h3>
+                    <p class="text-[11px] text-slate-400 font-medium italic mb-4">Klik salah satu batang grafik di bawah untuk melihat rincian Code Order, Nopol, dan Nama SA.</p>
                     <div class="chart-container flex-1"><canvas id="sopTopPartChart"></canvas></div>
                 </div>
 
@@ -765,6 +766,37 @@
         </div>
     </div>
 
+    <!-- MODAL KLIK GRAFIK TOP PART (POTENSI PHASE-IN) -->
+    <div id="sopTopPartClickModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden border border-slate-200 flex flex-col max-h-[85vh]">
+            <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+                <div>
+                    <h3 id="sopTopModalTitle" class="text-base font-bold text-slate-900 uppercase">Detail Frekuensi Part (Potensi Phase-In)</h3>
+                    <p class="text-xs text-slate-500">Daftar order yang menggunakan suku cadang ini</p>
+                </div>
+                <button onclick="closeSopTopPartModal()" class="text-slate-400 hover:text-red-500 transition-colors"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto flex-1">
+                <div class="rounded-xl border border-slate-200 overflow-hidden">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead class="bg-slate-100 text-slate-600 font-bold uppercase text-[9px] border-b border-slate-200 sticky top-0">
+                            <tr>
+                                <th class="px-4 py-3">Code Order</th>
+                                <th class="px-4 py-3">No Kendaraan</th>
+                                <th class="px-4 py-3">Nama SA</th>
+                                <th class="px-4 py-3">Nama Part / Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sopTopModalTableBody" class="divide-y divide-slate-100 bg-white"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="bg-slate-50 px-6 py-3 border-t border-slate-200 flex justify-end">
+                <button onclick="closeSopTopPartModal()" class="px-5 py-2 bg-slate-800 text-white font-bold rounded-xl text-xs hover:bg-slate-900 transition-colors">Tutup</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL KHUSUS KLIK GRAFIK LEAD TIME SOP -->
     <div id="sopLtClickModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden border border-slate-200 flex flex-col max-h-[85vh]">
@@ -857,7 +889,8 @@
         let rawSopMasterData = [], rawDetailPartData = [], groupedSopData = [], filteredSopData = [], sopCharts = {};
         let rawRevenueData = [], filteredRevenueData = [], filteredCompRevenueData = [];
         let revenueTrendChartInstance = null, revenueCompositionChartInstance = null, revenueSaChartInstance = null, revenueMonthlyComparisonChartInstance = null, revenueSaHorizontalChartInstance = null;
-        let sopLtChartDataStore = []; // Menyimpan mapping data bar untuk event klik grafik Lead Time
+        let sopLtChartDataStore = []; 
+        let sopTopPartDetailsMap = {}; // Menyimpan mapping part -> data order untuk grafik Top Part
 
         Chart.register(ChartDataLabels);
 
@@ -2552,12 +2585,22 @@
             Object.values(sopCharts).forEach(c => c.destroy());
             
             const partMap = {};
+            sopTopPartDetailsMap = {};
+
             filteredSopData.forEach(i => { 
                 const uniquePartsInOrder = new Set();
                 i.items.forEach(it => {
                     const p = (it['No Part'] || '').trim(); 
                     if(p && p !== '-') {
                         uniquePartsInOrder.add(p);
+                        if(!sopTopPartDetailsMap[p]) sopTopPartDetailsMap[p] = [];
+                        sopTopPartDetailsMap[p].push({
+                            code: i['Code'] || '-',
+                            nopol: i['No Kendaraan'] || '-',
+                            sa: i['Nama SA'] || '-',
+                            partName: it['Nama Part'] || '-',
+                            qty: it['Qty'] || '1'
+                        });
                     }
                 });
                 uniquePartsInOrder.forEach(p => {
@@ -2571,7 +2614,19 @@
                 sopCharts.top = new Chart(ctxTop.getContext('2d'), {
                     type: 'bar',
                     data: { labels: top.map(x=>x[0]), datasets: [{ data: top.map(x=>x[1]), backgroundColor: '#6366f1', borderRadius: 6 }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { display: false } } }
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false,
+                        onClick: function(event, elements) {
+                            if (elements && elements.length > 0) {
+                                const index = elements[0].index;
+                                const clickedPartNo = top[index][0];
+                                const records = sopTopPartDetailsMap[clickedPartNo] || [];
+                                openSopTopPartModal(clickedPartNo, records);
+                            }
+                        },
+                        plugins: { legend: { display: false }, datalabels: { display: false } } 
+                    }
                 });
             }
 
@@ -2657,7 +2712,6 @@
                             ltD.push(d); 
                             ltL.push(i['Code'] || 'N/A');
 
-                            // Simpan referensi data order untuk diklik pada grafik Lead Time
                             sopLtChartDataStore.push({
                                 code: i['Code'] || '-',
                                 nopol: i['No Kendaraan'] || '-',
@@ -2720,6 +2774,34 @@
                     }
                 });
             }
+        }
+
+        function openSopTopPartModal(partNo, records) {
+            document.getElementById('sopTopModalTitle').innerText = `Detail Frekuensi Part: ${partNo}`;
+            const tbody = document.getElementById('sopTopModalTableBody');
+            tbody.innerHTML = '';
+
+            if (!records || records.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-slate-400">Tidak ada data order ditemukan</td></tr>`;
+            } else {
+                records.forEach(r => {
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-50 transition-colors";
+                    tr.innerHTML = `
+                        <td class="px-4 py-3 font-mono font-bold text-indigo-600">${r.code}</td>
+                        <td class="px-4 py-3 font-bold text-slate-800">${r.nopol}</td>
+                        <td class="px-4 py-3 text-slate-700">${r.sa}</td>
+                        <td class="px-4 py-3 text-slate-600">${r.partName} (<strong class="text-indigo-600">Qty: ${r.qty}</strong>)</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            document.getElementById('sopTopPartClickModal').classList.remove('hidden');
+        }
+
+        function closeSopTopPartModal() {
+            document.getElementById('sopTopPartClickModal').classList.add('hidden');
         }
 
         function openSopLtClickModal(record) {
