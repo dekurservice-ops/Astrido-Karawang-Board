@@ -377,15 +377,15 @@
                         <span class="text-[10px] font-bold uppercase tracking-wider">Ready Pasang</span>
                         <div class="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><i data-lucide="clock" class="w-4 h-4"></i></div>
                     </div>
-                    <h3 id="sop-kpi-pasang" class="text-2xl font-bold mt-2">0</h3>
+                    <h3 id="sop-kpi-pasang" class="text-2xl font-bold mt-2 text-blue-600">0</h3>
                 </div>
 
                 <div onclick="openSopKPIModal('Konfirmasi Jadwal', 'Order Tunggu Konfirmasi')" class="kpi-card bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
-                    <div class="flex items-center justify-between text-amber-600">
+                    <div class="flex items-center justify-between text-orange-600">
                         <span class="text-[10px] font-bold uppercase tracking-wider">Konfirmasi</span>
-                        <div class="p-1.5 bg-amber-50 text-amber-600 rounded-lg"><i data-lucide="help-circle" class="w-4 h-4"></i></div>
+                        <div class="p-1.5 bg-orange-50 text-orange-600 rounded-lg"><i data-lucide="help-circle" class="w-4 h-4"></i></div>
                     </div>
-                    <h3 id="sop-kpi-konfirmasi" class="text-2xl font-bold mt-2">0</h3>
+                    <h3 id="sop-kpi-konfirmasi" class="text-2xl font-bold mt-2 text-orange-600">0</h3>
                 </div>
 
                 <div onclick="openSopKPIModal('Terpasang', 'Order Part Terpasang')" class="kpi-card bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
@@ -483,6 +483,7 @@
                                 <th class="px-4 py-4 bg-slate-100">SA</th>
                                 <th class="px-4 py-4 bg-slate-100">No Kendaraan</th>
                                 <th class="px-4 py-4 bg-slate-100">Tgl Order</th>
+                                <th class="px-4 py-4 bg-slate-100">Tgl Pasang</th>
                                 <th class="px-4 py-4 bg-slate-100">Status</th>
                                 <th class="px-4 py-4 text-center bg-slate-100">Aksi</th>
                             </tr>
@@ -2554,13 +2555,13 @@
 
         function getSopStatusColor(st) {
             if(!st) return 'bg-slate-100 text-slate-500 border-slate-200';
-            const statusUpper = st.toUpperCase();
-            if (statusUpper.includes('SEDANG ORDER')) return 'bg-purple-50 text-purple-600 border-purple-200';
-            if (statusUpper.includes('B/O')) return 'bg-red-50 text-red-600 border-red-200';
-            if (statusUpper.includes('KONFIRMASI JADWAL')) return 'bg-amber-50 text-amber-600 border-amber-200';
-            if (statusUpper.includes('TUNGGU') || statusUpper.includes('PASANG')) return 'bg-blue-50 text-blue-600 border-blue-200';
-            if (statusUpper.includes('TERPASANG')) return 'bg-emerald-50 text-emerald-600 border-emerald-200';
-            return 'bg-slate-100 text-slate-500 border-slate-200';
+            const statusUpper = st.trim().toUpperCase();
+            if (statusUpper.includes('TERPASANG')) return 'bg-emerald-50 text-emerald-700 border-emerald-300 font-bold';
+            if (statusUpper.includes('TUNGGU PASANG')) return 'bg-sky-50 text-sky-700 border-sky-300 font-bold';
+            if (statusUpper.includes('KONFIRMASI JADWAL')) return 'bg-orange-50 text-orange-700 border-orange-300 font-bold';
+            if (statusUpper.includes('B/O')) return 'bg-red-50 text-red-700 border-red-300 font-bold';
+            if (statusUpper.includes('SEDANG ORDER')) return 'bg-purple-50 text-purple-700 border-purple-300 font-bold';
+            return 'bg-slate-100 text-slate-600 border-slate-200';
         }
 
         function renderSopTable() {
@@ -2574,6 +2575,7 @@
                         <td class="px-4 py-4 font-bold text-slate-800">${i['Nama SA'] || '-'}</td>
                         <td class="px-4 py-4 font-bold text-indigo-600">${i['No Kendaraan'] || '-'}</td>
                         <td class="px-4 py-4 text-slate-500 font-medium">${i['Tanggal Order'] || '-'}</td>
+                        <td class="px-4 py-4 text-slate-600 font-medium">${i['Tanggal Pasang'] || '-'}</td>
                         <td class="px-4 py-4"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold border ${getSopStatusColor(i['Status Part'])}">${i['Status Part'] || '-'}</span></td>
                         <td class="px-4 py-4 text-center text-slate-400 hover:text-indigo-600"><i data-lucide="eye" class="w-4 h-4 mx-auto"></i></td>
                     </tr>`;
