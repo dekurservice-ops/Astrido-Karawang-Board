@@ -1024,56 +1024,59 @@
             return val.toString();
         }
 
+        // PEMETAAN KOLOM DINAMIK BERDASARKAN HEADER HEADER GOOGLE SHEET
         function processBookingData(rows) {
             const result = [];
             if (!rows || rows.length === 0) return result;
 
             const headerRow = rows[0].map(h => String(h || '').trim().toLowerCase());
             
-            const getColIndex = (keywords) => {
-                for (let idx = 0; idx < headerRow.length; idx++) {
-                    const h = headerRow[idx];
-                    if (keywords.some(k => h.includes(k))) return idx;
+            const findColIndex = (possibleNames) => {
+                for (let i = 0; i < headerRow.length; i++) {
+                    const h = headerRow[i];
+                    for (let name of possibleNames) {
+                        if (h.includes(name)) return i;
+                    }
                 }
                 return -1;
             };
 
-            const idxNopol = getColIndex(['nopol', 'nomor polisi', 'no polisi']);
-            const idxOrderPekerjaan = getColIndex(['order pekerjaan', 'pekerjaan', 'order']);
-            const idxSumber = getColIndex(['sumber', 'media']);
-            const idxTglBoc = getColIndex(['tanggal boc', 'tgl boc', 'tgl booking', 'tanggal booking']);
-            const idxTglService = getColIndex(['service tanggal', 'tgl service', 'tanggal service', 'kedatangan']);
-            const idxMra = getColIndex(['mra', 'nama mra', 'sa']);
-            const idxNoBooking = getColIndex(['no. booking', 'no booking', 'nomor booking']);
-            const idxNoSpp = getColIndex(['no. spp', 'no spp', 'nomor spp']);
-            const idxStatus = getColIndex(['status']);
-            const idxResched1 = getColIndex(['reschedule 1', 'resched 1']);
-            const idxResched2 = getColIndex(['reschedule 2', 'resched 2']);
-            const idxResched3 = getColIndex(['reschedule 3', 'resched 3']);
-            const idxBatal = getColIndex(['batal', 'cancel']);
-            const idxRemarks = getColIndex(['remarks', 'catatan', 'keterangan']);
+            const idxNopol = findColIndex(['nopol', 'nomor polisi', 'no. polisi']);
+            const idxOrder = findColIndex(['order pekerjaan', 'pekerjaan', 'order']);
+            const idxSumber = findColIndex(['sumber', 'media']);
+            const idxTglBoc = findColIndex(['tanggal boc', 'tgl boc', 'tgl booking', 'tanggal booking']);
+            const idxService = findColIndex(['service tanggal', 'tgl service', 'tanggal service', 'kedatangan']);
+            const idxMra = findColIndex(['mra', 'nama mra']);
+            const idxNoBooking = findColIndex(['no. booking', 'no booking', 'nomor booking']);
+            const idxNoSpp = findColIndex(['no. spp', 'no spp', 'nomor spp']);
+            const idxStatus = findColIndex(['status']);
+            const idxR1 = findColIndex(['reschedule 1', 'resched 1']);
+            const idxR2 = findColIndex(['reschedule 2', 'resched 2']);
+            const idxR3 = findColIndex(['reschedule 3', 'resched 3']);
+            const idxBatal = findColIndex(['batal', 'cancel']);
+            const idxRemarks = findColIndex(['remarks', 'catatan', 'keterangan']);
 
             for (let i = 1; i < rows.length; i++) {
                 const r = rows[i];
                 if (!r || r.length === 0) continue;
 
-                const nopol = String(idxNopol !== -1 ? r[idxNopol] : r[1] || '').trim();
+                const nopol = String(idxNopol !== -1 ? r[idxNopol] : (r[1] || '')).trim();
                 if (!nopol || nopol === '-') continue;
 
-                const orderPekerjaan = String(idxOrderPekerjaan !== -1 ? r[idxOrderPekerjaan] : r[2] || '').trim();
-                const sumber = String(idxSumber !== -1 ? r[idxSumber] : r[3] || 'Lainnya').trim();
-                const tglBoc = String(idxTglBoc !== -1 ? r[idxTglBoc] : r[4] || '').trim();
-                const tglService = String(idxTglService !== -1 ? r[idxTglService] : r[5] || '-').trim();
-                const mra = String(idxMra !== -1 ? r[idxMra] : r[6] || 'Unassigned').trim();
-                const noBooking = String(idxNoBooking !== -1 ? r[idxNoBooking] : r[7] || '').trim();
-                const tglSpp = String(idxNoSpp !== -1 ? r[idxNoSpp] : r[8] || '').trim();
+                const orderPekerjaan = String(idxOrder !== -1 ? r[idxOrder] : (r[2] || '')).trim();
+                const sumber = String(idxSumber !== -1 ? r[idxSumber] : (r[3] || 'Lainnya')).trim();
+                const tglBoc = String(idxTglBoc !== -1 ? r[idxTglBoc] : (r[4] || '')).trim();
+                const tglService = String(idxService !== -1 ? r[idxService] : (r[5] || '-')).trim();
+                const mra = String(idxMra !== -1 ? r[idxMra] : (r[6] || 'Unassigned')).trim();
+                const noBooking = String(idxNoBooking !== -1 ? r[idxNoBooking] : (r[7] || '')).trim();
+                const tglSpp = String(idxNoSpp !== -1 ? r[idxNoSpp] : (r[8] || '')).trim();
                 
-                const rawStatus = String(idxStatus !== -1 ? r[idxStatus] : r[9] || 'BELUM DIKONFIRMASI').trim();
+                const rawStatus = String(idxStatus !== -1 ? r[idxStatus] : (r[9] || 'BELUM DIKONFIRMASI')).trim();
                 const status = (rawStatus !== '' && rawStatus !== '-') ? rawStatus : 'BELUM DIKONFIRMASI';
 
-                const r1Val = idxResched1 !== -1 ? r[idxResched1] : r[10];
-                const r2Val = idxResched2 !== -1 ? r[idxResched2] : r[11];
-                const r3Val = idxResched3 !== -1 ? r[idxResched3] : r[12];
+                const r1Val = idxR1 !== -1 ? r[idxR1] : r[10];
+                const r2Val = idxR2 !== -1 ? r[idxR2] : r[11];
+                const r3Val = idxR3 !== -1 ? r[idxR3] : r[12];
                 const batalValCol = idxBatal !== -1 ? r[idxBatal] : r[13];
                 const remVal = idxRemarks !== -1 ? r[idxRemarks] : r[14];
 
