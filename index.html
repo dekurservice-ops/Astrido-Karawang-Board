@@ -98,11 +98,11 @@
             <section class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
                 <div class="flex items-center gap-2 text-slate-700 font-semibold text-sm">
                     <i data-lucide="filter" class="w-4 h-4 text-red-600"></i>
-                    <span>Filter Analytics (Berdasarkan Tgl BOC):</span>
+                    <span>Filter Analytics (Berdasarkan Tgl Booking / BOC):</span>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:flex gap-3 items-center flex-1 md:justify-end">
                     <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
-                        <label class="text-xs text-slate-500 whitespace-nowrap">Rentang Tgl BOC:</label>
+                        <label class="text-xs text-slate-500 whitespace-nowrap">Rentang Tgl Booking:</label>
                         <input type="date" id="startDate" onchange="applyBookingFilters()" class="bg-transparent text-xs text-slate-800 font-medium focus:outline-none">
                         <span class="text-xs text-slate-400">-</span>
                         <input type="date" id="endDate" onchange="applyBookingFilters()" class="bg-transparent text-xs text-slate-800 font-medium focus:outline-none">
@@ -1047,14 +1047,16 @@
                 const r = rows[i];
                 if (!r || r.length === 0) continue;
 
+                const noBooking = String(r[0] || '').trim(); // Kolom No. Booking
                 const nopol = String(r[1] || '').trim();
                 if (!nopol || nopol === '-') continue;
 
                 const orderPekerjaan = String(r[2] || '').trim();
                 const sumber = String(r[3] || 'Lainnya').trim();
-                const tglBoc = String(r[4] || '').trim();
+                const tglBoc = String(r[4] || '').trim(); // Tgl Booking (BOC)
                 const tglService = String(r[5] || '-').trim();
                 const mra = String(r[6] || 'Unassigned').trim();
+                const tglSpp = String(r[8] || '').trim(); // Asumsi Kolom Tgl SPP ada di indeks 8 atau disesuaikan
                 const rawStatus = String(r[9] || 'BELUM DIKONFIRMASI').trim();
                 const status = (rawStatus !== '' && rawStatus !== '-') ? rawStatus : 'BELUM DIKONFIRMASI';
 
@@ -1066,12 +1068,16 @@
 
                 result.push({
                     id: i - 1,
+                    noBooking,
                     nopol,
                     orderPekerjaan,
                     sumber,
                     tglBoc: formatDisplayDate(tglBoc),
+                    rawTglBoc: tglBoc,
                     tglService: formatDisplayDate(tglService),
                     mra,
+                    tglSpp: formatDisplayDate(tglSpp),
+                    rawTglSpp: tglSpp,
                     status,
                     resched1Date: r1Dt,
                     resched2Date: r2Dt,
@@ -1116,7 +1122,7 @@
                 if (selectedMra !== 'ALL' && item.mra !== selectedMra) return false;
                 
                 if (startLimit || endLimit) {
-                    const bocDate = parseUniversalDate(item.tglBoc);
+                    const bocDate = parseUniversalDate(item.rawTglBoc);
                     if (bocDate) {
                         if (startLimit && bocDate < startLimit) return false;
                         if (endLimit && bocDate > endLimit) return false;
@@ -1129,26 +1135,43 @@
 
             filteredBookingData = filteredGeneral;
 
+            // KPI Booking On Call berdasarkan jumlah di Kolom No. Booking
             const bookingOnCallCount = filteredGeneral.filter(item => {
-                const bocStr = String(item.tglBoc || '').trim();
-                return bocStr !== '' && bocStr !== '-' && bocStr.toLowerCase() !== 'undefined' && bocStr.toLowerCase() !== 'null';
+                const nbStr = String(item.noBooking || '').trim();
+                return nbStr !== '' && nbStr !== '-' && nbStr.toLowerCase() !== 'undefined' && nbStr.toLowerCase() !== 'null';
             }).length;
 
+            // KPI Total Datang berdasarkan Status "Datang" + logika tgl SPP mengikuti tgl yang difilter
             const totalDatang = filteredGeneral.filter(d => {
                 const st = d.status.toUpperCase();
-                return st === 'DATANG' || st === 'SBE' || st === 'GRP' || (st.includes('DATANG') && !st.includes('TIDAK') && !st.includes('BELUM'));
+                const isDatangStatus = st === 'DATANG' || st === 'SBE' || st === 'GRP' || (st.includes('DATANG') && !st.includes('TIDAK') && !st.includes('BELUM'));
+                
+                if (!isDatangStatus) return false;
+
+                // Logika tgl SPP mengikuti tgl yang difilter jika ada rentang tanggal
+                if (startLimit || endLimit) {
+                    const sppDate = parseUniversalDate(d.rawTglSpp);
+                    if (sppDate) {
+                        if (startLimit && sppDate < startLimit) return false;
+                        if (endLimit && sppDate > endLimit) return false;
+                    }
+                }
+                return true;
             }).length;
 
+            // KPI Tidak Datang
             const tidakDatang = filteredGeneral.filter(d => {
                 const st = d.status.toUpperCase();
-                return (st.includes('TIDAK') || st.includes('CANCEL')) && !st.includes('BATAL');
+                return st.includes('TIDAK DATANG') || st.includes('TIDAK') || st.includes('CANCEL');
             }).length;
 
+            // KPI Belum Datang
             const belumDatang = filteredGeneral.filter(d => {
                 const st = d.status.toUpperCase();
-                return st === 'BELUM DATANG' || st === 'BELUM';
+                return st.includes('BELUM DATANG') || st === 'BELUM';
             }).length;
 
+            // KPI Batal berdasarkan kolom Batal yg terisi
             const batalCount = filteredGeneral.filter(d => {
                 const st = d.status.toUpperCase();
                 const bVal = String(d.batal || '').trim();
@@ -1157,6 +1180,7 @@
                 return isBatalColumnFilled || isStatusBatal;
             }).length;
             
+            // KPI Show Rate adalah Total Datang dibagi Booking On Call
             const showRate = bookingOnCallCount > 0 ? ((totalDatang / bookingOnCallCount) * 100).toFixed(1) : 0;
             const pctDatang = bookingOnCallCount > 0 ? ((totalDatang / bookingOnCallCount) * 100).toFixed(1) : 0;
             const pctTidakDatang = bookingOnCallCount > 0 ? ((tidakDatang / bookingOnCallCount) * 100).toFixed(1) : 0;
@@ -1301,12 +1325,12 @@
                     if (!matchAny) return;
                 }
 
-                const bocStr = String(item.tglBoc || '').trim();
-                const isValidBoc = bocStr !== '' && bocStr !== '-' && bocStr.toLowerCase() !== 'undefined' && bocStr.toLowerCase() !== 'null';
+                const nbStr = String(item.noBooking || '').trim();
+                const isValidBoc = nbStr !== '' && nbStr !== '-' && nbStr.toLowerCase() !== 'undefined' && nbStr.toLowerCase() !== 'null';
                 if (!isValidBoc) return;
 
                 if (startLimit || endLimit) {
-                    const bocDate = parseUniversalDate(item.tglBoc);
+                    const bocDate = parseUniversalDate(item.rawTglBoc);
                     if (bocDate) {
                         if (startLimit && bocDate < startLimit) return;
                         if (endLimit && bocDate > endLimit) return;
@@ -1364,8 +1388,8 @@
         function renderMraLeaderboard() {
             const mraStats = {};
             filteredBookingData.forEach(item => {
-                const bocStr = String(item.tglBoc || '').trim();
-                const isValidBoc = bocStr !== '' && bocStr !== '-' && bocStr.toLowerCase() !== 'undefined' && bocStr.toLowerCase() !== 'null';
+                const nbStr = String(item.noBooking || '').trim();
+                const isValidBoc = nbStr !== '' && nbStr !== '-' && nbStr.toLowerCase() !== 'undefined' && nbStr.toLowerCase() !== 'null';
                 if (!isValidBoc) return;
 
                 const name = item.mra;
@@ -2077,8 +2101,8 @@
         function openMraModal(mraName, statusType) {
             let list = filteredBookingData.filter(d => {
                 if(d.mra !== mraName) return false;
-                const bocStr = String(d.tglBoc || '').trim();
-                return bocStr !== '' && bocStr !== '-' && bocStr.toLowerCase() !== 'undefined' && bocStr.toLowerCase() !== 'null';
+                const nbStr = String(d.noBooking || '').trim();
+                return nbStr !== '' && nbStr !== '-' && nbStr.toLowerCase() !== 'undefined' && nbStr.toLowerCase() !== 'null';
             });
 
             if (statusType === 'TOTAL DATANG') {
@@ -2111,12 +2135,12 @@
 
             let list = rawBookingData.filter(item => {
                 if (selectedMra !== 'ALL' && item.mra !== selectedMra) return false;
-                const bocStr = String(item.tglBoc || '').trim();
-                const isValidBoc = bocStr !== '' && bocStr !== '-' && bocStr.toLowerCase() !== 'undefined' && bocStr.toLowerCase() !== 'null';
+                const nbStr = String(item.noBooking || '').trim();
+                const isValidBoc = nbStr !== '' && nbStr !== '-' && nbStr.toLowerCase() !== 'undefined' && nbStr.toLowerCase() !== 'null';
                 if (!isValidBoc) return false;
 
                 if (startLimit || endLimit) {
-                    const bocDate = parseUniversalDate(item.tglBoc);
+                    const bocDate = parseUniversalDate(item.rawTglBoc);
                     if (bocDate) {
                         if (startLimit && bocDate < startLimit) return false;
                         if (endLimit && bocDate > endLimit) return false;
@@ -2130,7 +2154,16 @@
             if (type === 'TOTAL DATANG') {
                 list = list.filter(d => {
                     const st = d.status.toUpperCase();
-                    return st === 'DATANG' || st === 'SBE' || st === 'GRP' || (st.includes('DATANG') && !st.includes('TIDAK') && !st.includes('BELUM'));
+                    const isDatangStatus = st === 'DATANG' || st === 'SBE' || st === 'GRP' || (st.includes('DATANG') && !st.includes('TIDAK') && !st.includes('BELUM'));
+                    if (!isDatangStatus) return false;
+                    if (startLimit || endLimit) {
+                        const sppDate = parseUniversalDate(d.rawTglSpp);
+                        if (sppDate) {
+                            if (startLimit && sppDate < startLimit) return false;
+                            if (endLimit && sppDate > endLimit) return false;
+                        }
+                    }
+                    return true;
                 });
             } else if (type === 'TIDAK DATANG') {
                 list = list.filter(d => d.status.toUpperCase().includes('TIDAK') || d.status.toUpperCase().includes('CANCEL'));
@@ -2167,9 +2200,10 @@
 
             thead.innerHTML = `
                 <tr>
+                    <th class="py-3 px-2 text-left">No. Booking</th>
                     <th class="py-3 px-2 text-left">Nomor Polisi</th>
                     <th class="py-3 px-2 text-left">Nama MRA</th>
-                    <th class="py-3 px-2 text-left">Tgl BOC</th>
+                    <th class="py-3 px-2 text-left">Tgl Booking</th>
                     <th class="py-3 px-2 text-left">Booking Untuk Tgl</th>
                     <th class="py-3 px-2 text-left">Status</th>
                     <th class="py-3 px-2 text-center">Reschedule 1</th>
@@ -2183,7 +2217,7 @@
 
             tbody.innerHTML = '';
             if (!list || list.length === 0) {
-                const colSpanCount = isModulTidakDatang ? 11 : 10;
+                const colSpanCount = isModulTidakDatang ? 12 : 11;
                 tbody.innerHTML = `<tr><td colspan="${colSpanCount}" class="py-6 text-center text-slate-400">Tidak ada data unit ditemukan.</td></tr>`;
             } else {
                 list.forEach(item => {
@@ -2237,6 +2271,7 @@
             }
 
             tr.innerHTML = `
+                <td class="py-2.5 px-2 font-mono font-bold text-slate-700">${item.noBooking || '-'}</td>
                 <td class="py-2.5 px-2 font-bold text-slate-900">${item.nopol}</td>
                 <td class="py-2.5 px-2 font-bold text-slate-700">${item.mra}</td>
                 <td class="py-2.5 px-2 font-semibold text-purple-600">${item.tglBoc || '-'}</td>
@@ -2287,9 +2322,10 @@
 
             const payloadObject = {
                 id: item.id,
+                "No. Booking": item.noBooking,
                 "Nomor Polisi": item.nopol,
                 "Nama MRA": item.mra,
-                "Tanggal BOC": item.tglBoc,
+                "Tanggal BOC": item.rawTglBoc,
                 "Service Tanggal": item.tglService,
                 "Status": item.status,
                 "Reschedule 1": item.resched1Date,
