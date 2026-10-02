@@ -98,7 +98,7 @@
             <section class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
                 <div class="flex items-center gap-2 text-slate-700 font-semibold text-sm">
                     <i data-lucide="filter" class="w-4 h-4 text-red-600"></i>
-                    <span>Filter Analytics (Berdasarkan Tgl Booking / BOC):</span>
+                    <span>Filter Analytics (Berdasarkan Kolom Tgl Booking):</span>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:flex gap-3 items-center flex-1 md:justify-end">
                     <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
@@ -119,16 +119,15 @@
             <section class="bg-amber-50/80 border border-amber-200 rounded-2xl p-5 text-xs text-amber-950 shadow-sm space-y-3">
                 <div class="flex items-center gap-2 font-bold text-amber-900 text-sm">
                     <i data-lucide="alert-circle" class="w-4 h-4 text-amber-600"></i>
-                    <span>Informasi Validasi Data & Pengelompokan Pekerjaan Booking Analytics</span>
+                    <span>Informasi Format Google Sheet & Validasi Data Booking Analytics</span>
                 </div>
 
                 <div class="bg-white/80 border border-amber-100 p-3 rounded-xl space-y-1.5">
                     <p class="font-semibold text-amber-900">
-                        📌 Ketentuan Validasi Pembacaan Data:
+                        📌 Ketentuan Pembacaan Kolom Terbaru:
                     </p>
                     <p class="leading-relaxed text-slate-700">
-                        Data akan terbaca jika <code class="bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded font-bold font-mono">Nopol + Order Pekerjaan + Service Tanggal (BOC HO)</code> 
-                        sama dengan <code class="bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded font-bold font-mono">Nopol + Kelompok Pekerjaan + Booking Untuk Tgl (AWAS)</code>.
+                        KPI Booking On Call dihitung dari jumlah baris terisi pada kolom <strong class="text-amber-900">No. Booking</strong>. KPI Total Datang berdasarkan Status <strong class="text-amber-900">"Datang"</strong> dengan filter tambahan berdasarkan tanggal pada kolom <strong class="text-amber-900">tgl SPP</strong> yang mengikuti rentang tanggal yang dipilih.
                     </p>
                 </div>
             </section>
@@ -194,7 +193,7 @@
                     <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                         <div>
                             <h3 class="font-bold text-slate-800 text-sm">Trend Kedatangan Service</h3>
-                            <p class="text-xs text-slate-400">Berdasarkan Booking Untuk Tgl</p>
+                            <p class="text-xs text-slate-400">Berdasarkan Tgl Service / Kedatangan</p>
                         </div>
                         <div class="flex items-center gap-2">
                             <select id="trendGranularity" onchange="renderTrendChart()" class="bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 rounded-xl px-2.5 py-1.5 focus:outline-none cursor-pointer">
@@ -275,7 +274,7 @@
                 <div class="p-5 border-b border-slate-100 flex items-center justify-between">
                     <div>
                         <h3 class="font-bold text-slate-800 text-base">Leaderboard Performance MRA</h3>
-                        <p class="text-xs text-slate-400">Klik angka pada tabel untuk melihat rincian Nopol & Booking Untuk Tgl</p>
+                        <p class="text-xs text-slate-400">Klik angka pada tabel untuk melihat rincian Nopol & Status Unit</p>
                     </div>
                     <div class="p-2 bg-amber-50 text-amber-600 rounded-xl"><i data-lucide="trophy" class="w-5 h-5"></i></div>
                 </div>
@@ -634,7 +633,7 @@
                         <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                             <div>
                                 <h3 class="font-bold text-slate-800 text-base">Analisa Perbandingan DPP Bulanan: Bulan yang Sama (Utama vs Pembanding)</h3>
-                                <p class="text-xs text-slate-400">Menempel berdampingan antar tahun (misal: Jun 2025 vs Jun 2026), tidak terpengaruh filter harian</p>
+                                <p class="text-xs text-slate-400">Menempel berdampingan antar tahun, tidak terpengaruh filter harian</p>
                             </div>
                         </div>
                         <div class="relative min-h-[340px]">
@@ -1047,16 +1046,18 @@
                 const r = rows[i];
                 if (!r || r.length === 0) continue;
 
-                const noBooking = String(r[0] || '').trim(); // Kolom No. Booking
+                // Pemetaan Indeks Kolom Sesuai Google Sheet Terbaru:
+                // [0] No. Booking, [1] Nopol, [2] Order Pekerjaan, [3] Sumber, [4] Tgl Booking, [5] Service Tgl, [6] MRA, [8] Tgl SPP, [9] Status
+                const noBooking = String(r[0] || '').trim();
                 const nopol = String(r[1] || '').trim();
                 if (!nopol || nopol === '-') continue;
 
                 const orderPekerjaan = String(r[2] || '').trim();
                 const sumber = String(r[3] || 'Lainnya').trim();
-                const tglBoc = String(r[4] || '').trim(); // Tgl Booking (BOC)
+                const tglBoc = String(r[4] || '').trim(); 
                 const tglService = String(r[5] || '-').trim();
                 const mra = String(r[6] || 'Unassigned').trim();
-                const tglSpp = String(r[8] || '').trim(); // Asumsi Kolom Tgl SPP ada di indeks 8 atau disesuaikan
+                const tglSpp = String(r[8] || '').trim(); 
                 const rawStatus = String(r[9] || 'BELUM DIKONFIRMASI').trim();
                 const status = (rawStatus !== '' && rawStatus !== '-') ? rawStatus : 'BELUM DIKONFIRMASI';
 
@@ -1121,6 +1122,7 @@
             const filteredGeneral = rawBookingData.filter(item => {
                 if (selectedMra !== 'ALL' && item.mra !== selectedMra) return false;
                 
+                // Filter utama berdasarkan Kolom Tgl Booking (tglBoc)
                 if (startLimit || endLimit) {
                     const bocDate = parseUniversalDate(item.rawTglBoc);
                     if (bocDate) {
@@ -1135,20 +1137,20 @@
 
             filteredBookingData = filteredGeneral;
 
-            // KPI Booking On Call berdasarkan jumlah di Kolom No. Booking
+            // KPI Booking On Call dihitung berdasarkan jumlah di Kolom No. Booking
             const bookingOnCallCount = filteredGeneral.filter(item => {
                 const nbStr = String(item.noBooking || '').trim();
                 return nbStr !== '' && nbStr !== '-' && nbStr.toLowerCase() !== 'undefined' && nbStr.toLowerCase() !== 'null';
             }).length;
 
-            // KPI Total Datang berdasarkan Status "Datang" + logika tgl SPP mengikuti tgl yang difilter
+            // KPI Total Datang berdasarkan Status "Datang" + logika Kolom tgl SPP mengikuti tgl yang difilter
             const totalDatang = filteredGeneral.filter(d => {
                 const st = d.status.toUpperCase();
                 const isDatangStatus = st === 'DATANG' || st === 'SBE' || st === 'GRP' || (st.includes('DATANG') && !st.includes('TIDAK') && !st.includes('BELUM'));
                 
                 if (!isDatangStatus) return false;
 
-                // Logika tgl SPP mengikuti tgl yang difilter jika ada rentang tanggal
+                // Logika tambahan Kolom tgl SPP mengikuti rentang tanggal yang difilter
                 if (startLimit || endLimit) {
                     const sppDate = parseUniversalDate(d.rawTglSpp);
                     if (sppDate) {
@@ -1159,19 +1161,19 @@
                 return true;
             }).length;
 
-            // KPI Tidak Datang
+            // KPI Tidak Datang berdasarkan Kolom Status "Tidak Datang"
             const tidakDatang = filteredGeneral.filter(d => {
                 const st = d.status.toUpperCase();
                 return st.includes('TIDAK DATANG') || st.includes('TIDAK') || st.includes('CANCEL');
             }).length;
 
-            // KPI Belum Datang
+            // KPI Belum Datang berdasarkan Kolom Status "Belum Datang"
             const belumDatang = filteredGeneral.filter(d => {
                 const st = d.status.toUpperCase();
                 return st.includes('BELUM DATANG') || st === 'BELUM';
             }).length;
 
-            // KPI Batal berdasarkan kolom Batal yg terisi
+            // KPI Batal berdasarkan Kolom Batal yang terisi
             const batalCount = filteredGeneral.filter(d => {
                 const st = d.status.toUpperCase();
                 const bVal = String(d.batal || '').trim();
@@ -1767,7 +1769,7 @@
             } else {
                 saList.forEach(row => {
                     const growthStr = (row.growth >= 0 ? "+" : "") + row.growth.toFixed(1) + "%";
-                    const badgeClass = row.growth >= 0 ? "bg-emerald-50 text-emerald-600 border-emerald-200" : "bg-rose-50 text-rose-600 border-emerald-200";
+                    const badgeClass = row.growth >= 0 ? "bg-emerald-50 text-emerald-600 border-emerald-200" : "bg-rose-50 text-rose-600 border-rose-200";
 
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-50 transition-colors";
@@ -2204,7 +2206,7 @@
                     <th class="py-3 px-2 text-left">Nomor Polisi</th>
                     <th class="py-3 px-2 text-left">Nama MRA</th>
                     <th class="py-3 px-2 text-left">Tgl Booking</th>
-                    <th class="py-3 px-2 text-left">Booking Untuk Tgl</th>
+                    <th class="py-3 px-2 text-left">Service Tanggal</th>
                     <th class="py-3 px-2 text-left">Status</th>
                     <th class="py-3 px-2 text-center">Reschedule 1</th>
                     <th class="py-3 px-2 text-center">Reschedule 2</th>
