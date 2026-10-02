@@ -116,22 +116,6 @@
                 </div>
             </section>
 
-            <section class="bg-amber-50/80 border border-amber-200 rounded-2xl p-5 text-xs text-amber-950 shadow-sm space-y-3">
-                <div class="flex items-center gap-2 font-bold text-amber-900 text-sm">
-                    <i data-lucide="alert-circle" class="w-4 h-4 text-amber-600"></i>
-                    <span>Informasi Format Google Sheet & Validasi Data Booking Analytics</span>
-                </div>
-
-                <div class="bg-white/80 border border-amber-100 p-3 rounded-xl space-y-1.5">
-                    <p class="font-semibold text-amber-900">
-                        📌 Ketentuan Pembacaan Kolom Terbaru:
-                    </p>
-                    <p class="leading-relaxed text-slate-700">
-                        KPI Booking On Call dihitung dari jumlah baris terisi pada kolom <strong class="text-amber-900">No. Booking</strong>. KPI Total Datang berdasarkan Status <strong class="text-amber-900">"Datang"</strong> dengan filter tambahan berdasarkan tanggal pada kolom <strong class="text-amber-900">tgl SPP</strong> yang mengikuti rentang tanggal yang dipilih.
-                    </p>
-                </div>
-            </section>
-
             <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
                 <div onclick="openBookingModal('BOOKING ON CALL')" class="kpi-card bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                     <div class="flex items-center justify-between text-purple-600">
@@ -1042,30 +1026,56 @@
 
         function processBookingData(rows) {
             const result = [];
+            if (!rows || rows.length === 0) return result;
+
+            const headerRow = rows[0].map(h => String(h || '').trim().toLowerCase());
+            
+            const getColIndex = (keywords) => {
+                for (let idx = 0; idx < headerRow.length; idx++) {
+                    const h = headerRow[idx];
+                    if (keywords.some(k => h.includes(k))) return idx;
+                }
+                return -1;
+            };
+
+            const idxNopol = getColIndex(['nopol', 'nomor polisi', 'no polisi']);
+            const idxOrderPekerjaan = getColIndex(['order pekerjaan', 'pekerjaan', 'order']);
+            const idxSumber = getColIndex(['sumber', 'media']);
+            const idxTglBoc = getColIndex(['tanggal boc', 'tgl boc', 'tgl booking', 'tanggal booking']);
+            const idxTglService = getColIndex(['service tanggal', 'tgl service', 'tanggal service', 'kedatangan']);
+            const idxMra = getColIndex(['mra', 'nama mra', 'sa']);
+            const idxNoBooking = getColIndex(['no. booking', 'no booking', 'nomor booking']);
+            const idxNoSpp = getColIndex(['no. spp', 'no spp', 'nomor spp']);
+            const idxStatus = getColIndex(['status']);
+            const idxResched1 = getColIndex(['reschedule 1', 'resched 1']);
+            const idxResched2 = getColIndex(['reschedule 2', 'resched 2']);
+            const idxResched3 = getColIndex(['reschedule 3', 'resched 3']);
+            const idxBatal = getColIndex(['batal', 'cancel']);
+            const idxRemarks = getColIndex(['remarks', 'catatan', 'keterangan']);
+
             for (let i = 1; i < rows.length; i++) {
                 const r = rows[i];
                 if (!r || r.length === 0) continue;
 
-                // Pemetaan Indeks Kolom Sesuai Google Sheet Terbaru:
-                // [0] No. Booking, [1] Nopol, [2] Order Pekerjaan, [3] Sumber, [4] Tgl Booking, [5] Service Tgl, [6] MRA, [8] Tgl SPP, [9] Status
-                const noBooking = String(r[0] || '').trim();
-                const nopol = String(r[1] || '').trim();
+                const nopol = String(idxNopol !== -1 ? r[idxNopol] : r[1] || '').trim();
                 if (!nopol || nopol === '-') continue;
 
-                const orderPekerjaan = String(r[2] || '').trim();
-                const sumber = String(r[3] || 'Lainnya').trim();
-                const tglBoc = String(r[4] || '').trim(); 
-                const tglService = String(r[5] || '-').trim();
-                const mra = String(r[6] || 'Unassigned').trim();
-                const tglSpp = String(r[8] || '').trim(); 
-                const rawStatus = String(r[9] || 'BELUM DIKONFIRMASI').trim();
+                const orderPekerjaan = String(idxOrderPekerjaan !== -1 ? r[idxOrderPekerjaan] : r[2] || '').trim();
+                const sumber = String(idxSumber !== -1 ? r[idxSumber] : r[3] || 'Lainnya').trim();
+                const tglBoc = String(idxTglBoc !== -1 ? r[idxTglBoc] : r[4] || '').trim();
+                const tglService = String(idxTglService !== -1 ? r[idxTglService] : r[5] || '-').trim();
+                const mra = String(idxMra !== -1 ? r[idxMra] : r[6] || 'Unassigned').trim();
+                const noBooking = String(idxNoBooking !== -1 ? r[idxNoBooking] : r[7] || '').trim();
+                const tglSpp = String(idxNoSpp !== -1 ? r[idxNoSpp] : r[8] || '').trim();
+                
+                const rawStatus = String(idxStatus !== -1 ? r[idxStatus] : r[9] || 'BELUM DIKONFIRMASI').trim();
                 const status = (rawStatus !== '' && rawStatus !== '-') ? rawStatus : 'BELUM DIKONFIRMASI';
 
-                const r1Dt = formatDisplayDate(String(r[10] || '').trim());
-                const r2Dt = formatDisplayDate(String(r[11] || '').trim());
-                const r3Dt = formatDisplayDate(String(r[12] || '').trim());
-                const batalVal = String(r[13] || '').trim();
-                const rem = String(r[14] || '').trim();
+                const r1Val = idxResched1 !== -1 ? r[idxResched1] : r[10];
+                const r2Val = idxResched2 !== -1 ? r[idxResched2] : r[11];
+                const r3Val = idxResched3 !== -1 ? r[idxResched3] : r[12];
+                const batalValCol = idxBatal !== -1 ? r[idxBatal] : r[13];
+                const remVal = idxRemarks !== -1 ? r[idxRemarks] : r[14];
 
                 result.push({
                     id: i - 1,
@@ -1080,11 +1090,11 @@
                     tglSpp: formatDisplayDate(tglSpp),
                     rawTglSpp: tglSpp,
                     status,
-                    resched1Date: r1Dt,
-                    resched2Date: r2Dt,
-                    resched3Date: r3Dt,
-                    batal: batalVal,
-                    remarks: rem
+                    resched1Date: formatDisplayDate(String(r1Val || '').trim()),
+                    resched2Date: formatDisplayDate(String(r2Val || '').trim()),
+                    resched3Date: formatDisplayDate(String(r3Val || '').trim()),
+                    batal: String(batalValCol || '').trim(),
+                    remarks: String(remVal || '').trim()
                 });
             }
             return result;
@@ -1122,7 +1132,6 @@
             const filteredGeneral = rawBookingData.filter(item => {
                 if (selectedMra !== 'ALL' && item.mra !== selectedMra) return false;
                 
-                // Filter utama berdasarkan Kolom Tgl Booking (tglBoc)
                 if (startLimit || endLimit) {
                     const bocDate = parseUniversalDate(item.rawTglBoc);
                     if (bocDate) {
@@ -1137,20 +1146,17 @@
 
             filteredBookingData = filteredGeneral;
 
-            // KPI Booking On Call dihitung berdasarkan jumlah di Kolom No. Booking
             const bookingOnCallCount = filteredGeneral.filter(item => {
                 const nbStr = String(item.noBooking || '').trim();
                 return nbStr !== '' && nbStr !== '-' && nbStr.toLowerCase() !== 'undefined' && nbStr.toLowerCase() !== 'null';
             }).length;
 
-            // KPI Total Datang berdasarkan Status "Datang" + logika Kolom tgl SPP mengikuti tgl yang difilter
             const totalDatang = filteredGeneral.filter(d => {
                 const st = d.status.toUpperCase();
                 const isDatangStatus = st === 'DATANG' || st === 'SBE' || st === 'GRP' || (st.includes('DATANG') && !st.includes('TIDAK') && !st.includes('BELUM'));
                 
                 if (!isDatangStatus) return false;
 
-                // Logika tambahan Kolom tgl SPP mengikuti rentang tanggal yang difilter
                 if (startLimit || endLimit) {
                     const sppDate = parseUniversalDate(d.rawTglSpp);
                     if (sppDate) {
@@ -1161,19 +1167,16 @@
                 return true;
             }).length;
 
-            // KPI Tidak Datang berdasarkan Kolom Status "Tidak Datang"
             const tidakDatang = filteredGeneral.filter(d => {
                 const st = d.status.toUpperCase();
                 return st.includes('TIDAK DATANG') || st.includes('TIDAK') || st.includes('CANCEL');
             }).length;
 
-            // KPI Belum Datang berdasarkan Kolom Status "Belum Datang"
             const belumDatang = filteredGeneral.filter(d => {
                 const st = d.status.toUpperCase();
                 return st.includes('BELUM DATANG') || st === 'BELUM';
             }).length;
 
-            // KPI Batal berdasarkan Kolom Batal yang terisi
             const batalCount = filteredGeneral.filter(d => {
                 const st = d.status.toUpperCase();
                 const bVal = String(d.batal || '').trim();
@@ -1182,7 +1185,6 @@
                 return isBatalColumnFilled || isStatusBatal;
             }).length;
             
-            // KPI Show Rate adalah Total Datang dibagi Booking On Call
             const showRate = bookingOnCallCount > 0 ? ((totalDatang / bookingOnCallCount) * 100).toFixed(1) : 0;
             const pctDatang = bookingOnCallCount > 0 ? ((totalDatang / bookingOnCallCount) * 100).toFixed(1) : 0;
             const pctTidakDatang = bookingOnCallCount > 0 ? ((tidakDatang / bookingOnCallCount) * 100).toFixed(1) : 0;
