@@ -98,11 +98,11 @@
             <section class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
                 <div class="flex items-center gap-2 text-slate-700 font-semibold text-sm">
                     <i data-lucide="filter" class="w-4 h-4 text-red-600"></i>
-                    <span>Filter Analytics (Berdasarkan Kolom Tgl. Booking / Tgl SPP):</span>
+                    <span>Filter Analytics (Berdasarkan Tgl BOC):</span>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:flex gap-3 items-center flex-1 md:justify-end">
                     <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
-                        <label class="text-xs text-slate-500 whitespace-nowrap">Rentang Tanggal:</label>
+                        <label class="text-xs text-slate-500 whitespace-nowrap">Rentang Tgl BOC:</label>
                         <input type="date" id="startDate" onchange="applyBookingFilters()" class="bg-transparent text-xs text-slate-800 font-medium focus:outline-none">
                         <span class="text-xs text-slate-400">-</span>
                         <input type="date" id="endDate" onchange="applyBookingFilters()" class="bg-transparent text-xs text-slate-800 font-medium focus:outline-none">
@@ -113,6 +113,23 @@
                             <option value="ALL">Semua MRA</option>
                         </select>
                     </div>
+                </div>
+            </section>
+
+            <section class="bg-amber-50/80 border border-amber-200 rounded-2xl p-5 text-xs text-amber-950 shadow-sm space-y-3">
+                <div class="flex items-center gap-2 font-bold text-amber-900 text-sm">
+                    <i data-lucide="alert-circle" class="w-4 h-4 text-amber-600"></i>
+                    <span>Informasi Validasi Data & Pengelompokan Pekerjaan Booking Analytics</span>
+                </div>
+
+                <div class="bg-white/80 border border-amber-100 p-3 rounded-xl space-y-1.5">
+                    <p class="font-semibold text-amber-900">
+                        📌 Ketentuan Validasi Pembacaan Data:
+                    </p>
+                    <p class="leading-relaxed text-slate-700">
+                        Data akan terbaca jika <code class="bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded font-bold font-mono">Nopol + Order Pekerjaan + Service Tanggal (BOC HO)</code> 
+                        sama dengan <code class="bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded font-bold font-mono">Nopol + Kelompok Pekerjaan + Booking Untuk Tgl (AWAS)</code>.
+                    </p>
                 </div>
             </section>
 
@@ -177,7 +194,7 @@
                     <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                         <div>
                             <h3 class="font-bold text-slate-800 text-sm">Trend Kedatangan Service</h3>
-                            <p class="text-xs text-slate-400">Berdasarkan Kolom Booking Tanggal</p>
+                            <p class="text-xs text-slate-400">Berdasarkan Booking Untuk Tgl</p>
                         </div>
                         <div class="flex items-center gap-2">
                             <select id="trendGranularity" onchange="renderTrendChart()" class="bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 rounded-xl px-2.5 py-1.5 focus:outline-none cursor-pointer">
@@ -258,7 +275,7 @@
                 <div class="p-5 border-b border-slate-100 flex items-center justify-between">
                     <div>
                         <h3 class="font-bold text-slate-800 text-base">Leaderboard Performance MRA</h3>
-                        <p class="text-xs text-slate-400">Klik angka pada tabel untuk melihat rincian Nopol & Status Unit</p>
+                        <p class="text-xs text-slate-400">Klik angka pada tabel untuk melihat rincian Nopol & Booking Untuk Tgl</p>
                     </div>
                     <div class="p-2 bg-amber-50 text-amber-600 rounded-xl"><i data-lucide="trophy" class="w-5 h-5"></i></div>
                 </div>
@@ -389,7 +406,7 @@
                     <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-4">
                         <div>
                             <h3 class="text-sm font-bold flex items-center gap-2 text-slate-800 uppercase">
-                                <i data-lucide="timer" class="w-4 h-4 text-indigo-600"></i> Lead Time Suplai (> 3 Hari / $\ge$ 4 Hari)
+                                <i data-lucide="timer" class="w-4 h-4 text-indigo-600"></i> Lead Time Suplai (> 3 Hari )
                             </h3>
                             <p class="text-[11px] text-slate-400 font-medium italic">Klik salah satu batang grafik di bawah untuk melihat rincian Nopol, Tgl Order, Aktual Datang, & Spare Part.</p>
                         </div>
@@ -617,7 +634,7 @@
                         <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                             <div>
                                 <h3 class="font-bold text-slate-800 text-base">Analisa Perbandingan DPP Bulanan: Bulan yang Sama (Utama vs Pembanding)</h3>
-                                <p class="text-xs text-slate-400">Menempel berdampingan antar tahun, tidak terpengaruh filter harian</p>
+                                <p class="text-xs text-slate-400">Menempel berdampingan antar tahun (misal: Jun 2025 vs Jun 2026), tidak terpengaruh filter harian</p>
                             </div>
                         </div>
                         <div class="relative min-h-[340px]">
@@ -801,7 +818,7 @@
     </div>
 
     <script>
-        const CSV_BOOKING_URL ='https://docs.google.com/spreadsheets/d/e/2PACX-1vTcgjTlrI0p6QWInuBzO8hs-9nJEYDhIsEuaqqLwpTo4e5cg5dlRitgCdMVsrWOn4DAXDh_B1jKL5la/pub?gid=2129584100&single=true&output=csv';
+        const CSV_BOOKING_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRgLQ8hj-ab5ZOJu31Z1d2gyWxeYNxl4BXHjXYZSq9eaAAnURBkcv61joIaU0Qpj-7G-eQ-yV2uGAIz/pub?gid=0&single=true&output=csv';
         const CSV_SOP_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTIDLFkByyO5KJDw2vLnF2kxcj1lSoDEeN_Hw9fnYOEnmXvuZuzynN1ncnaGsudHALaj-DR0nzMHB0j/pub?gid=0&single=true&output=csv';
         const CSV_DETAIL_PART_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTIDLFkByyO5KJDw2vLnF2kxcj1lSoDEeN_Hw9fnYOEnmXvuZuzynN1ncnaGsudHALaj-DR0nzMHB0j/pub?gid=539769690&single=true&output=csv';
         const CSV_REVENUE_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSJZFlXUlafjoXxaloZYYNXCBFTUAhtSSgb7c5rdLYxPoE3DRt6HTg6J-aIhOPg44xQs3VeZP1-3yuV/pub?gid=0&single=true&output=csv';
@@ -1026,84 +1043,41 @@
 
         function processBookingData(rows) {
             const result = [];
-            if (!rows || rows.length === 0) return result;
-
-            const headerRow = rows[0].map(h => String(h || '').trim());
-            
-            const findColIndexExact = (exactName) => {
-                return headerRow.findIndex(h => h.toLowerCase() === exactName.toLowerCase());
-            };
-
-            const findColIndexPartial = (keyword) => {
-                return headerRow.findIndex(h => h.toLowerCase().includes(keyword.toLowerCase()));
-            };
-
-            const idxStatus = findColIndexExact('Status');
-            const idxNoBooking = findColIndexExact('No. Booking');
-            const idxTglBooking = findColIndexExact('Tgl. Booking');
-            const idxNoPolisi = findColIndexExact('No. Polisi');
-            const idxTypeKendaraan = findColIndexExact('Type Kendaraan');
-            const idxNamaPelanggan = findColIndexExact('Nama Pelanggan');
-            const idxOrderKelompok = findColIndexExact('Order Kelompok Pekerjaan');
-            const idxBookingTanggal = findColIndexExact('Booking Tanggal');
-            const idxNoSpp = findColIndexExact('No SPP');
-            const idxTms = findColIndexExact('TMS');
-            const idxKode = findColIndexExact('Kode');
-            const idxKelompokPekerjaan = findColIndexExact('Kelompok Pekerjaan');
-            const idxCode = findColIndexExact('Code');
-            const idxNamaMra = findColIndexExact('Nama MRA');
-            const idxSumberData = findColIndexExact('Sumber Data');
-            const idxTglSpp = findColIndexExact('Tgl SPP');
-            const idxReshedule1 = findColIndexExact('Reshedule Ke-1');
-            const idxReshedule2 = findColIndexExact('Reshedule Ke-2R'); 
-            const idxReshedule3 = findColIndexExact('eshedule Ke-3');
-            const idxBatal = findColIndexExact('Batal');
-            const idxKeterangan = findColIndexExact('Keterangan');
-
             for (let i = 1; i < rows.length; i++) {
                 const r = rows[i];
                 if (!r || r.length === 0) continue;
 
-                const nopol = String(idxNoPolisi !== -1 ? r[idxNoPolisi] : (findColIndexPartial('nopol') !== -1 ? r[findColIndexPartial('nopol')] : r[3] || '')).trim();
+                const nopol = String(r[1] || '').trim();
                 if (!nopol || nopol === '-') continue;
 
-                const noBooking = String(idxNoBooking !== -1 ? r[idxNoBooking] : (r[1] || '')).trim();
-                const tglBooking = String(idxTglBooking !== -1 ? r[idxTglBooking] : (r[2] || '')).trim();
-                const orderPekerjaan = String(idxOrderKelompok !== -1 ? r[idxOrderKelompok] : (idxKelompokPekerjaan !== -1 ? r[idxKelompokPekerjaan] : r[6] || '')).trim();
-                const sumber = String(idxSumberData !== -1 ? r[idxSumberData] : (r[14] || 'Lainnya')).trim();
-                
-                const bookingTanggal = String(idxBookingTanggal !== -1 ? r[idxBookingTanggal] : (r[7] || '-')).trim();
-                const mra = String(idxNamaMra !== -1 ? r[idxNamaMra] : (r[13] || 'Unassigned')).trim();
-                const tglSpp = String(idxTglSpp !== -1 ? r[idxTglSpp] : (r[15] || '')).trim();
-                
-                const rawStatus = String(idxStatus !== -1 ? r[idxStatus] : (r[0] || 'BELUM DIKONFIRMASI')).trim();
+                const orderPekerjaan = String(r[2] || '').trim();
+                const sumber = String(r[3] || 'Lainnya').trim();
+                const tglBoc = String(r[4] || '').trim();
+                const tglService = String(r[5] || '-').trim();
+                const mra = String(r[6] || 'Unassigned').trim();
+                const rawStatus = String(r[9] || 'BELUM DIKONFIRMASI').trim();
                 const status = (rawStatus !== '' && rawStatus !== '-') ? rawStatus : 'BELUM DIKONFIRMASI';
 
-                const r1Val = idxReshedule1 !== -1 ? r[idxReshedule1] : r[16];
-                const r2Val = idxReshedule2 !== -1 ? r[idxReshedule2] : r[17];
-                const r3Val = idxReshedule3 !== -1 ? r[idxReshedule3] : r[18];
-                const batalValCol = idxBatal !== -1 ? r[idxBatal] : r[19];
-                const remVal = idxKeterangan !== -1 ? r[idxKeterangan] : (idxRemarks !== -1 ? r[idxRemarks] : r[20]);
+                const r1Dt = formatDisplayDate(String(r[10] || '').trim());
+                const r2Dt = formatDisplayDate(String(r[11] || '').trim());
+                const r3Dt = formatDisplayDate(String(r[12] || '').trim());
+                const batalVal = String(r[13] || '').trim();
+                const rem = String(r[14] || '').trim();
 
                 result.push({
                     id: i - 1,
-                    noBooking,
                     nopol,
                     orderPekerjaan,
                     sumber,
-                    tglBoc: formatDisplayDate(tglBooking),
-                    rawTglBoc: tglBooking,
-                    tglService: formatDisplayDate(bookingTanggal),
-                    rawTglService: bookingTanggal,
+                    tglBoc: formatDisplayDate(tglBoc),
+                    tglService: formatDisplayDate(tglService),
                     mra,
-                    tglSpp: formatDisplayDate(tglSpp),
-                    rawTglSpp: tglSpp,
                     status,
-                    resched1Date: formatDisplayDate(String(r1Val || '').trim()),
-                    resched2Date: formatDisplayDate(String(r2Val || '').trim()),
-                    resched3Date: formatDisplayDate(String(r3Val || '').trim()),
-                    batal: String(batalValCol || '').trim(),
-                    remarks: String(remVal || '').trim()
+                    resched1Date: r1Dt,
+                    resched2Date: r2Dt,
+                    resched3Date: r3Dt,
+                    batal: batalVal,
+                    remarks: rem
                 });
             }
             return result;
@@ -1138,12 +1112,11 @@
             const startLimit = startDateVal ? new Date(startDateVal + 'T00:00:00') : null;
             const endLimit = endDateVal ? new Date(endDateVal + 'T23:59:59') : null;
 
-            // 1. FILTER UTAMA (Berdasarkan Tgl. Booking untuk BOC, Tidak/Belum Datang, Batal)
             const filteredGeneral = rawBookingData.filter(item => {
                 if (selectedMra !== 'ALL' && item.mra !== selectedMra) return false;
                 
                 if (startLimit || endLimit) {
-                    const bocDate = parseUniversalDate(item.rawTglBoc);
+                    const bocDate = parseUniversalDate(item.tglBoc);
                     if (bocDate) {
                         if (startLimit && bocDate < startLimit) return false;
                         if (endLimit && bocDate > endLimit) return false;
@@ -1154,46 +1127,26 @@
                 return true;
             });
 
-            filteredBookingData = filteredGeneral; 
+            filteredBookingData = filteredGeneral;
 
             const bookingOnCallCount = filteredGeneral.filter(item => {
-                const nbStr = String(item.noBooking || '').trim();
-                return nbStr !== '' && nbStr !== '-' && nbStr.toLowerCase() !== 'undefined' && nbStr.toLowerCase() !== 'null';
+                const bocStr = String(item.tglBoc || '').trim();
+                return bocStr !== '' && bocStr !== '-' && bocStr.toLowerCase() !== 'undefined' && bocStr.toLowerCase() !== 'null';
             }).length;
 
-            // 2. FILTER TOTAL DATANG (Murni berdasarkan Tgl. SPP)
-            const totalDatang = rawBookingData.filter(d => {
-                if (selectedMra !== 'ALL' && d.mra !== selectedMra) return false;
-                
-                const nbStr = String(d.noBooking || '').trim();
-                const isValidBoc = nbStr !== '' && nbStr !== '-' && nbStr.toLowerCase() !== 'undefined' && nbStr.toLowerCase() !== 'null';
-                if (!isValidBoc) return false; 
-
+            const totalDatang = filteredGeneral.filter(d => {
                 const st = d.status.toUpperCase();
-                const isDatangStatus = st === 'DATANG' || st === 'SBE' || st === 'GRP' || (st.includes('DATANG') && !st.includes('TIDAK') && !st.includes('BELUM'));
-                
-                if (!isDatangStatus) return false;
-
-                if (startLimit || endLimit) {
-                    const sppDate = parseUniversalDate(d.rawTglSpp);
-                    if (sppDate) {
-                        if (startLimit && sppDate < startLimit) return false;
-                        if (endLimit && sppDate > endLimit) return false;
-                    } else {
-                        return false;
-                    }
-                }
-                return true;
+                return st === 'DATANG' || st === 'SBE' || st === 'GRP' || (st.includes('DATANG') && !st.includes('TIDAK') && !st.includes('BELUM'));
             }).length;
 
             const tidakDatang = filteredGeneral.filter(d => {
                 const st = d.status.toUpperCase();
-                return st.includes('TIDAK DATANG') || st.includes('TIDAK') || st.includes('CANCEL');
+                return (st.includes('TIDAK') || st.includes('CANCEL')) && !st.includes('BATAL');
             }).length;
 
             const belumDatang = filteredGeneral.filter(d => {
                 const st = d.status.toUpperCase();
-                return st.includes('BELUM DATANG') || st === 'BELUM';
+                return st === 'BELUM DATANG' || st === 'BELUM';
             }).length;
 
             const batalCount = filteredGeneral.filter(d => {
@@ -1229,7 +1182,7 @@
 
             filteredBookingData.forEach(item => {
                 if (item.status === 'BELUM DIKONFIRMASI') return;
-                const pDate = parseUniversalDate(item.rawTglService);
+                const pDate = parseUniversalDate(item.tglService);
                 if (!pDate) return;
 
                 let groupKey = '', displayLabel = '';
@@ -1330,6 +1283,7 @@
             const startDateVal = document.getElementById('startDate').value;
             const endDateVal = document.getElementById('endDate').value;
             const selectedMra = document.getElementById('filterMra').value;
+            
             const selectedKelompokList = Array.from(document.querySelectorAll('.kelompok-cb:checked')).map(cb => cb.value.toUpperCase());
 
             const startLimit = startDateVal ? new Date(startDateVal + 'T00:00:00') : null;
@@ -1343,38 +1297,27 @@
                 
                 if (selectedKelompokList.length > 0) {
                     const op = (item.orderPekerjaan || '').toUpperCase();
-                    if (!selectedKelompokList.some(kel => op.includes(kel))) return;
+                    const matchAny = selectedKelompokList.some(kel => op.includes(kel));
+                    if (!matchAny) return;
                 }
 
-                const nbStr = String(item.noBooking || '').trim();
-                if (nbStr === '' || nbStr === '-' || nbStr.toLowerCase() === 'undefined' || nbStr.toLowerCase() === 'null') return;
+                const bocStr = String(item.tglBoc || '').trim();
+                const isValidBoc = bocStr !== '' && bocStr !== '-' && bocStr.toLowerCase() !== 'undefined' && bocStr.toLowerCase() !== 'null';
+                if (!isValidBoc) return;
+
+                if (startLimit || endLimit) {
+                    const bocDate = parseUniversalDate(item.tglBoc);
+                    if (bocDate) {
+                        if (startLimit && bocDate < startLimit) return;
+                        if (endLimit && bocDate > endLimit) return;
+                    } else {
+                        return;
+                    }
+                }
 
                 const mraName = item.mra;
-                if (!mraName || mraName === '-' || mraName === 'Unassigned') return;
-
-                // Cek Rentang Tgl BOC
-                let isBocInDateRange = true;
-                if (startLimit || endLimit) {
-                    const bocDate = parseUniversalDate(item.rawTglBoc);
-                    if (bocDate) {
-                        if (startLimit && bocDate < startLimit) isBocInDateRange = false;
-                        if (endLimit && bocDate > endLimit) isBocInDateRange = false;
-                    } else isBocInDateRange = false;
-                }
-
-                if (isBocInDateRange) bocTotalMap[mraName] = (bocTotalMap[mraName] || 0) + 1;
-
-                // Cek Rentang Tgl SPP khusus untuk Total Datang
-                let isSppInDateRange = true;
-                if (startLimit || endLimit) {
-                    const sppDate = parseUniversalDate(item.rawTglSpp);
-                    if (sppDate) {
-                        if (startLimit && sppDate < startLimit) isSppInDateRange = false;
-                        if (endLimit && sppDate > endLimit) isSppInDateRange = false;
-                    } else isSppInDateRange = false;
-                }
-
-                if (isSppInDateRange) {
+                if (mraName && mraName !== '-' && mraName !== 'Unassigned') {
+                    bocTotalMap[mraName] = (bocTotalMap[mraName] || 0) + 1;
                     const stUpper = item.status.toUpperCase();
                     if (stUpper === 'DATANG' || stUpper === 'SBE' || stUpper === 'GRP' || (stUpper.includes('DATANG') && !stUpper.includes('TIDAK') && !stUpper.includes('BELUM'))) {
                         bocDatangMap[mraName] = (bocDatangMap[mraName] || 0) + 1;
@@ -1382,11 +1325,9 @@
                 }
             });
 
-            const allMras = new Set([...Object.keys(bocTotalMap), ...Object.keys(bocDatangMap)]);
-            const sortedMrasFull = Array.from(allMras).sort((a,b) => (bocTotalMap[b]||0) - (bocTotalMap[a]||0));
-
-            const totalBocData = sortedMrasFull.map(m => bocTotalMap[m] || 0);
-            const datangBocData = sortedMrasFull.map(m => bocDatangMap[m] || 0);
+            const sortedMras = Object.keys(bocTotalMap).sort((a,b) => bocTotalMap[b] - bocTotalMap[a]);
+            const totalBocData = sortedMras.map(m => bocTotalMap[m] || 0);
+            const datangBocData = sortedMras.map(m => bocDatangMap[m] || 0);
 
             if (bocPerMraChartInstance) bocPerMraChartInstance.destroy();
 
@@ -1394,7 +1335,7 @@
             bocPerMraChartInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: sortedMrasFull,
+                    labels: sortedMras,
                     datasets: [
                         { label: 'Total Booking On Call (BOC)', data: totalBocData, backgroundColor: '#334155', borderRadius: 6 },
                         { label: 'BOC Sudah Datang', data: datangBocData, backgroundColor: '#10b981', borderRadius: 6 }
@@ -1404,68 +1345,47 @@
                     responsive: true, maintainAspectRatio: false,
                     plugins: { 
                         legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } },
-                        datalabels: { anchor: 'end', align: 'top', color: '#1e293b', font: { weight: 'bold', size: 10 }, formatter: (v) => v > 0 ? v : '' }
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            color: '#1e293b',
+                            font: { weight: 'bold', size: 10 },
+                            formatter: (value) => value > 0 ? value : ''
+                        }
                     },
-                    scales: { x: { grid: { display: false } }, y: { beginAtZero: true, ticks: { precision: 0 }, grace: '15%' } }
+                    scales: { 
+                        x: { grid: { display: false } }, 
+                        y: { beginAtZero: true, ticks: { precision: 0 }, grace: '15%' } 
+                    }
                 }
             });
         }
 
         function renderMraLeaderboard() {
-            const startDateVal = document.getElementById('startDate').value;
-            const endDateVal = document.getElementById('endDate').value;
-            const selectedMra = document.getElementById('filterMra').value;
-            const startLimit = startDateVal ? new Date(startDateVal + 'T00:00:00') : null;
-            const endLimit = endDateVal ? new Date(endDateVal + 'T23:59:59') : null;
-
             const mraStats = {};
-
-            rawBookingData.forEach(item => {
-                if (selectedMra !== 'ALL' && item.mra !== selectedMra) return;
-                const nbStr = String(item.noBooking || '').trim();
-                if (nbStr === '' || nbStr === '-' || nbStr.toLowerCase() === 'undefined' || nbStr.toLowerCase() === 'null') return;
+            filteredBookingData.forEach(item => {
+                const bocStr = String(item.tglBoc || '').trim();
+                const isValidBoc = bocStr !== '' && bocStr !== '-' && bocStr.toLowerCase() !== 'undefined' && bocStr.toLowerCase() !== 'null';
+                if (!isValidBoc) return;
 
                 const name = item.mra;
-                if (!name || name === '-' || name === 'Unassigned') return;
                 if (!mraStats[name]) mraStats[name] = { total: 0, datang: 0, tidak: 0, belum: 0, batal: 0 };
                 
+                mraStats[name].total++;
                 const stUpper = item.status.toUpperCase();
+                if (stUpper === 'DATANG' || stUpper === 'SBE' || stUpper === 'GRP' || (stUpper.includes('DATANG') && !stUpper.includes('TIDAK') && !stUpper.includes('BELUM'))) {
+                    mraStats[name].datang++;
+                } else if (stUpper.includes('TIDAK')) {
+                    mraStats[name].tidak++;
+                } else if (stUpper.includes('BELUM')) {
+                    mraStats[name].belum++;
+                }
+
                 const bVal = String(item.batal || '').trim();
                 const isBatalColumnFilled = bVal !== '' && bVal !== '-' && bVal.toLowerCase() !== 'undefined';
                 const isStatusBatal = stUpper.includes('BATAL') || stUpper.includes('CANCEL');
-
-                // 1. Cek BOC Range
-                let isBocInDateRange = true;
-                if (startLimit || endLimit) {
-                    const bocDate = parseUniversalDate(item.rawTglBoc);
-                    if (bocDate) {
-                        if (startLimit && bocDate < startLimit) isBocInDateRange = false;
-                        if (endLimit && bocDate > endLimit) isBocInDateRange = false;
-                    } else isBocInDateRange = false;
-                }
-
-                if (isBocInDateRange) {
-                    mraStats[name].total++;
-                    if (stUpper.includes('TIDAK')) mraStats[name].tidak++;
-                    else if (stUpper.includes('BELUM')) mraStats[name].belum++;
-
-                    if (isBatalColumnFilled || isStatusBatal) mraStats[name].batal++;
-                }
-
-                // 2. Cek SPP Range
-                let isSppInDateRange = true;
-                if (startLimit || endLimit) {
-                    const sppDate = parseUniversalDate(item.rawTglSpp);
-                    if (sppDate) {
-                        if (startLimit && sppDate < startLimit) isSppInDateRange = false;
-                        if (endLimit && sppDate > endLimit) isSppInDateRange = false;
-                    } else isSppInDateRange = false;
-                }
-
-                if (isSppInDateRange) {
-                    if (stUpper === 'DATANG' || stUpper === 'SBE' || stUpper === 'GRP' || (stUpper.includes('DATANG') && !stUpper.includes('TIDAK') && !stUpper.includes('BELUM'))) {
-                        mraStats[name].datang++;
-                    }
+                if (isBatalColumnFilled || isStatusBatal) {
+                    mraStats[name].batal++;
                 }
             });
 
@@ -1479,15 +1399,12 @@
             const tbody = document.getElementById('mraTableBody');
             tbody.innerHTML = '';
 
-            if (sortedMra.length === 0 || sortedMra.every(m => m.total === 0 && m.datang === 0)) {
+            if (sortedMra.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="8" class="py-6 text-center text-slate-400">Tidak ada data ditemukan</td></tr>`;
                 return;
             }
 
-            let rank = 1;
-            sortedMra.forEach(mra => {
-                if (mra.total === 0 && mra.datang === 0) return;
-
+            sortedMra.forEach((mra, index) => {
                 let badgeClass = 'bg-red-50 text-red-600 border-red-200';
                 if (mra.showRate > 60) badgeClass = 'bg-emerald-50 text-emerald-600 border-emerald-200';
                 else if (mra.showRate >= 40) badgeClass = 'bg-amber-50 text-amber-600 border-amber-200';
@@ -1496,7 +1413,7 @@
                 tr.className = "hover:bg-slate-50 transition-colors";
                 tr.innerHTML = `
                     <td class="py-3 px-4 text-center">
-                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${rank === 1 ? 'bg-amber-100 text-amber-700' : rank === 2 ? 'bg-slate-200 text-slate-700' : rank === 3 ? 'bg-amber-800/10 text-amber-800' : 'text-slate-500'}">${rank}</span>
+                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${index === 0 ? 'bg-amber-100 text-amber-700' : index === 1 ? 'bg-slate-200 text-slate-700' : index === 2 ? 'bg-amber-800/10 text-amber-800' : 'text-slate-500'}">${index + 1}</span>
                     </td>
                     <td class="py-3 px-4 font-bold text-slate-800">${mra.name}</td>
                     <td class="py-3 px-4 text-center font-bold text-blue-600 hover:underline cursor-pointer" onclick="openMraModal('${mra.name}', 'BOOKING ON CALL')">${mra.total}</td>
@@ -1507,7 +1424,6 @@
                     <td class="py-3 px-4 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-bold border ${badgeClass}">${mra.showRate}%</span></td>
                 `;
                 tbody.appendChild(tr);
-                rank++;
             });
         }
 
@@ -1827,7 +1743,7 @@
             } else {
                 saList.forEach(row => {
                     const growthStr = (row.growth >= 0 ? "+" : "") + row.growth.toFixed(1) + "%";
-                    const badgeClass = row.growth >= 0 ? "bg-emerald-50 text-emerald-600 border-emerald-200" : "bg-rose-50 text-rose-600 border-rose-200";
+                    const badgeClass = row.growth >= 0 ? "bg-emerald-50 text-emerald-600 border-emerald-200" : "bg-rose-50 text-rose-600 border-emerald-200";
 
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-50 transition-colors";
@@ -2159,30 +2075,10 @@
         }
 
         function openMraModal(mraName, statusType) {
-            const startDateVal = document.getElementById('startDate').value;
-            const endDateVal = document.getElementById('endDate').value;
-            const startLimit = startDateVal ? new Date(startDateVal + 'T00:00:00') : null;
-            const endLimit = endDateVal ? new Date(endDateVal + 'T23:59:59') : null;
-
-            let list = rawBookingData.filter(d => {
+            let list = filteredBookingData.filter(d => {
                 if(d.mra !== mraName) return false;
-                const nbStr = String(d.noBooking || '').trim();
-                const isValidBoc = nbStr !== '' && nbStr !== '-' && nbStr.toLowerCase() !== 'undefined' && nbStr.toLowerCase() !== 'null';
-                if (!isValidBoc) return false;
-
-                let dateToUse = (statusType === 'TOTAL DATANG') 
-                    ? parseUniversalDate(d.rawTglSpp) 
-                    : parseUniversalDate(d.rawTglBoc);
-
-                if (startLimit || endLimit) {
-                    if (dateToUse) {
-                        if (startLimit && dateToUse < startLimit) return false;
-                        if (endLimit && dateToUse > endLimit) return false;
-                    } else {
-                        return false;
-                    }
-                }
-                return true;
+                const bocStr = String(d.tglBoc || '').trim();
+                return bocStr !== '' && bocStr !== '-' && bocStr.toLowerCase() !== 'undefined' && bocStr.toLowerCase() !== 'null';
             });
 
             if (statusType === 'TOTAL DATANG') {
@@ -2215,18 +2111,15 @@
 
             let list = rawBookingData.filter(item => {
                 if (selectedMra !== 'ALL' && item.mra !== selectedMra) return false;
-                const nbStr = String(item.noBooking || '').trim();
-                const isValidBoc = nbStr !== '' && nbStr !== '-' && nbStr.toLowerCase() !== 'undefined' && nbStr.toLowerCase() !== 'null';
+                const bocStr = String(item.tglBoc || '').trim();
+                const isValidBoc = bocStr !== '' && bocStr !== '-' && bocStr.toLowerCase() !== 'undefined' && bocStr.toLowerCase() !== 'null';
                 if (!isValidBoc) return false;
 
-                let dateToUse = (type === 'TOTAL DATANG' || type === 'SHOW RATE') 
-                    ? parseUniversalDate(item.rawTglSpp) 
-                    : parseUniversalDate(item.rawTglBoc);
-
                 if (startLimit || endLimit) {
-                    if (dateToUse) {
-                        if (startLimit && dateToUse < startLimit) return false;
-                        if (endLimit && dateToUse > endLimit) return false;
+                    const bocDate = parseUniversalDate(item.tglBoc);
+                    if (bocDate) {
+                        if (startLimit && bocDate < startLimit) return false;
+                        if (endLimit && bocDate > endLimit) return false;
                     } else {
                         return false;
                     }
@@ -2234,7 +2127,7 @@
                 return true;
             });
 
-            if (type === 'TOTAL DATANG' || type === 'SHOW RATE') {
+            if (type === 'TOTAL DATANG') {
                 list = list.filter(d => {
                     const st = d.status.toUpperCase();
                     return st === 'DATANG' || st === 'SBE' || st === 'GRP' || (st.includes('DATANG') && !st.includes('TIDAK') && !st.includes('BELUM'));
@@ -2250,6 +2143,11 @@
                     const isBatalColumnFilled = bVal !== '' && bVal !== '-' && bVal.toLowerCase() !== 'undefined';
                     const isStatusBatal = st.includes('BATAL') || st.includes('CANCEL');
                     return isBatalColumnFilled || isStatusBatal;
+                });
+            } else if (type === 'SHOW RATE') {
+                list = list.filter(d => {
+                    const st = d.status.toUpperCase();
+                    return st === 'DATANG' || st === 'SBE' || st === 'GRP' || (st.includes('DATANG') && !st.includes('TIDAK') && !st.includes('BELUM'));
                 });
             }
 
@@ -2269,24 +2167,23 @@
 
             thead.innerHTML = `
                 <tr>
-                    <th class="py-3 px-2 text-left">No. Booking</th>
                     <th class="py-3 px-2 text-left">Nomor Polisi</th>
                     <th class="py-3 px-2 text-left">Nama MRA</th>
-                    <th class="py-3 px-2 text-left">Tgl. Booking</th>
-                    <th class="py-3 px-2 text-left">Booking Tanggal</th>
+                    <th class="py-3 px-2 text-left">Tgl BOC</th>
+                    <th class="py-3 px-2 text-left">Booking Untuk Tgl</th>
                     <th class="py-3 px-2 text-left">Status</th>
-                    <th class="py-3 px-2 text-center">Reshedule Ke-1</th>
-                    <th class="py-3 px-2 text-center">Reshedule Ke-2</th>
-                    <th class="py-3 px-2 text-center">Reshedule Ke-3</th>
+                    <th class="py-3 px-2 text-center">Reschedule 1</th>
+                    <th class="py-3 px-2 text-center">Reschedule 2</th>
+                    <th class="py-3 px-2 text-center">Reschedule 3</th>
                     <th class="py-3 px-2 text-center">Batal</th>
-                    <th class="py-3 px-2 text-left">Keterangan</th>
+                    <th class="py-3 px-2 text-left">Remarks</th>
                     ${headerActionHtml}
                 </tr>
             `;
 
             tbody.innerHTML = '';
             if (!list || list.length === 0) {
-                const colSpanCount = isModulTidakDatang ? 12 : 11;
+                const colSpanCount = isModulTidakDatang ? 11 : 10;
                 tbody.innerHTML = `<tr><td colspan="${colSpanCount}" class="py-6 text-center text-slate-400">Tidak ada data unit ditemukan.</td></tr>`;
             } else {
                 list.forEach(item => {
@@ -2319,7 +2216,7 @@
                 
                 batalHtml = `<div class="flex items-center justify-center"><input type="checkbox" id="batal_${item.id}" ${isBatalChecked ? 'checked' : ''} onchange="handleBatalCheckbox(${item.id}, this.checked)" class="rounded text-red-600 focus:ring-red-500 w-4 h-4 cursor-pointer"></div>`;
                 
-                remarksHtml = `<input type="text" value="${item.remarks || ''}" oninput="handleRemarksInput(${item.id}, this.value)" placeholder="Ketik keterangan..." class="bg-slate-50 border border-slate-200 rounded px-2 py-1 text-[11px] w-full focus:outline-none focus:ring-1 focus:ring-red-500 font-medium">`;
+                remarksHtml = `<input type="text" value="${item.remarks || ''}" oninput="handleRemarksInput(${item.id}, this.value)" placeholder="Ketik remarks..." class="bg-slate-50 border border-slate-200 rounded px-2 py-1 text-[11px] w-full focus:outline-none focus:ring-1 focus:ring-red-500 font-medium">`;
                 
                 actionHtml = `<td class="py-2.5 px-2 text-center"><button onclick="saveSingleRowChanges(${item.id}, this)" class="px-2.5 py-1 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors inline-flex items-center gap-1 text-[10px] shadow-sm"><i data-lucide="save" class="w-3 h-3"></i> Simpan</button></td>`;
             } else {
@@ -2329,7 +2226,7 @@
                 
                 batalHtml = `<div class="flex items-center justify-center"><input type="checkbox" disabled ${isBatalChecked ? 'checked' : ''} class="rounded text-slate-400 w-4 h-4 opacity-70"></div>`;
                 
-                remarksHtml = `<input type="text" value="${item.remarks || ''}" oninput="handleRemarksInput(${item.id}, this.value)" placeholder="Ketik keterangan..." class="bg-slate-50 border border-slate-200 rounded px-2 py-1 text-[11px] w-full focus:outline-none focus:ring-1 focus:ring-red-500 font-medium">`;
+                remarksHtml = `<input type="text" value="${item.remarks || ''}" oninput="handleRemarksInput(${item.id}, this.value)" placeholder="Ketik remarks..." class="bg-slate-50 border border-slate-200 rounded px-2 py-1 text-[11px] w-full focus:outline-none focus:ring-1 focus:ring-red-500 font-medium">`;
             }
 
             let badgeColor = 'bg-amber-50 text-amber-600 border-amber-200';
@@ -2340,7 +2237,6 @@
             }
 
             tr.innerHTML = `
-                <td class="py-2.5 px-2 font-mono font-bold text-slate-700">${item.noBooking || '-'}</td>
                 <td class="py-2.5 px-2 font-bold text-slate-900">${item.nopol}</td>
                 <td class="py-2.5 px-2 font-bold text-slate-700">${item.mra}</td>
                 <td class="py-2.5 px-2 font-semibold text-purple-600">${item.tglBoc || '-'}</td>
@@ -2391,17 +2287,16 @@
 
             const payloadObject = {
                 id: item.id,
-                "No. Booking": item.noBooking,
-                "No. Polisi": item.nopol,
+                "Nomor Polisi": item.nopol,
                 "Nama MRA": item.mra,
-                "Tgl. Booking": item.rawTglBoc,
-                "Booking Tanggal": item.rawTglService,
+                "Tanggal BOC": item.tglBoc,
+                "Service Tanggal": item.tglService,
                 "Status": item.status,
-                "Reshedule Ke-1": item.resched1Date,
-                "Reshedule Ke-2R": item.resched2Date,
-                "eshedule Ke-3": item.resched3Date,
+                "Reschedule 1": item.resched1Date,
+                "Reschedule 2": item.resched2Date,
+                "Reschedule 3": item.resched3Date,
                 "Batal": item.batal,
-                "Keterangan": item.remarks
+                "Remarks": item.remarks
             };
 
             const payload = new URLSearchParams();
