@@ -57,11 +57,11 @@
         <nav class="p-4 space-y-1.5 flex-1 overflow-y-auto">
             <button id="nav-booking" onclick="switchView('booking')" class="w-full flex items-center gap-3 px-4 py-3 bg-red-50 text-red-600 font-semibold rounded-xl transition-all">
                 <i data-lucide="calendar-check" class="w-5 h-5"></i>
-                <span>Booking</span>
+                <span>Booking Analytics</span>
             </button>
             <button id="nav-daily-kpi" onclick="switchView('daily-kpi')" class="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 font-semibold rounded-xl transition-all">
                 <i data-lucide="activity" class="w-5 h-5"></i>
-                <span>KPI Harian</span>
+                <span>Modul KPI Harian</span>
             </button>
             <button id="nav-sop" onclick="switchView('sop')" class="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 font-semibold rounded-xl transition-all">
                 <i data-lucide="package-check" class="w-5 h-5"></i>
@@ -317,6 +317,12 @@
                         <span class="text-xs text-slate-400">-</span>
                         <input type="date" id="kpiEndDate" onchange="applyDailyKpiFilters()" class="bg-transparent text-xs text-slate-800 font-medium focus:outline-none">
                     </div>
+                    <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
+                        <label class="text-xs text-slate-500 whitespace-nowrap">Nama SA:</label>
+                        <select id="kpiFilterSa" onchange="applyDailyKpiFilters()" class="bg-transparent text-xs text-slate-800 font-medium focus:outline-none w-full">
+                            <option value="ALL">Semua SA</option>
+                        </select>
+                    </div>
                 </div>
             </section>
 
@@ -365,23 +371,37 @@
                 </div>
             </section>
 
-            <section class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
-                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-                    <div>
-                        <h3 class="font-bold text-slate-800 text-sm">Trend Harian KPI</h3>
-                        <p class="text-xs text-slate-400">Grafik perkembangan unit dan pencapaian harian</p>
+            <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-sm">Trend Harian KPI</h3>
+                            <p class="text-xs text-slate-400">Grafik perkembangan unit dan pencapaian harian</p>
+                        </div>
+                    </div>
+                    <div class="relative flex-1 min-h-[300px]">
+                        <canvas id="dailyKpiChart"></canvas>
                     </div>
                 </div>
-                <div class="relative flex-1 min-h-[300px]">
-                    <canvas id="dailyKpiChart"></canvas>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-sm">Analisa Kolom AL (Detail Pekerjaan)</h3>
+                            <p class="text-xs text-slate-400">Proporsi kategori / jenis pekerjaan service</p>
+                        </div>
+                    </div>
+                    <div class="relative flex-1 min-h-[300px]">
+                        <canvas id="dailyKpiCategoryChart"></canvas>
+                    </div>
                 </div>
             </section>
 
             <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                 <div class="p-5 border-b border-slate-100 flex items-center justify-between">
                     <div>
-                        <h3 class="font-bold text-slate-800 text-base">Tabel Rekapitulasi Data KPI Harian</h3>
-                        <p class="text-xs text-slate-400">Daftar rincian entri harian dari sumber CSV</p>
+                        <h3 class="font-bold text-slate-800 text-base">Tabel Rekapitulasi Data KPI Harian & Detail Pekerjaan</h3>
+                        <p class="text-xs text-slate-400">Daftar rincian entri harian beserta isi Kolom AL</p>
                     </div>
                     <span id="daily-kpi-count" class="text-xs font-bold bg-slate-100 text-slate-600 px-3 py-1 rounded-full">0 Records</span>
                 </div>
@@ -390,8 +410,10 @@
                         <thead class="sticky top-0 bg-slate-100 text-slate-700 font-semibold uppercase tracking-wider border-b border-slate-100 z-10">
                             <tr>
                                 <th class="py-3.5 px-4">Tanggal</th>
+                                <th class="py-3.5 px-4">Nama SA</th>
                                 <th class="py-3.5 px-4 text-center">Unit Entry</th>
                                 <th class="py-3.5 px-4 text-right">Revenue / Pencapaian</th>
+                                <th class="py-3.5 px-4">Detail Pekerjaan (Kolom AL)</th>
                                 <th class="py-3.5 px-4">Keterangan / Catatan</th>
                             </tr>
                         </thead>
@@ -928,7 +950,7 @@
 
         let rawBookingData = [], filteredBookingData = [];
         let trendChartInstance = null, sumberChartInstance = null, bocPerMraChartInstance = null;
-        let rawDailyKpiData = [], filteredDailyKpiData = [], dailyKpiChartInstance = null;
+        let rawDailyKpiData = [], filteredDailyKpiData = [], dailyKpiChartInstance = null, dailyKpiCategoryChartInstance = null;
         let rawSopMasterData = [], rawDetailPartData = [], groupedSopData = [], filteredSopData = [], sopCharts = {};
         let rawRevenueData = [], filteredRevenueData = [], filteredCompRevenueData = [];
         let revenueTrendChartInstance = null, revenueCompositionChartInstance = null, revenueSaChartInstance = null, revenueMonthlyComparisonChartInstance = null, revenueSaHorizontalChartInstance = null;
@@ -1013,7 +1035,7 @@
                 dailyKpiView.classList.remove('hidden');
                 navDailyKpi.className = "w-full flex items-center gap-3 px-4 py-3 bg-red-50 text-red-600 font-semibold rounded-xl transition-all";
                 pageTitle.textContent = "Astrido Karawang Modul KPI Harian";
-                pageSubtitle.textContent = "Monitoring Unit Entry & Performa Harian Bengkel";
+                pageSubtitle.textContent = "Monitoring Unit Entry, SA & Detail Pekerjaan Kolom AL";
             } else if (viewName === 'sop') {
                 sopView.classList.remove('hidden');
                 navSop.className = "w-full flex items-center gap-3 px-4 py-3 bg-red-50 text-red-600 font-semibold rounded-xl transition-all";
@@ -1057,6 +1079,7 @@
                         download: true, header: false, skipEmptyLines: true,
                         complete: function(results) {
                             rawDailyKpiData = processDailyKpiData(results.data);
+                            populateDailyKpiSaOptions();
                             applyDailyKpiFilters();
                             resolve();
                         }
@@ -1219,9 +1242,16 @@
             };
 
             const idxDate = getColIdx(['tanggal', 'date', 'tgl']);
+            const idxSa = getColIdx(['service advisor', 'sa', 'nama sa']);
             const idxUnit = getColIdx(['unit', 'entry', 'jumlah']);
             const idxRev = getColIdx(['revenue', 'pendapatan', 'pencapaian', 'dpp']);
             const idxKet = getColIdx(['keterangan', 'catatan', 'remark', 'desc']);
+            
+            // Kolom AL adalah indeks ke-37 (0-indexed: 36) atau deteksi berdasarkan keyword detail pekerjaan / jenis pekerjaan / kategori
+            let idxKolomAL = getColIdx(['detail pekerjaan', 'jenis pekerjaan', 'kategori pekerjaan', 'kategori', 'al']);
+            if (idxKolomAL === -1 && rows[0].length >= 37) {
+                idxKolomAL = 36; // Kolom AL Excel (A=0 ... AL=36)
+            }
 
             for (let i = 1; i < rows.length; i++) {
                 const r = rows[i];
@@ -1230,28 +1260,50 @@
                 const dateVal = idxDate !== -1 ? String(r[idxDate] || '').trim() : String(r[0] || '').trim();
                 if (!dateVal || dateVal.toLowerCase() === 'tanggal' || dateVal.toLowerCase() === 'date') continue;
 
-                const unit = parseNumericValue(idxUnit !== -1 ? r[idxUnit] : r[1]);
-                const revenue = parseNumericValue(idxRev !== -1 ? r[idxRev] : r[2]);
-                const ket = idxKet !== -1 ? String(r[idxKet] || '').trim() : (r[3] ? String(r[3]).trim() : '-');
+                const saVal = idxSa !== -1 ? String(r[idxSa] || 'General SA').trim() : (r[1] ? String(r[1]).trim() : 'General SA');
+                const unit = parseNumericValue(idxUnit !== -1 ? r[idxUnit] : r[2]);
+                const revenue = parseNumericValue(idxRev !== -1 ? r[idxRev] : r[3]);
+                const ket = idxKet !== -1 ? String(r[idxKet] || '').trim() : (r[4] ? String(r[4]).trim() : '-');
+                
+                const detailPekerjaanAL = idxKolomAL !== -1 && r[idxKolomAL] ? String(r[idxKolomAL]).trim() : '-';
 
                 result.push({
                     date: formatDisplayDate(dateVal),
                     rawDate: dateVal,
+                    sa: saVal !== '' ? saVal : 'General SA',
                     unit,
                     revenue,
-                    keterangan: ket
+                    keterangan: ket,
+                    detailPekerjaan: detailPekerjaanAL !== '' ? detailPekerjaanAL : 'General Service'
                 });
             }
             return result;
         }
 
+        function populateDailyKpiSaOptions() {
+            const select = document.getElementById('kpiFilterSa');
+            if(!select) return;
+            const current = select.value;
+            const saList = [...new Set(rawDailyKpiData.map(item => item.sa))].filter(Boolean).sort();
+            select.innerHTML = '<option value="ALL">Semua SA</option>';
+            saList.forEach(sa => {
+                const opt = document.createElement('option');
+                opt.value = sa; opt.textContent = sa;
+                select.appendChild(opt);
+            });
+            if (saList.includes(current)) select.value = current;
+        }
+
         function applyDailyKpiFilters() {
             const startVal = document.getElementById('kpiStartDate')?.value || '';
             const endVal = document.getElementById('kpiEndDate')?.value || '';
+            const selectedSa = document.getElementById('kpiFilterSa')?.value || 'ALL';
+
             const startLimit = startVal ? new Date(startVal + 'T00:00:00') : null;
             const endLimit = endVal ? new Date(endVal + 'T23:59:59') : null;
 
             filteredDailyKpiData = rawDailyKpiData.filter(item => {
+                if (selectedSa !== 'ALL' && item.sa !== selectedSa) return false;
                 if (!startLimit && !endLimit) return true;
                 const d = parseUniversalDate(item.rawDate);
                 if (!d) return false;
@@ -1295,6 +1347,7 @@
             document.getElementById('daily-kpi-count').textContent = `${totalEntri} Records`;
 
             renderDailyKpiChart();
+            renderDailyKpiCategoryChart();
             renderDailyKpiTable();
         }
 
@@ -1336,20 +1389,63 @@
             });
         }
 
+        function renderDailyKpiCategoryChart() {
+            const categoryMap = {};
+            filteredDailyKpiData.forEach(item => {
+                const cat = item.detailPekerjaan || 'General Service';
+                categoryMap[cat] = (categoryMap[cat] || 0) + (item.unit > 0 ? item.unit : 1);
+            });
+
+            const sortedCategories = Object.keys(categoryMap).sort((a,b) => categoryMap[b] - categoryMap[a]).slice(0, 6);
+            const catValues = sortedCategories.map(c => categoryMap[c]);
+
+            if (dailyKpiCategoryChartInstance) dailyKpiCategoryChartInstance.destroy();
+
+            const ctx = document.getElementById('dailyKpiCategoryChart').getContext('2d');
+            dailyKpiCategoryChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: sortedCategories,
+                    datasets: [{
+                        data: catValues,
+                        backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#3b82f6', '#8b5cf6'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, cutout: '65%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } },
+                        datalabels: {
+                            color: '#ffffff',
+                            font: { weight: 'bold', size: 10 },
+                            formatter: (value, ctx) => {
+                                let sum = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                let percentage = sum > 0 ? ((value * 100) / sum).toFixed(1) + "%" : "";
+                                return value > 0 ? percentage : '';
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
         function renderDailyKpiTable() {
             const tbody = document.getElementById('dailyKpiTableBody');
             if(!tbody) return;
 
             if (filteredDailyKpiData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="py-6 text-center text-slate-400">Tidak ada data KPI harian ditemukan</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-slate-400">Tidak ada data KPI harian ditemukan</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = filteredDailyKpiData.map(i => `
                 <tr class="hover:bg-slate-50 transition-colors">
                     <td class="py-3.5 px-4 font-bold text-slate-800">${i.date}</td>
+                    <td class="py-3.5 px-4 font-semibold text-slate-700">${i.sa}</td>
                     <td class="py-3.5 px-4 text-center font-bold text-emerald-600">${i.unit.toLocaleString('id-ID')}</td>
                     <td class="py-3.5 px-4 text-right font-bold text-purple-600">Rp ${i.revenue.toLocaleString('id-ID')}</td>
+                    <td class="py-3.5 px-4 font-semibold text-indigo-600">${i.detailPekerjaan}</td>
                     <td class="py-3.5 px-4 text-slate-600">${i.keterangan || '-'}</td>
                 </tr>
             `).join('');
